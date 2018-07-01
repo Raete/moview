@@ -1,0 +1,34 @@
+///*** FILTERS ***///
+.filters {
+    background: $color-bg;
+    &_wrapper {
+        max-width: $width; 
+        margin: 0 auto;
+        padding: 50px 30px 20px 30px;
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr auto;
+        grid-gap: 10px;
+        grid-template-areas: 
+            " years sort"
+            "genres genres "
+    }
+    &_item {
+        height: 50px;
+        width: 100%;
+        border: none;
+        padding: 0 10px;
+        border-radius: 10px;
+    }
+    &_years {
+        grid-area: years;
+    }
+    &_sort {
+        grid-area: sort;
+    }
+    &_genres {
+        grid-area: genres;
+        height: auto;
+    }
+}

@@ -1,0 +1,86 @@
+///*** CAST ***///
+
+.cast {
+    padding: 30px;
+    background: $color-bg--light;
+    text-align: center;
+    &_title {
+        grid-area: cast;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    &_wrapper {
+        max-width: $width;
+        margin: 0 auto;
+    }
+    &_person {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: .3s;
+    }
+    &_person_wrapper {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, max-content));
+        justify-content: center;
+        grid-row-gap: 20px;
+        grid-column-gap: 10px;
+    }
+    &_person_img {
+        height: 100px;
+        width: 100px;
+        border-radius: 100px;
+    }
+    &_person_name {
+        font-size: 100%;
+        text-align: center;
+    }
+    &_person_role {
+        text-align: center;
+    }
+    &_content {
+        position: relative;
+        &_hover {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            height: 100px;
+            width: 100px;
+            top: 0;
+            right: 0;
+            border-radius: 100px;
+            opacity: 0;
+            background: rgba($color_main, .5);
+            transition-duration: 0.3s;
+            transition-property: opacity;
+            &:hover, &:focus, &:active, &:visited  {
+                opacity:1
+            }
+        }
+    }
+}
+// SHOW MORE -- SHOW LESS BUTTON
+.more_btn {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    padding: 10px 15px;
+    margin: 40px auto 10px auto;
+    border: 2px solid $color_text;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 110%;
+    transition: .3s;
+    &:hover {
+        background: $color_text;
+        color: $color-bg--light
+    }
+}
+
+.showLess {
+    .cast_person:nth-child(n+5) {
+		display: none;
+	}
+}

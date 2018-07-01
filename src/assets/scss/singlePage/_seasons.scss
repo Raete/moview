@@ -1,0 +1,42 @@
+///*** SEASONS MENU AND LIST OF EPISODES ***///
+
+// MENU
+.tab_menu {
+    background: $color_text;
+}
+
+// EPISODES LIST
+.tab_item {
+    padding: 20px
+}
+.episode_wrapper {
+max-width: $width;
+margin: 0 auto;
+}
+.episode {
+    display: flex;
+    border-bottom: 1px dashed $color_text;
+    padding: 20px 0;
+    &_date {
+        font-size: 90%;
+        font-style: italic;
+        margin-bottom: 10px;
+    }
+    &_img {
+        display: none;
+        width: 30%;
+        height: 100%;
+        margin-right: 20px;
+        border-radius: $radius;
+    }
+}
+
+//--desktop--
+@media screen and (min-width: 600px) {
+    .episode_img {
+        display: block;
+    }
+}
+
+
+

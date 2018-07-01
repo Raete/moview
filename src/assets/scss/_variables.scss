@@ -1,0 +1,21 @@
+//
+//	VARIABLES
+// ------------------------------------------------------
+@import url( 'https://fonts.googleapis.com/css?family=Open+Sans:400,600,700' );
+
+//font
+$main_font: 'Open Sans', sans-serif;
+
+// color
+$color_text: #111A21;
+
+$color_main: #ffbd08;
+
+$color-bg: #F0F0F0;
+$color-bg--light: white;
+$color_bg--darken: darken( $color-bg--light, 10% );
+
+// container
+$width: 1140px;
+$radius: 8px;
+
