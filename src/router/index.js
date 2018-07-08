@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/components/home'
+import Movies from '@/components/movies'
 import Shows from '@/components/shows'
 import Celebrities from '@/components/celebrities'
 import SingleMovie from '@/components/singleMovie'
@@ -12,9 +13,14 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-        path: '/',
+        path: '/home',
         name: 'home',
         component: Home
+    },
+    {
+        path: '/',
+        name: 'movies',
+        component: Movies
     },
     {
         path: '/shows',
@@ -27,7 +33,7 @@ export default new Router({
         component: Celebrities
     },
     {
-        path: '/singleMovie',
+        path: '/singleMovie/:id',
         name: 'singleMovie',
         component: SingleMovie
     },
@@ -37,9 +43,19 @@ export default new Router({
         component: SingleShow
     },
     {
-        path: '/singleActor',
+        path: '/singleActor/:id',
         name: 'singleActor',
         component: SingleActor
     }
-  ]
+  ],
+  scrollBehavior: function(to, from, savedPosition) {
+    if (to.hash) {
+        return {
+            selector: to.hash
+    
+          }
+    } else {
+        return { x: 0, y: 0 }
+    }
+},
 })

@@ -1,0 +1,28 @@
+.pages {
+    background: $color-bg;
+    padding: 20px;
+    
+    &_wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    &_btn {
+        background: darken( $color-bg--light, 40% );
+        padding: 10px;
+        color: $color-bg;
+        transition: .3s;
+        &:hover {
+            background: $color_text;
+        }
+        &--prev {
+            border-radius:  $radius 0 $radius 0 ;
+        }
+        &--next {
+            border-radius: 0 $radius 0 $radius;
+        }
+
+    }
+}

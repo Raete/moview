@@ -1,6 +1,6 @@
 <template><div>
 
-    <main v-for="(item, index) in randomImg" :key="index"  class="main" 
+    <main v-for="(item, index) in randomImg" :key="index"  class="main"
         v-bind:style="{ 
             backgroundImage: 'url(' + item.img + ')',
             backgroundSize: 'cover',
@@ -13,10 +13,10 @@
             <section class="claim_wrapper">
                 
                 <h1 class="claim">discover new stories</h1>
-                <div class="search">
+                <!-- <div class="search">
                     <input type="text" class="search_input">
                     <img src="@/assets/img/svg/search.svg" alt="search" class="search_icon">
-                </div>
+                </div> -->
             </section>
         </div>
         <span class="arrow">
@@ -25,10 +25,10 @@
             </i>
         </span>
     </main>
-    <v-toolbar color="white" flat>
+    <v-toolbar color="white" flat  id="menu">
         <v-spacer></v-spacer>
         <v-toolbar-items>
-            <v-btn flat :to="{ name: 'home' }" exact> Movies</v-btn>
+            <v-btn flat :to="{ name: 'movies' }" exact> Movies</v-btn>
             <v-btn flat :to="{ name: 'shows' }" exact>TV Shows</v-btn>
             <v-btn flat :to="{ name: 'celebrities' }" exact>Celebrities</v-btn>
         </v-toolbar-items>

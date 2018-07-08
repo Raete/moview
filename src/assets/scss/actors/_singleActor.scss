@@ -3,11 +3,12 @@
 .main {
     display: flex;
     font-size: 100%;
-    height: 100vh;
+    height: 100%;
+    padding-bottom: 20px;
     position: relative;
     &:before {
         content: "";
-        position:absolute;
+        position: absolute;
         left: 0;
         top: 0;        
         height: 100%;
@@ -35,6 +36,10 @@
         max-width: 50%;
         font-size: 100%;
         text-align: left
+    }
+    .main {
+        height: 100vh;
+        padding: 0;
     }
 }
 
@@ -173,12 +178,14 @@
         margin-bottom: 20px;
     }
     &_rate {
+        display: flex;
+        justify-content: center;
+        min-width: 60px;
         font-weight: 700;
-        color: $color-bg;
+        color:$color-bg;
         background: $color_text;
         padding: 5px;
         border-radius: 0 8px 0 8px;
-        align-items: center;
     }
 }
 
