@@ -1,7 +1,6 @@
 <template><div>
     <v-app class="index">
-        <app-header></app-header>
-     
+      <app-header></app-header>
         <!-- filters -->
         <section class="filters">
             <div class="filters_wrapper">
@@ -18,7 +17,7 @@
                         hide-details
                         clearable
                         prepend-icon="search"
-                        label="Search TV Shows"
+                        label="Search movies"
                     ></v-autocomplete>
                 </div>
                 <!-- year filter -->
@@ -64,16 +63,16 @@
         <section class="item_container" v-if="searchInput.select">
             <div class="item_wrapper">
                 <div class="item"   v-for="(film, index) in movies.search" :key="index">
-                <router-link :to="{ name: 'singleShow', params: { id: film.id } }"> 
+                <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
                     
                         <app-itemList>
                             <template slot="rate">{{film.vote_average}}</template>
-                            <template slot="year"> {{film.first_air_date.slice(0,4)}}</template>
+                            <template slot="year">{{film.release_date.slice(0,4)}}</template>
                             <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
                         </app-itemList>
 
                     </router-link>
-                    <h1 class="item_name"> {{film.original_name}}  </h1>
+                    <h1 class="item_name"> {{film.title}}  </h1>
                 </div>
             </div> 
             <!-- pagination --> 
@@ -89,18 +88,17 @@
         <section class="item_container" v-if="!searchInput.select">
             <div class="item_wrapper">
                 <div class="item" v-for="(film, index) in movies.discover" :key="index">
-                <router-link :to="{ name: 'singleShow', params: { id: film.id } }"> 
-
-                    <app-itemList>
-                        <template slot="rate">{{film.vote_average}}</template>
-                        <template slot="year"> {{film.first_air_date.slice(0,4)}}</template>
-                        <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
-                    </app-itemList>
-
+                    <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
+                        <app-itemList>
+                            <template slot="rate">{{film.vote_average}}</template>
+                            <template slot="year">{{film.release_date.slice(0,4)}}</template>
+                            <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
+                        </app-itemList>
                     </router-link>
-                    <h1 class="item_name"> {{film.name}} </h1>
+                    <h1 class="item_name"> {{film.title}} </h1>
                 </div>
             </div> 
+           
             <!-- pagination --> 
             <div class="pages">
                 <div class="pages_wrapper">
@@ -134,6 +132,7 @@ export default {
             search: "",
             selectYear: "",
             selectGenres: "",
+
             searchInput: {
                 search: "",
                 loading: false,
@@ -157,7 +156,7 @@ export default {
     watch: {
         // watching changes in search input
         search(val) {
-            val && val !== this.searchInput.select && this.titleList(val, "search/tv")
+            val && val !== this.searchInput.select && this.titleList(val, "search/movie")
             this.searchMovies()
         },
         // watching changes in genres input
@@ -176,9 +175,9 @@ export default {
         //get data from store
         URL(){ return this.$store.state.URL },
         holder(){ return this.$store.state.holder },
-       // searchInput(){ return this.$store.state.searchInput },
+        //searchInput(){ return this.$store.state.searchInput },
         movies(){ return this.$store.state.movies },
-        filters(){ return this.$store.state.filters },
+
         page(){ return this.$store.state.page },
         totalPages(){ return this.$store.state.totalPages },
 
@@ -188,7 +187,7 @@ export default {
         //paginations prev button
         prev(){
             if (this.searchInput.select) {
-                this.page.curSearchP--
+                this.page.curSearch--
                 this.searchMovies()
             } else {
                 this.page.cur--
@@ -212,7 +211,7 @@ export default {
             .then(res => {
                 let titles = res.data.results
                 titles.forEach((movie)=> {
-                    this.searchInput.states.push(movie.name)
+                    this.searchInput.states.push(movie.title)
                 })
                 this.searchInput.items = this.searchInput.states.filter(e => {
                     return (e || '').toLowerCase().indexOf((searchTerm || '').toLowerCase()) > -1
@@ -222,7 +221,7 @@ export default {
         },
         // get data from database with query
         searchMovies() {
-            axios.get(`${this.URL.database}search/tv${this.URL.apiKey}&page=${this.page.curSearch}&query=${this.searchInput.select}`)
+            axios.get(`${this.URL.database}search/movie${this.URL.apiKey}&page=${this.page.curSearch}&query=${this.searchInput.select}`)
             .then(res => {
                 // base url for image
                 const URL = "https://image.tmdb.org/t/p/w500"
@@ -243,13 +242,13 @@ export default {
         },
         // get data from discover database 
         discoverMovies() {
-            axios.get(`${this.URL.database}discover/tv${this.URL.apiKey}&page=${this.page.cur}&first_air_date_year=${this.selectYear}&with_genres=${this.selectGenres}`)
+            axios.get(`${this.URL.database}discover/movie${this.URL.apiKey}&page=${this.page.cur}&primary_release_year=${this.selectYear}&with_genres=${this.selectGenres}`)
             .then(res => {
                 // base url for image
                 const URL = "https://image.tmdb.org/t/p/w500"
                 // get data results        
                 this.movies.discover = res.data.results
-              
+               
                 // get total pages of discover movies
                 this.totalPages.discover = res.data.total_pages   
                 // creating complete img path 
@@ -279,7 +278,7 @@ export default {
         // creating list of genres 
         getGenresList(searchTerm) {
             this.movies.genres = []
-            axios.get(`${this.URL.database}genre/tv/list${this.URL.apiKey}`)
+            axios.get(`${this.URL.database}genre/movie/list${this.URL.apiKey}`)
             .then(res => {
                // genres data
                let genres = res.data.genres
@@ -300,4 +299,9 @@ export default {
     @import '../assets/scss/_filters';
     @import '../assets/scss/_tips';
     @import '../assets/scss/_pagination';
+
+
+    [v-autocomplete]{
+       min-height: 0; 
+    }
 </style>

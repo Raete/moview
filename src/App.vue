@@ -1,18 +1,27 @@
 <template>
   <div id="app">
+      
+    <router-view :key="$route.name + ($route.params.id || '')"></router-view>
 
-    <router-view/>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'App'
+    name: 'App',
+    data () {
+        return {
+    
+
+        }
+    },
 }
 </script>
 
 <style lang='scss'>
 @import 'assets/scss/_variables';
+
+
 ///*** GENERAL SETTINGS ***///
 
 html {
@@ -52,6 +61,58 @@ button {
     border: 0;
 }
 
+.tab_item {
+    margin-top: 40px;
+}
+.tab_menu_item {
+    font-weight: 700;
+}
+
+///*** BUTTONS ***///
+.back_btn {
+    display: flex;
+    justify-content: flex-start;
+    align-content: center;
+    align-items: center;
+    text-align: right;
+    margin-bottom: 30px;
+    transition: .3s;
+    cursor: pointer;
+    &:hover {
+        font-weight: 700;
+    }
+}
+
+//--desktop--
+@media screen and (min-width: 1000px) {
+    .back_btn {
+        margin-bottom: 90px;
+    }
+}
+
+.info_btn {
+    border: 2px solid $color_text;
+    border-radius: 8px;
+    padding: 10px 20px;
+    text-align: center;
+    font-weight: 700;
+    transition: .3s;
+    margin-top: 30px;
+    &:hover {
+        background: $color_text;
+        color: $color_main
+    }
+}
+
+.overview_btn {
+    display: block;
+    font-weight: 700;
+    border-bottom: 2px dotted transparent;
+    transition: .3s;
+    &:hover {
+        border-bottom: 2px dotted $color_text;
+    }
+}
 //*** arrow animation ***
 .arrow {
     position: absolute;
@@ -95,4 +156,6 @@ button {
         text-align: center;
     }
 }
+
+
 </style>

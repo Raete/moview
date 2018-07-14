@@ -1,0 +1,72 @@
+.menu {
+    position: relative;
+    background: $color-bg;
+    &_logo {
+        padding: 15px;
+        margin-bottom: 30px;
+    }
+    &_wrapper {
+        max-width: $width;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        padding: 0 20px;
+    }
+    &_control {
+        display: flex;
+        justify-content: space-between;
+        font-size: 100%;
+        &_item {
+            padding: 15px;
+            transform: perspective(1px) translateZ(0);
+            position: relative;
+            &:before {
+                content: "";
+                position: absolute;
+                z-index: -1;
+                left: 0;
+                right: 100%;
+                bottom: 0;
+                background: $color_text;
+                height: 4px;
+                transition: right 0.3s ease-out;
+            }
+            &:hover:before, 
+            &:focus:before,
+            &:active:before {
+                right: 0;
+            }
+        }
+    }
+
+}
+
+.menu_active {
+    &:before {
+        right:0
+    }
+
+}
+
+@media screen and (min-width: 400px) {
+    .menu_control {
+        margin: 0 auto;
+        font-size: 130%;
+    }
+}
+
+@media screen and (min-width: 700px) {
+    .menu_wrapper {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center
+    }
+    .menu_logo {
+        margin: 0
+    }
+    .menu_control {
+        margin: 0 ;
+    }
+}

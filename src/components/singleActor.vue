@@ -1,33 +1,58 @@
-<template><div>
+<template><div v-if="!loading">
 
     <main class="main"  >
-        <img class="poster" src="../assets/img/people/e.jpg" alt="">
+        <img class="poster" :src="actor.img.profile_path" alt="">
         <div class="main_container">
-            <router-link :to="{ name: 'home' }"> 
+            <!-- back button -->
+            <div @click="goBack()"> 
                 <div class="back_btn">
                     <i class="material-icons">
                         keyboard_backspace
                     </i>
-                    homepage
+                    back
                 </div>
-            </router-link>
-            <img class="cast_img" src="../assets/img/people/e1.jpg" alt="">
+            </div>
+            <!-- person detail info - image -->
+            <img class="cast_img" :src="actor.data.profile_path" alt="">
             <section class="info_wrapper">
-                <h1 class="info_name">Chris Pratt</h1>
-
+                <h1 v-if="actor.data.name" class="info_name">{{actor.data.name}}</h1>
+                <!-- person overview -->
                 <div class="info_overview_wrapper">
-                    <h1 class="info_overview_title">Biography</h1>
-                    <p class="info_overview_text">Christopher Michael "Chris" Pratt (born June 21, 1979) is an American actor, best known for his roles as Harold Brighton "Bright" Abbott in the television series Everwood, the recurring character Winchester "Ché" Cook in season 4 of The OC, and Andy Dwyer in the television series Parks and Recreation.</p>
+                    <h1 v-if="actor.data.biography" class="info_overview_title">Biography</h1>
+                    <p class="info_overview_text">{{actor.data.short}}</p>
+                    <!-- more overview -->
+                    <v-dialog v-model="dialog" width="600px" >
+                        <button v-if="is.long" class="more_btn" slot="activator" color="primary" dark>All biography</button>
+                        <v-card class="biography">
+                            <v-btn icon dark @click.native="dialog = false">
+                                <v-icon>close</v-icon>
+                            </v-btn>
+                            <v-card-text >{{actor.data.biography}}</v-card-text>
+                        </v-card>
+                    </v-dialog>
                 </div>
             </section>
         </div>
 
     </main>
     <section class="item_container">
-        <h1 class="recommend">Known for</h1> 
-        <app-tips></app-tips>
+        <!-- known for -->
+        <h1 class="recommend"> Known for</h1> 
+        <div class="item_wrapper">
+            <div class="item" v-for="(film, index) in actor.movieKnown" :key="index">
+                <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
+                    <app-itemList>
+                        <template slot="rate">{{film.vote_average}}</template>
+                        <template slot="year">{{film.release_date.slice(0,4)}}</template>
+                        <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
+                    </app-itemList>
+                </router-link>
+                <h1 class="item_name"> {{film.title}} </h1>
+            </div>
+        </div> 
     </section>
     <section class="acting">
+        <!-- acting list -->
         <h1 class="acting_title">Acting</h1> 
         <v-tabs class="tab_menu" color="transparent" >
             <v-tabs-slider color="black" ></v-tabs-slider>
@@ -38,42 +63,44 @@
             <v-tab class="tab_menu_item" href="#tvShows">
                 TV Shows
             </v-tab>
-           
+           <!-- movies list -->
             <v-tab-item class="tab_item" id="movies">
-       
                 <ul class="acting_list">
-                    <router-link :to="{ name: 'singleMovie' }"> 
-                    <li class="acting_item" v-for="(role, index) in filmRoles" :key="index">
+                    <li  v-for="(film, index) in  actor.movieCredits" :key="index">
+                        <router-link class="acting_item" :to="{ name: 'singleMovie', params: { id: film.id } }"> 
                         <div class="acting_info">
-                            <p class="acting_year">{{role.year}}</p>
+                            <p class="acting_year">{{film.release_date}}</p>
                             <div class="acting_film">
-                                <h3 class="acting_name">{{role.name}}</h3>
-                                <p class="acting_role">{{role.role}}</p>
+                                <h3 class="acting_name">{{film.title}}</h3>
+                                <p class="acting_role">{{film.character}}</p>
                             </div>
                         </div>
-                        <p class="acting_rate">{{role.rate}}</p>
+                        <span class="acting_rate">
+                            {{film.vote_average}} 
+                            <img src="../assets/img/svg/star_g.svg">
+                        </span>
+                        </router-link>
                     </li>
-                    </router-link>
                 </ul>
-
             </v-tab-item>
+            <!-- shows list -->
             <v-tab-item class="tab_item" id="tvShows">
-       
                 <ul class="acting_list">
-                    <router-link :to="{ name: 'singleShow' }"> 
-                    <li class="acting_item" v-for="(role, index) in showRoles" :key="index">
+                    <li  v-for="(film, index) in  actor.showCredits" :key="index">
+                        <router-link class="acting_item" :to="{ name: 'singleShow', params: { id: film.id } }"> 
                         <div class="acting_info">
-                            <p class="acting_year">{{role.year}}</p>
+                            <p class="acting_year">{{film.first_air_date}}</p>
                             <div class="acting_film">
-                                <h3 class="acting_name">{{role.name}}  
-                                    <small>- ({{role.ep}} episodes)</small>
-                                </h3>
-                                <p class="acting_role">{{role.role}}</p>
+                                <h3 class="acting_name">{{film.name}}</h3>
+                                <p class="acting_role">{{film.character}}</p>
                             </div>
                         </div>
-                        <p class="acting_rate">{{role.rate}}</p>
+                        <span class="acting_rate">
+                            {{film.vote_average}} 
+                            <img src="../assets/img/svg/star_g.svg">
+                        </span>
+                        </router-link>
                     </li>
-                    </router-link>
                 </ul>
             </v-tab-item>
         </v-tabs>
@@ -84,148 +111,181 @@
 
 <script>
 import footer from '../components/footer.vue';
-import tips from '../components/tips.vue';
+import itemList from '../components/templates/itemList.vue';
+import axios from 'axios';
 
 
 export default {
     components: {
         'app-footer': footer,
-        'app-tips': tips,
+        'app-itemList': itemList,
     },
 
     data () {
         return {
-            showLess: true,
-            buttonTitle: "show more",
-            background: require('../assets/img/homeBack.jpg'),
-            actors: [
-                { 
-                    img: require('../assets/img/people/e1.jpg'),
-                    name: 'Matt Damon',
-                    role: 'Mark Watney'
-                },
-                { 
-                    img: require('../assets/img/people/e1.jpg'),
-                    name: 'Matt Damon',
-                    role: 'Mark Watney'
-                },
-                { 
-                    img: require('../assets/img/people/e1.jpg'),
-                    name: 'Matt Damon',
-                    role: 'Mark Watney'
-                },           
-                { 
-                    img: require('../assets/img/people/e1.jpg'),
-                    name: 'Matt Damon',
-                    role: 'Mark Watney'
-                },
-                { 
-                    img: require('../assets/img/people/e1.jpg'),
-                    name: 'Matt Damon',
-                    role: 'Mark Watney'
-                },
-                { 
-                    img: require('../assets/img/people/e1.jpg'),
-                    name: 'Matt Damon',
-                    role: 'Mark Watney'
-                },
-                
-                     
-            ],
-            films: [
-                { 
-                    img: require('../assets/img/posters/arrival.jpg'),
-                    title: 'Arrival',
-                    rate: '70%'
-                },
-                { 
-                    img: require('../assets/img/posters/beauty_and_beast.jpg'), 
-                    title: 'Beauty and the Beast',
-                    rate: '65%'
-                },
-                { 
-                    img: require('../assets/img/posters/best_offer.jpg'), 
-                    title: 'The Best Offer',
-                    rate: '48%'
-                },           
-                { 
-                    img: require('../assets/img/posters/guardians.jpg'),  
-                    title: 'Guardians of the Galaxy Vol. 2',
-                    rate: '75%'
-                },
-                     
-            ],
-            filmRoles: [
-                { 
-                    year: 2021,
-                    name: 'Jurassic World 3',
-                    role: 'Owen Grady',
-                    rate: '50%',
-                },
-                { 
-                    year: 2019,
-                    name: 'Cowboy Ninja Viking',
-                    role: 'Duncan / Cowboy-Ninja-Viking',
-                    rate: '--%',
-                },
-                { 
-                    year: 2019,
-                    name: 'Untitled Avengers Movie',
-                    role: 'Peter Quill / Star-Lord',
-                    rate: '89%',
-                },           
-                { 
-                    year: 2019,
-                    name: 'The Lego Movie 2: The Second Part',
-                    role: 'Emmet Brickowski (voice)',
-                    rate: '40%',
-                },
-                     
-            ],
-            showRoles: [
-                { 
-                    year: 2016,
-                    name: 'Chelsea',
-                    role: 'Himself',
-                    ep: 2,
-                    rate: '58%',
-                },
-                { 
-                    year: 2016,
-                    name: 'Chelsea',
-                    role: 'Himself',
-                    ep: 2,
-                    rate: '58%',
-                },
-                { 
-                    year: 2016,
-                    name: 'Chelsea',
-                    role: 'Himself',
-                    ep: 2,
-                    rate: '58%',
-                },           
-                { 
-                    year: 2016,
-                    name: 'Chelsea',
-                    role: 'Himself',
-                    ep: 2,
-                    rate: '58%',
-                },
-                     
-            ],
-            
-             
+            dialog: false,
+            loading: false,
         }
     },
+
+    created(){
+        // render actor data
+        this.getActorData()
+        // render movies credits
+        this.getMovieCredits()
+        // render shows credits
+        this.getShowCredits()
+        // render movie known
+        this.getMovieKnow()
+        // render actor image
+        this.getActorImg()
+
+    },
+
+    computed: {
+        //get data from store
+        URL(){ return this.$store.state.URL },
+        holder(){ return this.$store.state.holder },
+        actor(){ return this.$store.state.actor },
+        is(){ return this.$store.state.is },    
+    },
+
     methods: {
-        showMore() {
-            this.showLess = !this.showLess
-            if (this.showLess) {
-                this.buttonTitle = 'show more'
-            } else {
-                this.buttonTitle = 'show less'
+        //go back
+        goBack(){
+            return window.history.back();
+        },
+        // sort movies and tv shows by year
+        dynamicSort(property) {
+            var sortOrder = 1;
+            if(property[0] === "-") {
+                sortOrder = -1;
+                property = property.substr(1);
             }
-        }
+            return function (a,b) {
+                var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+                return result * sortOrder;
+            }
+        },    
+        // get actor data from database
+        getActorData() {
+            this.loading = true
+            axios.get(`${this.URL.database}person/${this.$route.params.id}${this.URL.apiKey}`)
+            .then(res => {
+                const URLFace = "https://image.tmdb.org/t/p/w235_and_h235_face"
+                this.actor.data = res.data
+                // show only 350 characters overview
+                if (this.actor.data.biography.length > 350) {
+                    this.is.long = true
+                    this.actor.data.short = this.actor.data.biography.slice(0,350) + "..."
+                } else { 
+                    this.actor.data.short = this.actor.data.biography 
+                    this.is.long = false
+                }
+                // if is no poster image replace with holder
+                if (this.actor.data.profile_path) {
+                    this.actor.data.profile_path = URLFace + this.actor.data.profile_path
+                } else if (this.actor.data.profile_path == null) {
+                    this.actor.data.profile_path = this.holder.person
+                }
+            }).then(()=> {
+                this.loading = false
+            })  
+        },
+        // get image of actor
+        getActorImg() {
+            this.loading = true
+            axios.get(`${this.URL.database}person/${this.$route.params.id}${this.URL.apiKey}`)
+            .then(res => {
+                this.actor.img = res.data
+                const URL = "https://image.tmdb.org/t/p/original"
+                // if is no image replace with holder
+                if (this.actor.img.profile_path) {
+                    this.actor.img.profile_path = URL + this.actor.img.profile_path
+                } else if (this.actor.img.profile_path == null) {
+                    this.actor.img.profile_path = this.holder.movie
+                }
+            }).then(()=> {
+                this.loading = false
+            })  
+        },
+        // get movies credits
+        getMovieCredits() {
+            this.loading = true
+            axios.get(`${this.URL.database}person/${this.$route.params.id}/movie_credits${this.URL.apiKey}`)
+            .then(res => {
+                this.actor.movieCredits = res.data.cast
+                // sort list of movies by date
+                this.actor.movieCredits = this.actor.movieCredits.sort(this.dynamicSort("-release_date"))
+                this.actor.movieCredits.forEach((date)=>{
+                    // if somethig missing replace with ????
+                    if (!date.release_date) {
+                        date.release_date = "????"
+                    } else {
+                        date.release_date = date.release_date.slice(0,4)
+                    }
+                    if (!date.character) {
+                        date.character = "????"
+                    } 
+                    if (!date.title) {
+                        date.title = "????"
+                    } 
+                })
+
+            }).then(()=> {
+                this.loading = false
+            }) 
+        },
+        // get shows credits
+        getShowCredits() {
+            this.loading = true
+            axios.get(`${this.URL.database}person/${this.$route.params.id}/tv_credits${this.URL.apiKey}`)
+            .then(res => {
+                this.actor.showCredits = res.data.cast
+                // sort list of shows by date
+                this.actor.showCredits = this.actor.showCredits.sort(this.dynamicSort("-first_air_date"))
+                this.actor.showCredits.forEach((date)=>{
+                    date.first_air_date = date.first_air_date.slice(0,4)
+                    // if somethig missing replace with ????
+                    if (date.first_air_date == "") {
+                        date.first_air_date = "????"
+                    } 
+                    if (date.character == "") {
+                        date.character = "????"
+                    } 
+                    if (date.title == "") {
+                        date.title = "????"
+                    } 
+                })
+           
+            }).then(()=> {
+                this.loading = false
+            }) 
+        },
+        // get movie known
+        getMovieKnow() {
+            this.loading = true
+            axios.get(`${this.URL.database}person/${this.$route.params.id}/movie_credits${this.URL.apiKey}`)
+            .then(res => {
+                const URL = "https://image.tmdb.org/t/p/w500"
+                const URLFace = "https://image.tmdb.org/t/p/w235_and_h235_face"
+                this.actor.movieKnown = res.data.cast
+                // if is no poster image replace with holder
+                this.actor.movieKnown.forEach((poster)=>{
+                    if (poster.poster_path) {
+                        poster.poster_path = URL + poster.poster_path
+                    } else if (poster.poster_path == null) {
+                        poster.poster_path = this.holder.photo
+                    }
+                })
+                // sort movie by rate
+                this.actor.movieKnown.sort(this.dynamicSort("-vote_average"))
+                // render only 6 movies
+                this.actor.movieKnown = this.actor.movieKnown.slice(0,6)
+            }).then(()=> {
+                this.loading = false
+            })  
+        },
     },
 }
 </script>
@@ -233,9 +293,14 @@ export default {
 
 <style lang='scss' scoped>
 @import '../assets/scss/_variables';
-@import '../assets/scss/_itemList';
+@import '../assets/scss/_tips';
 
 @import '../assets/scss/actors/_singleActor';
+
+.biography {
+    background: $color-bg--light;
+
+}
 
 
 
