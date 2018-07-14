@@ -1,60 +1,30 @@
 <template><div>
+    <div class="menu">
+        <div class="menu_wrapper">
+            <router-link  :to="{ name: 'home' }" exact> 
+                <img src="@/assets/img/svg/logo.svg" alt="moview" class="menu_logo"> 
+            </router-link>
+            <div class="menu_control">
+                <router-link class="menu_control_item" 
+                :to="{ name: 'movies' }" exact> Movies </router-link>
 
-    <main v-for="(item, index) in randomImg" :key="index"  class="main"
-        v-bind:style="{ 
-            backgroundImage: 'url(' + item.img + ')',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-        }"      
-    >
-    
-        <div class="main_container">
-            <img src="@/assets/img/svg/logo.svg" alt="moview" class="logo">
-            <section class="claim_wrapper">
-                
-                <h1 class="claim">discover new stories</h1>
-                <!-- <div class="search">
-                    <input type="text" class="search_input">
-                    <img src="@/assets/img/svg/search.svg" alt="search" class="search_icon">
-                </div> -->
-            </section>
+                <router-link class="menu_control_item"          
+                :to="{ name: 'shows' }" exact> TV Shows </router-link>
+
+                <router-link class="menu_control_item" 
+                :to="{ name: 'celebrities' }" exact> Celebrities </router-link>
+            </div>
         </div>
-        <span class="arrow">
-            <i class="material-icons">
-                expand_more
-            </i>
-        </span>
-    </main>
-    <v-toolbar color="white" flat  id="menu">
-        <v-spacer></v-spacer>
-        <v-toolbar-items>
-            <v-btn flat :to="{ name: 'movies' }" exact> Movies</v-btn>
-            <v-btn flat :to="{ name: 'shows' }" exact>TV Shows</v-btn>
-            <v-btn flat :to="{ name: 'celebrities' }" exact>Celebrities</v-btn>
-        </v-toolbar-items>
-        <v-spacer></v-spacer>
-    </v-toolbar>
+    </div>
 </div></template>
 
 <script>
 
 export default {
-    name: 'app_header',
     data () {
-        return {
-            backgroundImage: [
-                { img: require('../assets/img/homeBack.jpg')},
-                { img: require('../assets/img/homeBack2.jpg')},
-                { img: require('../assets/img/homeBack3.jpg')},
-                { img: require('../assets/img/homeBack4.jpg')},
-                { img: require('../assets/img/homeBack5.jpg')},
-            ], 
+        return {    
+
         }
-    },
-    computed: {
-        randomImg() {
-            return this.backgroundImage = _.shuffle(this.backgroundImage).slice(0,1) 
-        },
     },
 }
 </script>
@@ -62,7 +32,14 @@ export default {
 
 <style lang='scss' scoped>
 @import '../assets/scss/_variables';
-@import '../assets/scss/_searchHeader';
+@import '../assets/scss/_menu';
+
+
+.router-link-active, .router-link-exact-active {
+    &:before {
+        right:0
+    }
+}
 
 
 

@@ -1,6 +1,6 @@
 <template><div>
     <v-app class="index">
-        <app-header></app-header>
+      <app-header></app-header>
         <!-- filters -->
         <section class="filters">
             <div class="filters_wrapper">
@@ -17,7 +17,7 @@
                         hide-details
                         clearable
                         prepend-icon="search"
-                        label="Search"
+                        label="Search movies"
                     ></v-autocomplete>
                 </div>
                 <!-- year filter -->
@@ -64,16 +64,13 @@
             <div class="item_wrapper">
                 <div class="item"   v-for="(film, index) in movies.search" :key="index">
                 <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
-                    <figure class="item_content">
-                        <span class="item_chip item_chip--rate">
-                            {{film.vote_average}} <img src="../assets/img/svg/star.svg"></span>
-                            <span class="item_chip item_chip--year">
-                            {{film.release_date.slice(0,4)}} </span>
-                        <img class="item_img" v-bind:src="film.poster_path" alt="">
-                        <figcaption class="item_hover">
-                            <img class="item_hover_ico" src="../assets/img/svg/plus.svg" alt="">
-                        </figcaption>           
-                    </figure>
+                    
+                        <app-itemList>
+                            <template slot="rate">{{film.vote_average}}</template>
+                            <template slot="year">{{film.release_date.slice(0,4)}}</template>
+                            <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
+                        </app-itemList>
+
                     </router-link>
                     <h1 class="item_name"> {{film.title}}  </h1>
                 </div>
@@ -81,9 +78,9 @@
             <!-- pagination --> 
             <div class="pages">
                 <div class="pages_wrapper">
-                    <button class="pages_btn pages_btn--prev" v-show="this.curSearchPage > 1" @click="prev">prev</button>
-                    <p class="pages_total"> Currently on page: {{this.curSearchPage}} of {{this.totalPages.search}}</p>
-                    <button class="pages_btn pages_btn--next" v-show="this.curSearchPage < this.totalPages.search" @click="next">next</button>
+                    <button class="pages_btn pages_btn--prev" v-show="this.page.curSearch > 1" @click="prev">prev</button>
+                    <p class="pages_total"> Currently on page: {{this.page.curSearch}} of {{this.totalPages.search}}</p>
+                    <button class="pages_btn pages_btn--next" v-show="this.page.curSearch < this.totalPages.search" @click="next">next</button>
                 </div>
             </div>
         </section>
@@ -91,27 +88,23 @@
         <section class="item_container" v-if="!searchInput.select">
             <div class="item_wrapper">
                 <div class="item" v-for="(film, index) in movies.discover" :key="index">
-                <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
-                    <figure class="item_content">
-                        <span class="item_chip item_chip--rate">
-                            {{film.vote_average}} <img src="../assets/img/svg/star.svg"></span>
-                            <span class="item_chip item_chip--year">
-                            {{film.release_date.slice(0,4)}} </span>
-                        <img class="item_img" v-bind:src="film.poster_path" alt="">
-                        <figcaption class="item_hover">
-                            <img class="item_hover_ico" src="../assets/img/svg/plus.svg" alt="">
-                        </figcaption>           
-                    </figure>
+                    <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
+                        <app-itemList>
+                            <template slot="rate">{{film.vote_average}}</template>
+                            <template slot="year">{{film.release_date.slice(0,4)}}</template>
+                            <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
+                        </app-itemList>
                     </router-link>
                     <h1 class="item_name"> {{film.title}} </h1>
                 </div>
             </div> 
+           
             <!-- pagination --> 
             <div class="pages">
                 <div class="pages_wrapper">
-                    <button class="pages_btn pages_btn--prev" v-show="this.curPage > 1" @click="prev">prev</button>
-                    <p class="pages_total"> Currently on page: {{this.curPage}} of {{this.totalPages.discover}}</p>
-                    <button class="pages_btn pages_btn--next" v-show="this.curPage < this.totalPages.discover" @click="next">next</button>
+                    <button class="pages_btn pages_btn--prev" v-show="this.page.cur > 1" @click="prev">prev</button>
+                    <p class="pages_total"> Currently on page: {{this.page.cur}} of {{this.totalPages.discover}}</p>
+                    <button class="pages_btn pages_btn--next" v-show="this.page.cur < this.totalPages.discover" @click="next">next</button>
                 </div>
             </div>
         </section>
@@ -122,55 +115,38 @@
 
 <script>
 import header from '../components/header.vue';
+import itemList from '../components/templates/itemList.vue';
 import footer from '../components/footer.vue';
 import axios from 'axios';
 
 export default {
     components: {
         'app-header': header,
+        'app-itemList': itemList,
         'app-footer': footer,
     },
     name: 'home',
     data () {
         return {        
-            // set URL
-            URL: { 
-                holder: require('../assets/img/posters/empty.jpg'),
-                img: "https://image.tmdb.org/t/p/w500" ,
-                database: "https://api.themoviedb.org/3/",
-                apiKey: "?api_key=0729eb044b5e37b6c0ff52a4c8617f94",
-            },
-            //search movies
+            // serching filters
             search: "",
+            selectYear: "",
+            selectGenres: "",
+
             searchInput: {
+                search: "",
                 loading: false,
                 items: [],
                 select: null,
                 states: [],
             },
-            // movies database 
-            movies: {
-                discover: [],
-                search: [],
-                years: ["All"],
-                genres: [],
-            },
-            // selected items
-            selectYear: "",
-            selectGenres: "",
-            years: "",
-            //pages
-            curSearchPage: 1,
-            curPage: 1,
-            totalPages: {
-                search: null,
-                discover: null,
-            }
         }
     },
 
     created(){
         // if is search input empty discover movies is render
+        this.page.cur = 1
+        this.page.curSearch = 1
         !this.searchInput.select 
         this.discoverMovies()
         this.getYearsList()
@@ -180,46 +156,58 @@ export default {
     watch: {
         // watching changes in search input
         search(val) {
-            val && val !== this.searchInput.select && this.titleList(val)
+            val && val !== this.searchInput.select && this.titleList(val, "search/movie")
             this.searchMovies()
         },
         // watching changes in genres input
         selectGenres(val) {
-            this.curPage = 1
+            this.page.cur = 1
             this.discoverMovies()
         },
         // watching changes in year input
         selectYear(val) {
-            this.curPage = 1
+            this.page.cur = 1
             this.discoverMovies()
         },
+    },
+
+    computed: {
+        //get data from store
+        URL(){ return this.$store.state.URL },
+        holder(){ return this.$store.state.holder },
+        //searchInput(){ return this.$store.state.searchInput },
+        movies(){ return this.$store.state.movies },
+
+        page(){ return this.$store.state.page },
+        totalPages(){ return this.$store.state.totalPages },
+
     },
 
     methods: {
         //paginations prev button
         prev(){
             if (this.searchInput.select) {
-                this.curSearchPage--
+                this.page.curSearch--
                 this.searchMovies()
             } else {
-                this.curPage--
+                this.page.cur--
                 this.discoverMovies()
             }
         },
         //paginations next button
         next(){
             if (this.searchInput.select) {
-                this.curSearchPage++
+                this.page.curSearch++
                 this.searchMovies()
             } else {
-                this.curPage++
+                this.page.cur++
                 this.discoverMovies()
             }
         },
         // creating list of movie titles in autocomplete input 
-        titleList(searchTerm) {
+        titleList(searchTerm, place) {
             this.searchInput.loading = true
-            axios.get(`${this.URL.database}search/movie${this.URL.apiKey}&query=${searchTerm}`)
+            axios.get(`${this.URL.database}${place}${this.URL.apiKey}&query=${searchTerm}`)
             .then(res => {
                 let titles = res.data.results
                 titles.forEach((movie)=> {
@@ -233,7 +221,7 @@ export default {
         },
         // get data from database with query
         searchMovies() {
-            axios.get(`${this.URL.database}search/movie${this.URL.apiKey}&page=${this.curSearchPage}&query=${this.searchInput.select}`)
+            axios.get(`${this.URL.database}search/movie${this.URL.apiKey}&page=${this.page.curSearch}&query=${this.searchInput.select}`)
             .then(res => {
                 // base url for image
                 const URL = "https://image.tmdb.org/t/p/w500"
@@ -247,20 +235,20 @@ export default {
                         poster.poster_path = URL + poster.poster_path
                     } else if (poster.poster_path == null) {
                         // replace poster with poster holder if is no poster
-                        poster.poster_path = this.URL.holder
+                        poster.poster_path = this.holder.photo
                     }
                 })
             }) 
         },
         // get data from discover database 
         discoverMovies() {
-            axios.get(`${this.URL.database}discover/movie${this.URL.apiKey}&page=${this.curPage}&primary_release_year=${this.selectYear}&with_genres=${this.selectGenres}`)
+            axios.get(`${this.URL.database}discover/movie${this.URL.apiKey}&page=${this.page.cur}&primary_release_year=${this.selectYear}&with_genres=${this.selectGenres}`)
             .then(res => {
                 // base url for image
                 const URL = "https://image.tmdb.org/t/p/w500"
                 // get data results        
                 this.movies.discover = res.data.results
-                console.log(this.movies.discover.release_date)
+               
                 // get total pages of discover movies
                 this.totalPages.discover = res.data.total_pages   
                 // creating complete img path 
@@ -269,7 +257,7 @@ export default {
                         poster.poster_path = URL + poster.poster_path
                     } else if (poster.poster_path == null) {
                         // replace poster with poster holder if is no poster
-                        poster.poster_path = this.URL.holder
+                        poster.poster_path = this.holder.photo
                     }
                 })
             }) 
@@ -289,6 +277,7 @@ export default {
         },
         // creating list of genres 
         getGenresList(searchTerm) {
+            this.movies.genres = []
             axios.get(`${this.URL.database}genre/movie/list${this.URL.apiKey}`)
             .then(res => {
                // genres data
@@ -308,6 +297,11 @@ export default {
 <style lang='scss' scoped>
     @import '../assets/scss/_variables';
     @import '../assets/scss/_filters';
-    @import '../assets/scss/_itemList';
+    @import '../assets/scss/_tips';
     @import '../assets/scss/_pagination';
+
+
+    [v-autocomplete]{
+       min-height: 0; 
+    }
 </style>

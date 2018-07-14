@@ -8,17 +8,18 @@ import SingleMovie from '@/components/singleMovie'
 import SingleShow from '@/components/singleShow'
 import SingleActor from '@/components/singleActor'
 
+
 Vue.use(Router)
 
 export default new Router({
   routes: [
     {
-        path: '/home',
+        path: '/',
         name: 'home',
         component: Home
     },
     {
-        path: '/',
+        path: '/movies',
         name: 'movies',
         component: Movies
     },
@@ -38,7 +39,7 @@ export default new Router({
         component: SingleMovie
     },
     {
-        path: '/singleShow',
+        path: '/singleShow/:id',
         name: 'singleShow',
         component: SingleShow
     },

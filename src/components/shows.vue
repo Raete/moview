@@ -1,68 +1,114 @@
 <template><div>
-    <v-app class="index">  
-    <app-header></app-header>
+    <v-app class="index">
+        <app-header></app-header>
+     
+        <!-- filters -->
         <section class="filters">
             <div class="filters_wrapper">
-                <div class="filters_item filters_years">
+                <!-- search filter -->
+                <div class="filters_search">
+                    <v-autocomplete
+                        :loading="searchInput.loading"
+                        :items="searchInput.items"
+                        :search-input.sync="search"
+                        v-model="searchInput.select"
+                        cache-items
+                        flat
+                        hide-no-data
+                        hide-details
+                        clearable
+                        prepend-icon="search"
+                        label="Search TV Shows"
+                    ></v-autocomplete>
+                </div>
+                <!-- year filter -->
+                <div class="filters_year">
                     <v-select
-                        :items="years"
-                    
-                        label="Year"
-                        item-value="text"
+                        v-model="selectYear"
+                        :items="movies.years"
+                        :search-input.sync="selectYear"
+                        label="Select year"
+                        prepend-icon="event"
                     ></v-select>
                 </div>
-                <div class="filters_item filters_sort">
-                    <v-select
-                        :items="sort"
-                    
-                        label="Sort by"
-                        item-value="text"
-                    ></v-select>
-                </div>
-                <div class="filters_item filters_genres">
-                    <v-select
-                        :items="genres"                 
-                        label="Genres"
+                <!-- genres filter -->
+                <div class="filters_genres">
+                    <v-autocomplete
+                        :items="movies.genres" 
+                        v-model="selectGenres"                 
+                        label="Select genres"
                         item-text="name"
-                        item-value="name"
+                        item-value="id"
+                        prepend-icon="list"
                         multiple
                         chips
-                        max-height="auto"
-                        autocomplete 
-                    >
+                        clearable
+                        autocomplete >
                         <template slot="selection" slot-scope="data">
-                            <v-chip
+                            <v-chip 
                                 :selected="data.selected"
                                 :key="JSON.stringify(data.item)"
                                 close
-                                class="chip--select-multi"
-                                @input="data.parent.selectItem(data.item)"
-                            >
+                                @input="data.parent.selectItem(data.item)">
                                 {{ data.item.name }}
                             </v-chip>
                         </template>
                         <template slot="item" slot-scope="data">     
                             <v-list-tile-title v-html="data.item.name"></v-list-tile-title>
                         </template>
-                    </v-select>
+                    </v-autocomplete>
+                </div>
+            </div>
+        </section>  
+        <!-- search films -->    
+        <section class="item_container" v-if="searchInput.select">
+            <div class="item_wrapper">
+                <div class="item"   v-for="(film, index) in movies.search" :key="index">
+                <router-link :to="{ name: 'singleShow', params: { id: film.id } }"> 
+                    
+                        <app-itemList>
+                            <template slot="rate">{{film.vote_average}}</template>
+                            <template slot="year"> {{film.first_air_date.slice(0,4)}}</template>
+                            <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
+                        </app-itemList>
+
+                    </router-link>
+                    <h1 class="item_name"> {{film.original_name}}  </h1>
+                </div>
+            </div> 
+            <!-- pagination --> 
+            <div class="pages">
+                <div class="pages_wrapper">
+                    <button class="pages_btn pages_btn--prev" v-show="this.page.curSearch > 1" @click="prev">prev</button>
+                    <p class="pages_total"> Currently on page: {{this.page.curSearch}} of {{this.totalPages.search}}</p>
+                    <button class="pages_btn pages_btn--next" v-show="this.page.curSearch < this.totalPages.search" @click="next">next</button>
                 </div>
             </div>
         </section>
-        <section class="item_container">
-            <div class="item_wrapper"><!-- film list -->    
-                <div class="item" v-for="(film, index) in films" :key="index">
-                     <router-link :to="{ name: 'singleShow' }"> 
-                    <figure class="item_content">
-                        <span class="item_rate">{{film.rate}}</span>
-                        <img class="item_img" v-bind:src="film.img" alt="">
-                        <figcaption class="item_hover">
-                            <img class="item_hover_ico" src="../assets/img/svg/plus.svg" alt="">
-                        </figcaption>           
-                    </figure>
+        <!-- discover films -->    
+        <section class="item_container" v-if="!searchInput.select">
+            <div class="item_wrapper">
+                <div class="item" v-for="(film, index) in movies.discover" :key="index">
+                <router-link :to="{ name: 'singleShow', params: { id: film.id } }"> 
+
+                    <app-itemList>
+                        <template slot="rate">{{film.vote_average}}</template>
+                        <template slot="year"> {{film.first_air_date.slice(0,4)}}</template>
+                        <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
+                    </app-itemList>
+
                     </router-link>
-                    <h1 class="item_name"> {{film.title}}  </h1>
+                    <h1 class="item_name"> {{film.name}} </h1>
                 </div>
-            </div> <!-- END film list wrapper -->
+            </div> 
+            <!-- pagination --> 
+            <div class="pages">
+                <div class="pages_wrapper">
+                    <button class="pages_btn pages_btn--prev" v-show="this.page.cur > 1" @click="prev">prev</button>
+                    <p class="pages_total"> Currently on page: {{this.page.cur}} of {{this.totalPages.discover}}</p>
+                    <button class="pages_btn pages_btn--next" v-show="this.page.cur < this.totalPages.discover" @click="next">next</button>
+                </div>
+            </div>
         </section>
     </v-app>
     <app-footer></app-footer>
@@ -71,76 +117,187 @@
 
 <script>
 import header from '../components/header.vue';
+import itemList from '../components/templates/itemList.vue';
 import footer from '../components/footer.vue';
+import axios from 'axios';
 
 export default {
     components: {
         'app-header': header,
+        'app-itemList': itemList,
         'app-footer': footer,
     },
     name: 'home',
     data () {
-        return {
-            genres: [
-                { name: 'action' },
-                { name: 'adventure'},
-                { name: 'animation'},
-                { name: 'comedy'},
-                { name: 'crime'},
-                { name: 'documentary'},
-                { name: 'drama'},
-                { name: 'family'},
-                { name: 'fantasy'},
-                { name: 'history'},
-                { name: 'horror'},
-            ],
-            years: [
-               '2018','2017','2016','2015','2014', 
-            ],
-            sort: [
-               'Popular','Top Rated'
-            ],
-            films: [
-                { 
-                    img: require('../assets/img/posters/3.jpg'), 
-                    title: '3%',
-                    rate: '80%'
-                },
-                { 
-                    img: require('../assets/img/posters/black_mirror.jpg'), 
-                    title: 'Black Mirror',
-                    rate: '84%'
-                },
-                { 
-                    img: require('../assets/img/posters/breaking_bad.jpg'),  
-                    title: 'Breaking Bad',
-                    rate: '57%'
-                },
-                { 
-                    img: require('../assets/img/posters/dark.jpg'),  
-                    title: 'Dark',
-                    rate: '38%'
-                },
-                { 
-                    img: require('../assets/img/posters/dexter.jpg'), 
-                    title: 'Dexter',
-                    rate: '87%'
-                },
-               
-            ],
-            
+        return {        
+            // serching filters
+            search: "",
+            selectYear: "",
+            selectGenres: "",
+            searchInput: {
+                search: "",
+                loading: false,
+                items: [],
+                select: null,
+                states: [],
+            },
         }
-    }
+    },
+
+    created(){
+        // if is search input empty discover movies is render
+        this.page.cur = 1
+        this.page.curSearch = 1
+        !this.searchInput.select 
+        this.discoverMovies()
+        this.getYearsList()
+        this.getGenresList()
+    },
+    
+    watch: {
+        // watching changes in search input
+        search(val) {
+            val && val !== this.searchInput.select && this.titleList(val, "search/tv")
+            this.searchMovies()
+        },
+        // watching changes in genres input
+        selectGenres(val) {
+            this.page.cur = 1
+            this.discoverMovies()
+        },
+        // watching changes in year input
+        selectYear(val) {
+            this.page.cur = 1
+            this.discoverMovies()
+        },
+    },
+
+    computed: {
+        //get data from store
+        URL(){ return this.$store.state.URL },
+        holder(){ return this.$store.state.holder },
+       // searchInput(){ return this.$store.state.searchInput },
+        movies(){ return this.$store.state.movies },
+        filters(){ return this.$store.state.filters },
+        page(){ return this.$store.state.page },
+        totalPages(){ return this.$store.state.totalPages },
+
+    },
+
+    methods: {
+        //paginations prev button
+        prev(){
+            if (this.searchInput.select) {
+                this.page.curSearchP--
+                this.searchMovies()
+            } else {
+                this.page.cur--
+                this.discoverMovies()
+            }
+        },
+        //paginations next button
+        next(){
+            if (this.searchInput.select) {
+                this.page.curSearch++
+                this.searchMovies()
+            } else {
+                this.page.cur++
+                this.discoverMovies()
+            }
+        },
+        // creating list of movie titles in autocomplete input 
+        titleList(searchTerm, place) {
+            this.searchInput.loading = true
+            axios.get(`${this.URL.database}${place}${this.URL.apiKey}&query=${searchTerm}`)
+            .then(res => {
+                let titles = res.data.results
+                titles.forEach((movie)=> {
+                    this.searchInput.states.push(movie.name)
+                })
+                this.searchInput.items = this.searchInput.states.filter(e => {
+                    return (e || '').toLowerCase().indexOf((searchTerm || '').toLowerCase()) > -1
+                })
+                this.searchInput.loading = false
+            }) 
+        },
+        // get data from database with query
+        searchMovies() {
+            axios.get(`${this.URL.database}search/tv${this.URL.apiKey}&page=${this.page.curSearch}&query=${this.searchInput.select}`)
+            .then(res => {
+                // base url for image
+                const URL = "https://image.tmdb.org/t/p/w500"
+                // get total pages of searching movies
+                this.totalPages.search = res.data.total_pages
+                // get data results
+                this.movies.search = res.data.results
+                // creating complete img path 
+                this.movies.search.forEach((poster)=>{
+                    if (poster.poster_path) {
+                        poster.poster_path = URL + poster.poster_path
+                    } else if (poster.poster_path == null) {
+                        // replace poster with poster holder if is no poster
+                        poster.poster_path = this.holder.photo
+                    }
+                })
+            }) 
+        },
+        // get data from discover database 
+        discoverMovies() {
+            axios.get(`${this.URL.database}discover/tv${this.URL.apiKey}&page=${this.page.cur}&first_air_date_year=${this.selectYear}&with_genres=${this.selectGenres}`)
+            .then(res => {
+                // base url for image
+                const URL = "https://image.tmdb.org/t/p/w500"
+                // get data results        
+                this.movies.discover = res.data.results
+              
+                // get total pages of discover movies
+                this.totalPages.discover = res.data.total_pages   
+                // creating complete img path 
+                this.movies.discover.forEach((poster)=>{
+                    if (poster.poster_path) {
+                        poster.poster_path = URL + poster.poster_path
+                    } else if (poster.poster_path == null) {
+                        // replace poster with poster holder if is no poster
+                        poster.poster_path = this.holder.photo
+                    }
+                })
+            }) 
+        },
+        // create list of years 
+        getYearsList() {
+            // set year 1900
+            let first = "1900"
+            // set current year
+            let current = new Date().getFullYear()
+        
+            // push list of year to movies.years
+            for (var i = first; i <= current; i++) this.movies.years.push(i);
+            // sorting years array first is "none" then current year - 1900
+            this.movies.years = this.movies.years.slice(0, 1)
+            .concat(this.movies.years = this.movies.years.slice(1, this.movies.years.length).reverse())
+        },
+        // creating list of genres 
+        getGenresList(searchTerm) {
+            this.movies.genres = []
+            axios.get(`${this.URL.database}genre/tv/list${this.URL.apiKey}`)
+            .then(res => {
+               // genres data
+               let genres = res.data.genres
+                // push data to array
+                genres.forEach((genre)=> {
+                    this.movies.genres.push(genre) 
+                })
+               
+            }) 
+        },
+    }, 
 }
 </script>
 
 
-<style lang='scss'>
-@import '../assets/scss/_variables';
-@import '../assets/scss/_filters';
-@import '../assets/scss/_itemList';
-
-
-
-
+<style lang='scss' scoped>
+    @import '../assets/scss/_variables';
+    @import '../assets/scss/_filters';
+    @import '../assets/scss/_tips';
+    @import '../assets/scss/_pagination';
 </style>

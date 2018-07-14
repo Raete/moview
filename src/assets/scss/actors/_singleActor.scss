@@ -127,8 +127,8 @@
 
 //--desktop--
 @media screen and (min-width: 1000px) {
-    .back_btn {
-        margin-bottom: 90px;
+    .info_name {
+        margin-top: 90px;
     }
 }
 
@@ -136,13 +136,6 @@
     background: $color-bg--light;
 }
 
-
-.tab_item {
-    margin-top: 20px;
-}
-.tab_menu_item {
-    font-weight: 700;
-}
 
 
 .acting {

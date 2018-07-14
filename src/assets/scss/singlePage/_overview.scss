@@ -93,37 +93,19 @@
         }
     }
     &_overview_wrapper {
-        margin: 30px 0;
+        margin: 30px 0 10px 0;
     }
     &_overview_title {
         font-size: 130%;
     }
     &_overview_text {
-        line-height: 150%
+        line-height: 150%;
+        margin-bottom: 10px;
     }
-    &_btn {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        width: 135px;
-        border: 2px solid $color_text;
-        border-radius: 8px;
-        padding: 10px;
-        font-weight: 700;
-        transition: .3s;
-        &:hover {
-            background: $color_text;
-            color: $color_main
-        }
-    }
+
 }
 
-//--desktop--
-@media screen and (min-width: 1000px) {
-    .info_btn {
-       width: 155px;
-    }
-}
+
 
 //POSTER
 .poster {
@@ -151,21 +133,7 @@
     }
 }
 
-// HOMEPAGE BUTTON
-.back_btn {
-    display: flex;
-    justify-content: flex-start;
-    align-content: center;
-    align-items: center;
-    text-align: right;
-    margin-bottom: 30px;
-}
 
-//--desktop--
-@media screen and (min-width: 1000px) {
-    .back_btn {
-        margin-bottom: 90px;
-    }
-}
+
 
 

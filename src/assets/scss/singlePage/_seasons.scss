@@ -1,14 +1,9 @@
 ///*** SEASONS MENU AND LIST OF EPISODES ***///
 
 // MENU
-.tab_menu {
-    background: $color_text;
-}
 
 // EPISODES LIST
-.tab_item {
-    padding: 20px
-}
+
 .episode_wrapper {
 max-width: $width;
 margin: 0 auto;
@@ -17,6 +12,10 @@ margin: 0 auto;
     display: flex;
     border-bottom: 1px dashed $color_text;
     padding: 20px 0;
+    &_feedback {
+        font-weight: 700;
+        text-align: center
+    }
     &_date {
         font-size: 90%;
         font-style: italic;

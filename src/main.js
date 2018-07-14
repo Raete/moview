@@ -3,11 +3,10 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import { store } from './store/store'
 import _ from 'lodash'
-    import Vuetify from 'vuetify'
-    import 'vuetify/dist/vuetify.min.css'
-
-
+import Vuetify from 'vuetify'
+import 'vuetify/dist/vuetify.min.css'
 
     Vue.use(_);
     Vue.use(Vuetify, {
@@ -18,17 +17,15 @@ import _ from 'lodash'
         }
     }),
    
-
-
-
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
-  router,
-  components: { App },
-  template: '<App/>'
+    store: store,
+    el: '#app',
+    router,
+    components: { App },
+    template: '<App/>'
 })
 
 

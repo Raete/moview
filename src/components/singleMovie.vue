@@ -1,13 +1,14 @@
-<template><div>
+<template><div v-if="!loading">
 
     <main  class="main" v-bind:style="{ 
-            backgroundImage: 'url(' + movie.data.backdrop_path + ')',
+            backgroundImage: 'url(' + detail.data.backdrop_path + ')',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
         }"   >
-        <img class="poster" :src="movie.data.poster_path" alt="">
+        <img class="poster" :src="detail.data.poster_path" alt="">
         <div class="main_container">
-            <router-link to="/#menu"> 
+            <!-- back button -->
+            <router-link :to="{ name: 'movies' }"> 
                 <div class="back_btn">
                     <i class="material-icons">
                         keyboard_backspace
@@ -15,157 +16,207 @@
                     homepage
                 </div>
             </router-link>
-            <section class="info_wrapper">
-                <span class="info_rate">{{movie.data.vote_average}}
+            <!-- movie detail info -->
+            <section  class="info_wrapper">
+                <span class="info_rate">{{detail.data.vote_average}}
                     <img src="../assets/img/svg/star_y.svg">
                 </span>
+                <!-- movie name -->
                 <div class="info_name">
-                    
-                    <h1 class="info_title">{{movie.data.title}} <span v-if="movie.data.release_date" class="info_year">({{movie.data.release_date}})</span>    </h1>
-                    
+                    <h1 class="info_title">{{detail.data.title}}
+                        <span v-if="detail.data.release_date" class="info_year">
+                            ({{detail.data.release_date}})
+                        </span>   
+                    </h1>
                 </div>
+                <!-- movie tags -->
                 <ul class="info_tags">
-                    <li v-for="tag in movie.data.genres" :key="tag.id" class="info_tag">{{tag.name}}</li>
+                    <li v-for="tag in detail.data.genres" :key="tag.id" class="info_tag">{{tag.name}}</li>
                 </ul>
-                <p class="info_time">Run time:<span> {{movie.data.runtime}}</span></p>
-                
-                <ul class="info_crew">
+                <!-- movie run time-->
+                <p v-if="detail.data.runtime" class="info_time">Run time:
+                    <span> {{detail.data.runtime}}</span>
+                </p>
+                <!-- movie crew-->
+                <ul v-if="is.crew" class="info_crew">
                     <li class="info_crew_title">Crew</li>
-                    <li v-for="person in movie.credits.crew" :key="person.id" class="info_crew_name">{{person.job}}: <span>{{person.name}}</span></li>
+                    <li v-for="person in detail.credits.crew.slice(0,3)" :key="person.id" class="info_crew_name">{{person.job}}: 
+                        <span> {{person.name}} </span>
+                    </li>
                 </ul>
-
-                <p class="info_time">Budget:<span>  ${{formatNub(movie.data.budget)}}</span></p>
-                <p class="info_time">Revenue:<span> ${{formatNub(movie.data.revenue)}}</span></p>
-
-                <div v-if="movie.data.overview" class="info_overview_wrapper">
+                <!-- movie budget and revenuw -->
+                <p v-if="detail.data.budget" class="info_time">Budget:
+                    <span> ${{formatNub(detail.data.budget)}} </span>
+                </p>
+                <p v-if="detail.data.revenue" class="info_time">Revenue:
+                    <span> ${{formatNub(detail.data.revenue)}} </span>
+                </p>
+                <!-- movie overview -->
+                <div v-if="detail.data.overview" class="info_overview_wrapper">
                     <h1 class="info_overview_title">Overview</h1>
-                    <p class="info_overview_text">{{movie.data.overview}}</p>
+                    <p class="info_overview_text">{{detail.data.short}}</p>
+                    <v-dialog v-model="dialog" width="600px" >
+                        <button v-if="is.long" class="overview_btn" slot="activator" color="primary" dark>all overview</button>
+                       
+                        <v-card class="overview">
+                            
+                            <v-btn icon dark @click.native="dialog = false">
+                                <v-icon>close</v-icon>
+                            </v-btn>
+                            <v-card-text >{{detail.data.overview}}</v-card-text>
+                            
+                        </v-card>
+
+                    </v-dialog>
                 </div>
-                <button v-if="is.video" @click.stop="getVideo" class="info_btn">view trailer
-                    <i class="material-icons">
-                    trending_flat
-                    </i>
+                <!-- movie trailer button-->
+                <button v-if="is.video" @click.stop="video = !video" class="info_btn">view trailer
                 </button>
+                <!-- open video -->
                 <v-dialog v-model="video" width="700">
                     <v-card>
-                    
-                        <v-card-text class="video_wrapper" v-for="(video, i) in movie.video" :key="i">
-                            <iframe width="560" height="315" :src="video.key" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                        <v-card-text class="video_wrapper" v-for="(video, i) in detail.video" :key="i">
+                            <iframe width="560" height="315" :src="trailer()" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                         </v-card-text>
                     </v-card>
                 </v-dialog>
             </section>
         </div>
     </main>
+    <!-- cast and crew section -->
     <section class="cast">
         <div class="cast_wrapper">
-            <h1 class="cast_title">
-                Cast
-            </h1>
-            <div class="cast_person_wrapper" v-bind:class="{'showLess' : showLess }">
-                <div v-for="(actor, index) in movie.credits.cast" :key="index" class="cast_person">
-                    <router-link :to="{ name: 'singleActor', params: { id: actor.id } }"> 
-                        <figure class="cast_content">
-                            <img class="cast_person_img" v-bind:src="actor.profile_path" alt="">
-                            <figcaption class="cast_content_hover">
-                                <img class="item_hover_ico" src="../assets/img/svg/plus.svg" alt="">
-                            </figcaption>           
-                        </figure>
-                    </router-link>
-                    <h2 class="cast_person_name">{{ actor.name }}</h2>
-                    <p class="cast_person_role">{{ actor.character}}</p>
-                </div>
-                
-            </div>
-            <button v-if="is.cast" class="more_btn" v-on:click=" showMore() ">{{ buttonTitle }}</button>
-
+            <!-- cast and crew tabs -->
+            <v-tabs v-model="currentTab" class="tab_menu" color="transparent" centered >
+                <v-tabs-slider color="black" ></v-tabs-slider>
+                <v-tab v-if="is.cast" class="tab_menu_item" href="#cast">
+                    Cast
+                </v-tab>
+                <v-tab v-if="is.crew" class="tab_menu_item" href="#crew">
+                    crew
+                </v-tab>
+                <!-- cast tab -->
+                <v-tab-item class="tab_item" id="cast">
+                    <div class="cast_person_wrapper" v-bind:class="{'showLess' : button.showLessCast }">
+                        <div v-for="(actor, index) in detail.credits.cast" :key="index" class="cast_person">
+                            <router-link :to="{ name: 'singleActor', params: { id: actor.id } }"> 
+                                <figure class="cast_content">
+                                    <img class="cast_person_img" v-bind:src="actor.profile_path" alt="">
+                                    <figcaption class="cast_content_hover">
+                                        <img class="item_hover_ico" src="../assets/img/svg/plus.svg" alt="">
+                                    </figcaption>           
+                                </figure>
+                            </router-link>
+                            <h2 class="cast_person_name">{{ actor.name }}</h2>
+                            <p class="cast_person_role">{{ actor.character}}</p>
+                        </div>
+                    </div>
+                    <button v-if="button.isCast" class="more_btn" v-on:click=" showMoreCast() ">{{ button.titleCast }}</button>
+                </v-tab-item>
+                <!-- crew tab -->
+                <v-tab-item class="tab_item" id="crew">
+                    <div class="cast_person_wrapper" v-bind:class="{'showLess' : button.showLessCrew }">
+                        <div v-for="(actor, index) in detail.credits.crew" :key="index" class="cast_person">
+                            <router-link :to="{ name: 'singleActor', params: { id: actor.id } }"> 
+                                <figure class="cast_content">
+                                    <img class="cast_person_img" v-bind:src="actor.profile_path" alt="">
+                                    <figcaption class="cast_content_hover">
+                                        <img class="item_hover_ico" src="../assets/img/svg/plus.svg" alt="">
+                                    </figcaption>           
+                                </figure>
+                            </router-link>
+                            <h2 class="cast_person_name">{{ actor.name }}</h2>
+                            <p class="cast_person_role">{{ actor.job}}</p>
+                        </div>                    
+                    </div>
+                    <button v-if="button.isCrew" class="more_btn" v-on:click=" showMoreCrew() ">{{ button.titleCrew }}</button>
+                </v-tab-item>
+            </v-tabs><!-- end cast and crew tabs -->
         </div> 
     </section>
-    <section></section>
+    <!-- movies recommendations -->
     <section class="item_container" v-if="is.recomend">
         <h1 class="recommend">Recommendations</h1> 
         <div class="item_wrapper">
-            <div class="item" v-for="(film, index) in movie.recommend" :key="index">
+            <div class="item" v-for="(film, index) in detail.recommend" :key="index">
                 <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
-                    
-                    <figure class="item_content">
-                        <span class="item_rate">
-                                        {{film.vote_average}} <img src="../assets/img/svg/star.svg"></span>
-                        <img class="item_img" v-bind:src="film.poster_path" alt="">
-                        <figcaption class="item_hover">
-                            <img class="item_hover_ico" src="../assets/img/svg/plus.svg" alt="">
-                        </figcaption>           
-                    </figure>
+                    <app-itemList>
+                        <template slot="rate">{{film.vote_average}}</template>
+                        <template slot="year">{{film.release_date.slice(0,4)}}</template>
+                        <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
+                    </app-itemList>
                 </router-link>
-                <h1 class="item_name"> {{film.title}}  </h1>
+                <h1 class="item_name"> {{film.title}} </h1>
             </div>
-        </div>
-
-
+        </div> 
     </section>
+
     <app-footer></app-footer>
    
 </div></template>
 
 <script>
 import footer from '../components/footer.vue';
+import itemList from '../components/templates/itemList.vue';
 import axios from 'axios';
 
 
 export default {
     components: {
         'app-footer': footer,
+        'app-itemList': itemList,
     },
 
     data () {
         return {
+            currentTab: "cast",
             video: false,
-            showLess: true,
-            buttonTitle: "show more",
-            background: require('../assets/img/homeBack.jpg'),
-            URL: { 
-                img: "https://image.tmdb.org/t/p/w500" ,
-                database: "https://api.themoviedb.org/3/",
-                apiKey: "?api_key=0729eb044b5e37b6c0ff52a4c8617f94",
-                id: "",
-            },
-            holder: {
-                person: require('../assets/img/holders/person.svg'),
-                movie: require('../assets/img/posters/empty.jpg'),
-            },
-            movie: {
-                data: [],
-                credits: {
-                    cast: [],
-                    crew: [],
-                },
-                recomend: [],
-                video: [],
-            },
-            is: {
-                recomend: false,
-                cast: false,
-                video: true,
-            }
-     
-
+            loading: false,
+            dialog: false,
         }
     },
 
     created(){
-
+        // render movie data
         this.getMovieData()
+        // render movie credits
         this.getMovieCredits()
+        // render movie recommendations
         this.getRecommend()
+        // render trailer video
         this.getTrailer()
-        console.log(this.movie.video)
+
 
     },
 
-  
+    computed: {
+        //get data from store
+        URL(){ return this.$store.state.URL },
+        holder(){ return this.$store.state.holder },
+        detail(){ return this.$store.state.detail },
+        is(){ return this.$store.state.is },
+        button(){ return this.$store.state.button },
+    },
+
+    watch: {
+        // show less person on inactive tab
+        currentTab() {
+
+            if (this.currentTab = "cast") {
+                this.button.showLessCrew = true
+                this.button.titleCrew = "show more crew"
+            } 
+            if (this.currentTab = "crew") {
+                this.button.showLessCast = true
+                this.button.titleCast = "show more cast"
+            }
+
+        },
+        
+    },
 
     methods: {
-
+        // format budget and revenue currancy 
         formatNub(num){ 
             num = Math.abs(num);
             num = num.toLocaleString(undefined, {
@@ -174,120 +225,168 @@ export default {
             })
             return num
         },
-
-        
-
-
-        getVideo() {
-            this.video = !this.video
-            
-        },
-
-        showMore() {
-            this.showLess = !this.showLess
-            if (this.showLess) {
-                this.buttonTitle = 'show more'
+        // toggle cast more button
+        showMoreCast() {
+            this.button.showLessCast = !this.button.showLessCast
+            if (this.button.showLessCast) {
+                this.button.titleCast = 'show more cast'
             } else {
-                this.buttonTitle = 'show less'
+                this.button.titleCast = 'show less cast'
             }
         },
-
+        // toggle crew more button
+        showMoreCrew() {
+            this.button.showLessCrew = !this.button.showLessCrew
+            if (this.button.showLessCrew) {
+                this.button.titleCrew = 'show more crew'
+            } else {
+                this.button.titleCrew = 'show less crew'
+            }
+        },
+        // sort movies and tv shows by year
+        dynamicSort(property) {
+            var sortOrder = 1;
+            if(property[0] === "-") {
+                sortOrder = -1;
+                property = property.substr(1);
+            }
+            return function (a,b) {
+                var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+                return result * sortOrder;
+            }
+        },
+        // format run time
         timeConvert(data) {
             let minutes = data % 60
             let hours = (data - minutes) / 60
             return  `${hours}h ${minutes}m`
         },
-
+        // get movie data from database
         getMovieData() {
+            this.loading = true
             axios.get(`${this.URL.database}movie/${this.$route.params.id}${this.URL.apiKey}`)
             .then(res => {
                 const URL = "https://image.tmdb.org/t/p/original"
-                this.movie.data = res.data
-
-                if (this.movie.data.poster_path) {
-                    this.movie.data.poster_path = URL + this.movie.data.poster_path
-                } else if (this.movie.data.poster_path == null) {
-                    this.movie.data.poster_path = this.holder.movie
+                this.detail.data = res.data
+                // if is no poster image replace with holder
+                if (this.detail.data.poster_path) {
+                    this.detail.data.poster_path = URL + this.detail.data.poster_path
+                } else if (this.detail.data.poster_path == null) {
+                    this.detail.data.poster_path = this.holder.detail
                 }
-
-                
-
-                this.movie.data.backdrop_path = URL + this.movie.data.backdrop_path
-                this.movie.data.release_date = this.movie.data.release_date.slice(0,4)
-                this.movie.data.runtime = this.timeConvert(this.movie.data.runtime)
+                // slice overview -- show all overview button
+                if (this.detail.data.overview.length > 350) {
+                    this.is.long = true
+                    this.detail.data.short = this.detail.data.overview.slice(0,350) + "..."
+                } else { 
+                    this.detail.data.short = this.detail.data.overview
+                    this.is.long = false
+                }
+                // set backdrop url
+                this.detail.data.backdrop_path = URL + this.detail.data.backdrop_path
+                // get just year from release date
+                this.detail.data.release_date = this.detail.data.release_date.slice(0,4)
+                // format run time 
+                if (this.detail.data.runtime) {
+                    this.detail.data.runtime = this.timeConvert(this.detail.data.runtime)
+                }  
+            }).then(()=> {
+                this.loading = false
             }) 
         },
-
+        // get movie credits from database
         getMovieCredits() {
+            this.loading = true
+            this.currentTab = "cast"
             axios.get(`${this.URL.database}movie/${this.$route.params.id}/credits${this.URL.apiKey}`)
             .then(res => {
                 const URL = "https://image.tmdb.org/t/p/w235_and_h235_face"
-                this.movie.credits.crew = res.data.crew
-                this.movie.credits.crew = this.movie.credits.crew.slice(0,3) 
-                this.movie.credits.cast = res.data.cast
+                this.detail.credits.crew = res.data.crew
+                this.detail.credits.cast = res.data.cast
 
-                this.movie.credits.cast.forEach((profile)=>{
+                let crew = this.detail.credits.crew
+                let cast = this.detail.credits.cast
+                // if is no profile image in cast replace with holder
+                cast.forEach((profile)=> {
                     if (profile.profile_path) {
                         profile.profile_path = URL + profile.profile_path
                     } else if (profile.profile_path == null) {
                         profile.profile_path = this.holder.person
                     }
                 })
-
-                if (this.movie.credits.cast.length > 4) {
-                    this.is.cast = true
-                } else  { this.is.cast = false }
-                
+                // if is no profile image in crew replace with holder
+                crew.forEach((profile)=> {
+                    if (profile.profile_path) {
+                        profile.profile_path = URL + profile.profile_path
+                    } else if (profile.profile_path == null) {
+                        profile.profile_path = this.holder.person
+                    }
+                })
+                // show crew section
+                !crew.length ? (this.is.crew = false, this.currentTab = "cast") : this.is.crew = true
+                // show cast section
+                !cast.length ? (this.is.cast = false, this.currentTab = "crew") : this.is.cast = true
+                // show more/less button in cast tab if exist more then 6 person
+                cast.length > 6 ? this.button.isCast = true : this.button.isCast = false 
+                // show more/less button in crew tab if exist more then 6 person
+                crew.length > 6 ? this.button.isCrew = true : this.button.isCrew = false 
+            }).then(()=> {
+                this.loading = false
             }) 
         },
-
+        // get recommend movies from database
         getRecommend() {
+            this.loading = true
             axios.get(`${this.URL.database}movie/${this.$route.params.id}/recommendations${this.URL.apiKey}`)
             .then(res => {
                const URL = "https://image.tmdb.org/t/p/w500"
-                this.movie.recommend = res.data.results
-                this.movie.recommend = this.movie.recommend.slice(0, 4) 
-                this.movie.recommend.forEach((poster)=>{
+                this.detail.recommend = res.data.results
+                // if is no poster image replace with holder
+                this.detail.recommend.forEach((poster)=>{
                     if (poster.poster_path) {
                         poster.poster_path = URL + poster.poster_path
                     } else if (poster.poster_path == null) {
-                        poster.poster_path = this.URL.holder.movie
+                        poster.poster_path = this.URL.holder.detail
                     }
                 })
-                if (this.movie.recommend.length > 0) {
-                    this.is.recomend = true
-                } else { this.is.recomend = false }
-                
-            }) 
+                // sort movie by rate
+                this.detail.recommend.sort(this.dynamicSort("-vote_average"))
+                // render only 6 movies
+                this.detail.recommend = this.detail.recommend.slice(0,6)
+                // show recomend item if exist
+                this.detail.recommend.length > 0 ? this.is.recomend = true : this.is.recomend = false    
+            }).then(()=> {
+                this.loading = false
+            })  
         },
-
+        // get movie trailer video from database
         getTrailer() {
             axios.get(`${this.URL.database}movie/${this.$route.params.id}/videos${this.URL.apiKey}`)
             .then(res => {
-                this.movie.video =  res.data.results
-                console.log(this.movie.video)
+                this.detail.video = res.data.results      
                 const URL = "https://www.youtube.com/embed/"
-                this.movie.video.forEach((video)=>{
+                // set video url
+                this.detail.video.forEach((video)=>{
                     
                     if (video.key) {
                         video.key = URL + video.key
                     } 
-
+                    this.detail.video_trailer = video.key
                 })
-
-                if (!this.movie.video.length) {
-                    this.is.video = false
-                } else if (this.movie.video.length) {
-                    this.is.video = true
-                }
-
-                this.movie.video = this.movie.video.slice(0,1)
-                return this.movie.video
-
+                //show trailer button if video exist
+                !this.detail.video.length ? this.is.video = false : this.is.video = true 
+                // show only 1 trailer
+                return this.detail.video_trailer
             }) 
         },
-
-
+        // video trailer - active only when dialog si active
+        trailer(){
+            if (this.video) {
+                return this.detail.video_trailer 
+            } else if (!this.video) {
+                return ' '   
+            }
+        },
     },
 }
 </script>
@@ -318,6 +417,10 @@ export default {
     display: none;
 }
 
+.overview {
+    background: $color-bg--light;
+
+}
 
 
 </style>
