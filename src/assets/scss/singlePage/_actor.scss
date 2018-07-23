@@ -1,5 +1,4 @@
-///*** OVERVIEW ***///
-
+///*** ACTOR OVERVIEW ***///
 .main {
     display: flex;
     font-size: 100%;
@@ -15,7 +14,6 @@
         width: 100%;
         background: rgba($color_main, .8);
     }
-
     &_container {
         max-width: $width;
         margin: 30px auto 0 auto;
@@ -57,6 +55,11 @@
     &_overview_wrapper {
         margin: 30px 0;
         max-width: 600px;
+        pre {
+            white-space: pre-wrap; 
+            word-wrap: break-word;
+            font-family: inherit;
+        }
     }
     &_overview_title {
         font-size: 130%;
@@ -64,9 +67,12 @@
     &_overview_text {
         line-height: 150%
     }
-
 }
 
+.overview_more {
+    background: $color-bg--light;
+}
+// actor image
 .cast_img {
     height: 200px;
     width: auto;
@@ -99,11 +105,9 @@
 
 //POSTER
 .poster {
-   display: none;
+    display: none;
     position: relative;
 }
-
-
 
 @media screen and (min-width: 800px) {
     .poster {
@@ -136,8 +140,6 @@
     background: $color-bg--light;
 }
 
-
-
 .acting {
     text-align: center;
     padding: 30px;
@@ -154,7 +156,6 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-
     }
     &_item {
         display: flex;

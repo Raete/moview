@@ -1,7 +1,7 @@
 ///*** ITEMS WRAPPER ***///
 .item {
     height: auto;
-    width: 160px;
+    width: 160px; //160
     margin: 10px;
     flex: 0 0 auto;
     &_container {
@@ -16,6 +16,7 @@
         flex-wrap: nowrap;
         overflow-x: auto;
         justify-content: flex-start;
+        
     }
     &_content {
         position: relative;
@@ -61,18 +62,26 @@
         font-size: 12px;
         color: $color_main;
     }
-    &_rate {
+    &_chip {
         display: flex;
         background: $color_main;
         position: absolute;
-        right: 0;
         padding: 5px;
         font-size: 100%;
         font-weight: 700;
         border-radius: 0 8px 0 8px;
+        &--rate {
+            right: 0;
+            top: 0;
+        }
+        &--year {
+            left: 0;
+            bottom: 0;
+        }
     }
 }
 
+//--desktop--
 @media screen and (min-width: 560px) {
     .item_wrapper {
         justify-content: center;

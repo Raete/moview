@@ -1,6 +1,9 @@
 <template><div>
     <v-app class="index">
-        <app-header></app-header>
+        <app-menu></app-menu>
+        <div class="loading" v-if="loading">
+            <img src="@/assets/img/svg/loader.svg" alt="moview" >
+            </div>
      
         <!-- filters -->
         <section class="filters">
@@ -26,14 +29,14 @@
         </section>  
         <!-- search films -->    
         <section class="item_container" v-if="searchInput.select">
-            <div class="item_wrapper">
+            <div v-if="!loading" class="item_wrapper">
                 <div class="item"   v-for="(film, index) in movies.search" :key="index">
                 <router-link :to="{ name: 'singleActor', params: { id: film.id } }"> 
-                    <figure class="item_content">
+                    <figure class="item_content animated">
                         
                         <img class="item_img" v-bind:src="film.profile_path" alt="">
                         <figcaption class="item_hover">
-                            <img class="item_hover_ico" src="../assets/img/svg/plus.svg" alt="">
+                            <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
                         </figcaption>           
                     </figure>
                     </router-link>
@@ -51,18 +54,19 @@
         </section>
         <!-- discover films -->    
         <section class="item_container" v-if="!searchInput.select">
-            <div class="item_wrapper">
+            <div v-if="!loading" class="item_wrapper">
                 <div class="item" v-for="(film, index) in movies.discover" :key="index">
                 <router-link :to="{ name: 'singleActor', params: { id: film.id } }"> 
-                    <figure class="item_content">
+                    <figure class="item_content animated">
                         
                         <img class="item_img" v-bind:src="film.profile_path" alt="">
                         <figcaption class="item_hover">
-                            <img class="item_hover_ico" src="../assets/img/svg/plus.svg" alt="">
+                            <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
                         </figcaption>           
                     </figure>
-                    </router-link>
-                    <h1 class="item_name"> {{film.name}} </h1>
+                </router-link>
+                <h1 class="item_name"> {{film.name}} </h1>
+                    
                 </div>
             </div> 
             <!-- pagination --> 
@@ -80,33 +84,34 @@
 </div></template>
 
 <script>
-import header from '../components/header.vue';
-import footer from '../components/footer.vue';
+import menu from '@/components/parts/menu.vue';
+import footer from '@/components/parts/footer.vue';
 import axios from 'axios';
 
 export default {
     components: {
-        'app-header': header,
+        'app-menu': menu,
         'app-footer': footer,
     },
-    name: 'home',
     data () {
-        return {        
+        return {   
+            loading: false,     
             search: "",
-                searchInput: {
+            searchInput: {
                 search: "",
                 loading: false,
                 items: [],
                 select: null,
-                states: [],
+                names: [],
             },
         }
     },
 
     created(){
-        // if is search input empty discover movies is render
+
         this.page.cur = 1
         this.page.curSearch = 1
+       // if is search input empty discover movies is render
         !this.searchInput.select 
         this.discoverMovies()
     },
@@ -140,6 +145,7 @@ export default {
                 this.page.cur--
                 this.discoverMovies()
             }
+            this.scrollToTop(300)
         },
         //paginations next button
         next(){
@@ -150,6 +156,7 @@ export default {
                 this.page.cur++
                 this.discoverMovies()
             }
+            this.scrollToTop(300)
         },
         // creating list of movie titles in autocomplete input 
         titleList(searchTerm, place) {
@@ -158,16 +165,27 @@ export default {
             .then(res => {
                 let titles = res.data.results
                 titles.forEach((movie)=> {
-                    this.searchInput.states.push(movie.name)
+                    this.searchInput.names.push(movie.name)
                 })
-                this.searchInput.items = this.searchInput.states.filter(e => {
+                this.searchInput.items = this.searchInput.names.filter(e => {
                     return (e || '').toLowerCase().indexOf((searchTerm || '').toLowerCase()) > -1
                 })
                 this.searchInput.loading = false
             }) 
         },
+        scrollToTop(scrollDuration) {
+            var scrollStep = -window.scrollY / (scrollDuration / 15),
+                scrollInterval = setInterval(function(){
+                if ( window.scrollY != 0 ) {
+                    window.scrollBy( 0, scrollStep );
+                }
+                else clearInterval(scrollInterval); 
+            },15)
+        },
         // get data from database with query
         searchMovies() {
+            this.movies.search = ""
+            this.loading = true
             axios.get(`${this.URL.database}search/person${this.URL.apiKey}&page=${this.page.curSearch}&query=${this.searchInput.select}`)
             .then(res => {
                 // base url for image
@@ -185,10 +203,15 @@ export default {
                         poster.profile_path = this.holder.photo
                     }
                 })
-            }) 
+            }).then(()=> { 
+                this.loading = false
+               
+            })    
         },
         // get data from discover database 
         discoverMovies() {
+            this.movies.discover = ""
+            this.loading = true
             axios.get(`${this.URL.database}person/popular${this.URL.apiKey}&page=${this.page.cur}`)
             .then(res => {
                 // base url for image
@@ -207,7 +230,10 @@ export default {
                         poster.profile_path = this.holder.photo
                     }
                 })
-            }) 
+            }).then(()=> { 
+                this.loading = false
+               
+            })   
         },
         
     }, 
@@ -217,7 +243,11 @@ export default {
 
 <style lang='scss' scoped>
     @import '../assets/scss/_variables';
-    @import '../assets/scss/_filters';
-    @import '../assets/scss/_tips';
-    @import '../assets/scss/_pagination';
+    @import '../assets/scss/parts/_general';
+    @import '../assets/scss/parts/_filters';
+    @import '../assets/scss/parts/_itemList';
+    @import '../assets/scss/parts/_pagination';
+
+
+
 </style>

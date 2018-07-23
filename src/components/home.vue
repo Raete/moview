@@ -34,12 +34,11 @@
 </div></template>
 
 <script>
-import header from '../components/header.vue';
+import menu from '../components/parts/menu.vue';
 export default {
     components: {
-        'app-header': header,
+        'app-menu': menu,
     },
-    name: 'app_header',
     data () {
         return {
             backgroundImage: [
@@ -62,8 +61,9 @@ export default {
 
 <style lang='scss' scoped>
 @import '../assets/scss/_variables';
+@import '../assets/scss/parts/_general';
 @import '../assets/scss/_home';
-@import '../assets/scss/_menu';
+@import '../assets/scss/parts/_menu';
 
 .menu {
     background: transparent;

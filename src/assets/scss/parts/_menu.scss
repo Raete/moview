@@ -40,16 +40,8 @@
             }
         }
     }
-
 }
-
-.menu_active {
-    &:before {
-        right:0
-    }
-
-}
-
+//--desktop--
 @media screen and (min-width: 400px) {
     .menu_control {
         margin: 0 auto;
@@ -68,5 +60,11 @@
     }
     .menu_control {
         margin: 0 ;
+    }
+}
+//-- active item in menu
+.router-link-active, .router-link-exact-active {
+    &:before {
+        right:0
     }
 }

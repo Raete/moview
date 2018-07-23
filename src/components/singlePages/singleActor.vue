@@ -1,6 +1,9 @@
-<template><div v-if="!loading">
+<template><div >
+    <div class="loading" v-if="loading">
+            <img src="@/assets/img/svg/loader.svg" alt="loading..." >
+            </div>
 
-    <main class="main"  >
+    <main v-if="!loading" class="main animated"  >
         <img class="poster" :src="actor.img.profile_path" alt="">
         <div class="main_container">
             <!-- back button -->
@@ -19,15 +22,20 @@
                 <!-- person overview -->
                 <div class="info_overview_wrapper">
                     <h1 v-if="actor.data.biography" class="info_overview_title">Biography</h1>
-                    <p class="info_overview_text">{{actor.data.short}}</p>
+                    <p class="info_overview_text"><pre>{{actor.data.short}}</pre></p>
                     <!-- more overview -->
                     <v-dialog v-model="dialog" width="600px" >
-                        <button v-if="is.long" class="more_btn" slot="activator" color="primary" dark>All biography</button>
-                        <v-card class="biography">
-                            <v-btn icon dark @click.native="dialog = false">
+                        <button v-if="is.long" class="overview_btn" slot="activator" color="primary" dark>All biography</button>
+                        <v-card class="overview_more">
+                            <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn icon flat @click.native="dialog = false">
                                 <v-icon>close</v-icon>
                             </v-btn>
-                            <v-card-text >{{actor.data.biography}}</v-card-text>
+
+                            </v-card-actions>
+                            <v-card-text > <pre>{{actor.data.biography}}</pre> </v-card-text>
+                            
                         </v-card>
                     </v-dialog>
                 </div>
@@ -35,7 +43,7 @@
         </div>
 
     </main>
-    <section class="item_container">
+    <section v-if="!loading" class="item_container animated">
         <!-- known for -->
         <h1 class="recommend"> Known for</h1> 
         <div class="item_wrapper">
@@ -43,7 +51,7 @@
                 <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
                     <app-itemList>
                         <template slot="rate">{{film.vote_average}}</template>
-                        <template slot="year">{{film.release_date.slice(0,4)}}</template>
+                        <template slot="year">{{film.release_date}}</template>
                         <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
                     </app-itemList>
                 </router-link>
@@ -51,10 +59,10 @@
             </div>
         </div> 
     </section>
-    <section class="acting">
+    <section v-if="!loading" class="acting animated">
         <!-- acting list -->
         <h1 class="acting_title">Acting</h1> 
-        <v-tabs class="tab_menu" color="transparent" >
+        <v-tabs color="transparent" >
             <v-tabs-slider color="black" ></v-tabs-slider>
 
             <v-tab class="tab_menu_item" href="#movies">
@@ -77,7 +85,7 @@
                         </div>
                         <span class="acting_rate">
                             {{film.vote_average}} 
-                            <img src="../assets/img/svg/star_g.svg">
+                            <img src="@/assets/img/svg/star_g.svg">
                         </span>
                         </router-link>
                     </li>
@@ -97,7 +105,7 @@
                         </div>
                         <span class="acting_rate">
                             {{film.vote_average}} 
-                            <img src="../assets/img/svg/star_g.svg">
+                            <img src="@/assets/img/svg/star_g.svg">
                         </span>
                         </router-link>
                     </li>
@@ -110,8 +118,8 @@
 </div></template>
 
 <script>
-import footer from '../components/footer.vue';
-import itemList from '../components/templates/itemList.vue';
+import footer from '@/components/parts/footer.vue';
+import itemList from '@/components/templates/itemList.vue';
 import axios from 'axios';
 
 
@@ -129,6 +137,7 @@ export default {
     },
 
     created(){
+       
         // render actor data
         this.getActorData()
         // render movies credits
@@ -151,6 +160,7 @@ export default {
     },
 
     methods: {
+       
         //go back
         goBack(){
             return window.history.back();
@@ -188,13 +198,14 @@ export default {
                 } else if (this.actor.data.profile_path == null) {
                     this.actor.data.profile_path = this.holder.person
                 }
-            }).then(()=> {
+            }).then(()=> { 
                 this.loading = false
             })  
         },
         // get image of actor
         getActorImg() {
             this.loading = true
+            this.actor.img = ""
             axios.get(`${this.URL.database}person/${this.$route.params.id}${this.URL.apiKey}`)
             .then(res => {
                 this.actor.img = res.data
@@ -203,7 +214,7 @@ export default {
                 if (this.actor.img.profile_path) {
                     this.actor.img.profile_path = URL + this.actor.img.profile_path
                 } else if (this.actor.img.profile_path == null) {
-                    this.actor.img.profile_path = this.holder.movie
+                    this.actor.img.profile_path = this.holder.photo
                 }
             }).then(()=> {
                 this.loading = false
@@ -245,7 +256,9 @@ export default {
                 // sort list of shows by date
                 this.actor.showCredits = this.actor.showCredits.sort(this.dynamicSort("-first_air_date"))
                 this.actor.showCredits.forEach((date)=>{
-                    date.first_air_date = date.first_air_date.slice(0,4)
+                    if (date.first_air_date) {
+                        date.first_air_date = date.first_air_date.slice(0,4)
+                    }
                     // if somethig missing replace with ????
                     if (date.first_air_date == "") {
                         date.first_air_date = "????"
@@ -278,10 +291,21 @@ export default {
                         poster.poster_path = this.holder.photo
                     }
                 })
+                // get just year from release date
+                this.actor.movieKnown.forEach((year)=>{
+                    if(year.release_date) {
+                        year.release_date = year.release_date.slice(0,4)
+                    } else {
+                         year.release_date = "????"
+                    }
+                })
                 // sort movie by rate
                 this.actor.movieKnown.sort(this.dynamicSort("-vote_average"))
                 // render only 6 movies
-                this.actor.movieKnown = this.actor.movieKnown.slice(0,6)
+                if (this.actor.movieKnown) {
+                    this.actor.movieKnown = this.actor.movieKnown.slice(0,6)
+                }
+
             }).then(()=> {
                 this.loading = false
             })  
@@ -292,15 +316,10 @@ export default {
 
 
 <style lang='scss' scoped>
-@import '../assets/scss/_variables';
-@import '../assets/scss/_tips';
-
-@import '../assets/scss/actors/_singleActor';
-
-.biography {
-    background: $color-bg--light;
-
-}
+@import '../../assets/scss/_variables';
+@import '../../assets/scss/parts/_general';
+@import '../../assets/scss/parts/_itemList';
+@import '../../assets/scss/singlePage/_actor';
 
 
 
