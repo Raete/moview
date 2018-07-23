@@ -3,8 +3,9 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import { store } from './store/store'
+import VueAnalytics from 'vue-analytics'
 import _ from 'lodash'
+import { store } from './store/store'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 
@@ -16,8 +17,15 @@ import 'vuetify/dist/vuetify.min.css'
 
         }
     }),
+
+    Vue.use(VueAnalytics, {
+        id: 'UA-122724615-1',
+        router
+      })
    
-Vue.config.productionTip = false
+    Vue.config.productionTip = false
+
+
 
 /* eslint-disable no-new */
 new Vue({

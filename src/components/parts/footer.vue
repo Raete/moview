@@ -17,3 +17,21 @@ export default {
   name: 'App'
 }
 </script>
+
+<style lang='scss'>
+@import '../../assets/scss/_variables';
+
+///*** FOOTER ***///
+.app_footer {
+    background: $color_bg--darken;
+    &_wrapper {
+        display: flex;
+        justify-content: space-between;
+        max-width: $width; 
+        margin: 0 auto;
+        padding: 20px;
+        text-align: center;
+    }
+}
+
+</style>

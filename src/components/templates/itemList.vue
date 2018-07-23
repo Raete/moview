@@ -2,7 +2,7 @@
     
 
         
-            <figure class="item_content">
+            <figure class="item_content animated" >
                 <span class="item_chip item_chip--rate"> 
                     <slot name="rate"></slot>
                      <img src="@/assets/img/svg/star.svg"></span>
@@ -14,7 +14,7 @@
                     <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
                 </figcaption>           
             </figure>
-        
+       
 
            
 </div></template>
@@ -32,5 +32,9 @@ export default {
 
 <style lang='scss' scoped>
     @import '../../assets/scss/_variables';
-    @import '../../assets/scss/_itemList';
+    @import '../../assets/scss/parts/_general';
+    @import '../../assets/scss/parts/_itemList';
+
+
+
 </style>

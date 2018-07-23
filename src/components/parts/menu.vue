@@ -31,15 +31,12 @@ export default {
 
 
 <style lang='scss' scoped>
-@import '../assets/scss/_variables';
-@import '../assets/scss/_menu';
+@import '../../assets/scss/_variables';
+@import '../../assets/scss/parts/_general';
+@import '../../assets/scss/parts/_menu';
 
 
-.router-link-active, .router-link-exact-active {
-    &:before {
-        right:0
-    }
-}
+
 
 
 

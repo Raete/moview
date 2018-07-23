@@ -1,17 +1,16 @@
 ///*** SEASONS MENU AND LIST OF EPISODES ***///
-
-// MENU
-
-// EPISODES LIST
-
 .episode_wrapper {
-max-width: $width;
-margin: 0 auto;
+    max-width: $width;
+    margin: 0 auto;
+    padding-top: 20px;
 }
 .episode {
     display: flex;
     border-bottom: 1px dashed $color_text;
-    padding: 20px 0;
+    padding: 20px;
+    &:last-child {
+        border-bottom: 0;
+    }
     &_feedback {
         font-weight: 700;
         text-align: center

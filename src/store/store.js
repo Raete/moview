@@ -13,7 +13,8 @@ export const store = new Vuex.Store({
         holder: {
             photo: require('../assets/img/holders/photo.svg'),
             person: require('../assets/img/holders/person.svg'),
-            movie: require('../assets/img/holders/image.svg'),
+            episode: require('../assets/img/holders/episode.svg'),
+            detail: require('../assets/img/holders/detail.svg'),
         },
 
         movies: {
@@ -50,6 +51,7 @@ export const store = new Vuex.Store({
             long: true,
             cast: true,
             crew: true,
+            credits: true,
             tags: true,
             episode: true,
         },
@@ -69,5 +71,36 @@ export const store = new Vuex.Store({
             movieKnown: [],
         },
 
-    }
+    },
+    mutations: {
+        dynamicSort(state, payload) {
+            var sortOrder = 1;
+            if(payload[0] === "-") {
+                sortOrder = -1;
+                payload = payload.substr(1);
+            }
+            return function (a,b) {
+                var result = (a[payload] < b[payload]) ? -1 : (a[payload] > b[payload]) ? 1 : 0;
+                return result * sortOrder;
+            }
+        },
+        showMoreCrew() {
+            this.state.button.showLessCrew = !this.state.button.showLessCrew
+            if (this.state.button.showLessCrew) {
+                this.state.button.titleCrew = 'show more crew'
+            } else {
+                this.state.button.titleCrew = 'show less crew'
+            }
+        },
+        showMoreCast() {
+            this.state.button.showLessCast = !this.state.button.showLessCast
+            if (this.state.button.showLessCast) {
+                this.state.button.titleCast = 'show more cast'
+            } else {
+                this.state.button.titleCast = 'show less cast'
+            }
+        },
+        
+        
+    },
 })
