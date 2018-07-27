@@ -17,7 +17,7 @@ export const store = new Vuex.Store({
             detail: require('../assets/img/holders/detail.svg'),
         },
 
-        movies: {
+        items: {
             discover: [],
             search: [],
             years: ["All"],
@@ -54,14 +54,8 @@ export const store = new Vuex.Store({
             credits: true,
             tags: true,
             episode: true,
-        },
-        button: {
-            showLessCast: true,
-            showLessCrew: true,
-            titleCast: "show more cast",
-            titleCrew: "show more crew",
-            isCrew: false,
-            isCast: false,
+            shows: false,
+            movies: true
         },
         actor: {
             data: [],
@@ -73,34 +67,21 @@ export const store = new Vuex.Store({
 
     },
     mutations: {
-        dynamicSort(state, payload) {
-            var sortOrder = 1;
-            if(payload[0] === "-") {
-                sortOrder = -1;
-                payload = payload.substr(1);
-            }
-            return function (a,b) {
-                var result = (a[payload] < b[payload]) ? -1 : (a[payload] > b[payload]) ? 1 : 0;
-                return result * sortOrder;
-            }
-        },
-        showMoreCrew() {
-            this.state.button.showLessCrew = !this.state.button.showLessCrew
-            if (this.state.button.showLessCrew) {
-                this.state.button.titleCrew = 'show more crew'
-            } else {
-                this.state.button.titleCrew = 'show less crew'
+
+        // create list of years 
+        getYearsList(state) {
+            // set year 1900
+            let first = "1900"
+            // set current year
+            let current = new Date().getFullYear()
+            // push list of year to movies.years
+            for (var i = first; i <= current; i++) state.items.years.push(i);
+            // sorting years array first is "none" then current year - 1900
+            if (state.items.years) {
+                state.items.years = state.items.years.slice(0, 1)
+                .concat(state.items.years = state.items.years.slice(1, state.items.years.length).reverse())
             }
         },
-        showMoreCast() {
-            this.state.button.showLessCast = !this.state.button.showLessCast
-            if (this.state.button.showLessCast) {
-                this.state.button.titleCast = 'show more cast'
-            } else {
-                this.state.button.titleCast = 'show less cast'
-            }
-        },
-        
-        
+
     },
 })

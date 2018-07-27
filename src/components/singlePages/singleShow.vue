@@ -91,20 +91,13 @@
         </div>
     </main>
     <!-- cast and crew section -->
-    <section class="cast animated" v-if="is.credits">
+    <section v-if="is.credits" class="cast animated">
         <div class="cast_wrapper" v-if="!loading">
-            <!-- cast and crew tabs -->
-            <v-tabs v-model="currentTabCrew" class="tab_menu" color="transparent" centered >
-                <v-tabs-slider color="black" ></v-tabs-slider>
-                <v-tab v-if="is.cast" class="tab_menu_item" href="#cast">
-                    Cast
-                </v-tab>
-                <v-tab v-if="is.crew" class="tab_menu_item" href="#crew">
-                    crew
-                </v-tab>
-                <!-- cast tab -->
-                <v-tab-item class="tab_item" id="cast">
-                    <div class="cast_person_wrapper" v-bind:class="{'showLess' : button.showLessCast }">
+
+            <v-expansion-panel >
+                <v-expansion-panel-content v-model="panel" class="credits" v-if="is.cast">
+                    <h1 slot="header" class="credits_title">Cast</h1>
+                    <div class="cast_person_wrapper">
                         <div v-for="(actor, index) in detail.credits.cast" :key="index" class="cast_person">
                             <router-link :to="{ name: 'singleActor', params: { id: actor.id } }"> 
                                 <figure class="cast_content">
@@ -118,11 +111,12 @@
                             <p class="cast_person_role">{{ actor.character}}</p>
                         </div>
                     </div>
-                    <button v-if="button.isCast" class="more_btn" v-on:click=" showMoreCast() ">{{ button.titleCast }}</button>
-                </v-tab-item>
-                <!-- crew tab -->
-                <v-tab-item class="tab_item" id="crew">
-                    <div class="cast_person_wrapper" v-bind:class="{'showLess' : button.showLessCrew }">
+                </v-expansion-panel-content>
+
+                <v-expansion-panel-content class="credits" v-if="is.crew">
+                    <h1 slot="header" class="credits_title">Crew</h1>
+       
+                     <div class="cast_person_wrapper" >
                         <div v-for="(actor, index) in detail.credits.crew" :key="index" class="cast_person">
                             <router-link :to="{ name: 'singleActor', params: { id: actor.id } }"> 
                                 <figure class="cast_content">
@@ -136,9 +130,9 @@
                             <p class="cast_person_role">{{ actor.job}}</p>
                         </div>                    
                     </div>
-                    <button v-if="button.isCrew" class="more_btn" v-on:click=" showMoreCrew() ">{{ button.titleCrew }}</button>
-                </v-tab-item>
-            </v-tabs><!-- end cast and crew tabs -->
+                </v-expansion-panel-content>
+            </v-expansion-panel>
+            
         </div> 
     </section>
     <!-- shows recommendations -->
@@ -195,7 +189,7 @@
     
     
     <app-footer></app-footer>
-    <!-- <button @click="scrollTo('allSeasons')" class="up" :class="{ active: show }"> to seasons </button> -->
+    <button @click="scrollTo('allSeasons')" class="up" :class="{ up_active: show }"> seasons </button>
    
 </div></template>
 
@@ -214,49 +208,32 @@ export default {
     data () {
         return {
             loading: false,
-            currentTabCrew: "cast",
             currentTab: "season_1",
             video: false,
+            // full overview
             dialog: false,
+            // singular/plural of season and episode
             season: "season",
             episode: "episode",
-
-            show: false
+            // back to seasons button
+            show: true,
+            // cast panel active
+            panel: true,
         }
     },
 
     created(){
-   
         // for start
         this.init()
         // render movie data
         this.getMovieData()
-        // render movie credits
-        this.getMovieCredits()
-        // render movie recommendations
-        this.getRecommend()
-        // render trailer video
-        this.getTrailer()
         // render episodes
         this.getEpisode(1)
-   
-
+        // back to seasons button
+        window.addEventListener("scroll", this.scrollButton)
     },
 
     watch: {
-        // show less person on inactive tab
-        currentTabCrew() {
-
-            if (this.currentTabCrew = "cast") {
-                this.button.showLessCrew = true
-                this.button.titleCrew = "show more crew"
-            } 
-            if (this.currentTabCrew = "crew") {
-                this.button.showLessCast = true
-                this.button.titleCast = "show more cast"
-            }
-        },
-
         currentTab(){
             // set number of season in episode list
             this.getEpisode(this.currentTab.split("_").pop())
@@ -269,20 +246,21 @@ export default {
         holder(){ return this.$store.state.holder },
         detail(){ return this.$store.state.detail },
         is(){ return this.$store.state.is },
-        button(){ return this.$store.state.button },
     },
 
 
     methods: {
         //for start
         init(){
-            this.button.showLessCast = true
-            
+            this.loading = true
+            this.detail.data = ""
+            this.detail.credits.cast = ""
+            this.detail.recommend = ""  
+            this.detail.video = ""
         },
         // scroll to anchor element (seasons)
         scrollTo(name) {
             this.smoothScrollTo(document.getElementById(name));
-
         },
         // smooth scrolling
         smoothScrollTo(elem) {
@@ -300,13 +278,13 @@ export default {
                 elem.lastjump = null;
             }
         },
-        // toggle cast more button
-        showMoreCast() {
-            this.$store.commit("showMoreCast")
-        },
-        // toggle crew more button
-        showMoreCrew() {
-            this.$store.commit("showMoreCrew")
+        // show button to season
+        scrollButton() {
+            if (window.scrollY >= 800) {
+                this.show = false
+            } else {
+                this.show = true
+            }
         },
         // average item in array
         average(array){
@@ -325,7 +303,6 @@ export default {
             if (window.innerWidth > 800) {
                 return this.detail.data.backdrop_path
             } else return ""
-    
         },
         // sort movies and tv shows by year
         dynamicSort(property) {
@@ -339,24 +316,23 @@ export default {
                 return result * sortOrder;
             }
         },
-        // show button to season
-        // showButton(){
-
-        //         if(document.body.scrollTop > 200 || document.documentElement.scrollTop > 200){
-        //             this.show = false
-
-        //         } else {
-        //             this.show = true
-
-        //         }
-
-           
-        // },
+        // plural season and epsisode when is more then one
+        plural(){
+            if (this.detail.data.number_of_seasons > 1) {
+                this.season = "seasons"
+            }
+            if (this.detail.data.number_of_episodes > 1) {
+                this.episode = "episodes"
+            }  
+        },
         // get show data from database
         getMovieData() {
-            this.loading = true
-            axios.get(`${this.URL.database}tv/${this.$route.params.id}${this.URL.apiKey}`)
+            this.init()
+            axios.get(`${this.URL.database}tv/${this.$route.params.id}${this.URL.apiKey}&append_to_response=videos,credits,recommendations`)
             .then(res => {
+   
+                //** MOVIE DETAIL **//
+                //*****************//
                 const URL = "https://image.tmdb.org/t/p/original"
                 this.detail.data = res.data
                 // if is no poster image replace with holder
@@ -375,10 +351,7 @@ export default {
                 }
                 // episode average run time
                 this.detail.data.episode_run_time_average = this.average(this.detail.data.episode_run_time)
-                // get number of seasons
-                res.data.seasons.forEach((season)=>{
-                    this.detail.seriesNum.push(season.season_number)  
-                })
+                
                 // set backdrop url
                 this.detail.data.backdrop_path = URL + this.detail.data.backdrop_path
                 // get just year from first air date
@@ -389,24 +362,102 @@ export default {
                 this.detail.data.episode_run_time.length > 0 ? this.is.episode = true : this.is.episode = false  
                 // plural season and epsisode when is more then one
                 this.plural()
+
+                //** CREDITS **//
+                //************//
+                const URLface = "https://image.tmdb.org/t/p/w235_and_h235_face"
+                this.detail.credits.crew = res.data.credits.crew
+                this.detail.credits.cast = res.data.credits.cast
+
+                let crew = this.detail.credits.crew
+                let cast = this.detail.credits.cast
+                // only 3 crew person in overview
+                if (this.detail.credits.crew) {
+                   this.detail.credits.crew = this.detail.credits.crew.slice(0,3)
+                }
+                // if is no profile image in cast replace with holder
+                cast.forEach((profile)=> {
+                    if (profile.profile_path) {
+                        profile.profile_path = URLface + profile.profile_path
+                    } else if (profile.profile_path == null) {
+                        profile.profile_path = this.holder.person
+                    }
+                })
+                // if is no profile image in crew replace with holder
+                crew.forEach((profile)=> {
+                    if (profile.profile_path) {
+                        profile.profile_path = URLface + profile.profile_path
+                    } else if (profile.profile_path == null) {
+                        profile.profile_path = this.holder.person
+                    }
+                })
+                // show crew section
+                !crew.length ? (this.is.crew = false) : this.is.crew = true
+                // show cast section
+                !cast.length ? (this.is.cast = false) : this.is.cast = true
+              
+                // if crew and cast don't exist hide all credits
+                if ( !this.is.crew && !this.is.cast ) {
+                    this.is.credits = false
+                }
+
+                //** RECOMMENDATIONS **//
+                //********************//
+                const URLrecom = "https://image.tmdb.org/t/p/w500"
+                this.detail.recommend = res.data.recommendations.results
+                // if is no poster image replace with holder
+                this.detail.recommend.forEach((poster)=>{
+                    if (poster.poster_path) {
+                        poster.poster_path = URLrecom + poster.poster_path
+                    } else if (poster.poster_path == null) {
+                        poster.poster_path = this.holder.photo
+                    }
+                })
+                // get just year from release date
+                this.detail.recommend.forEach((year)=>{
+                    if (year.first_air_date) {
+                        year.first_air_date = year.first_air_date.slice(0,4)
+                    } else {
+                         year.first_air_date = "????"
+                    }
+                })
+                // sort movie by rate
+                this.detail.recommend.sort(this.dynamicSort("-vote_average"))
+                // render only 6 movies
+                if (this.detail.recommend) {
+                    this.detail.recommend = this.detail.recommend.slice(0,6)
+                }
+                // show recomend item if exist
+                this.detail.recommend.length > 0 ? this.is.recomend = true : this.is.recomend = false   
+
+                //** TRAILER **//
+                //************//
+                const URLvideo = "https://www.youtube.com/embed/"
+                this.detail.video = res.data.videos.results      
+                
+                // set video url
+                this.detail.video.forEach((video)=>{
+                    
+                    if (video.key) {
+                        video.key = URLvideo + video.key
+                    } 
+                    this.detail.video = video.key
+                })
+                //show trailer button if video exist
+                !this.detail.video.length ? this.is.video = false : this.is.video = true 
+        
+
             }).then(()=> {
                 this.loading = false
             })  
         },
-        // plural season and epsisode when is more then one
-        plural(){
-            if (this.detail.data.number_of_seasons > 1) {
-                this.season = "seasons"
-            }
-            if (this.detail.data.number_of_episodes > 1) {
-                this.episode = "episodes"
-            }  
-        },
+        
         // get episode from database
         getEpisode(val) {
          
             axios.get(`${this.URL.database}tv/${this.$route.params.id}/season/${val}${this.URL.apiKey}`)
             .then(res => {
+        
                 const URL = "https://image.tmdb.org/t/p/w500"
                 let ep = res.data.episodes
                 // if is no screen image replace with holder
@@ -424,123 +475,15 @@ export default {
                         date.air_date = date.air_date.split("-").reverse().join(".")
                     }
                 })
-               
                this.detail.episodes = ep
             })
         },
-        // get show credits from database
-        getMovieCredits() {
-            this.loading = true
-            this.currentTabCrew = "cast"
-            axios.get(`${this.URL.database}tv/${this.$route.params.id}/credits${this.URL.apiKey}`)
-            .then(res => {
-                const URL = "https://image.tmdb.org/t/p/w235_and_h235_face"
-                this.detail.credits.crew = res.data.crew
-                this.detail.credits.cast = res.data.cast
-
-                let crew = this.detail.credits.crew
-                let cast = this.detail.credits.cast
-                // only 3 crew person in overview
-                if (this.detail.credits.crew) {
-                   this.detail.credits.crew = this.detail.credits.crew.slice(0,3)
-                }
-                // if is no profile image in cast replace with holder
-                cast.forEach((profile)=> {
-                    if (profile.profile_path) {
-                        profile.profile_path = URL + profile.profile_path
-                    } else if (profile.profile_path == null) {
-                        profile.profile_path = this.holder.person
-                    }
-                })
-                // if is no profile image in crew replace with holder
-                crew.forEach((profile)=> {
-                    if (profile.profile_path) {
-                        profile.profile_path = URL + profile.profile_path
-                    } else if (profile.profile_path == null) {
-                        profile.profile_path = this.holder.person
-                    }
-                })
-                // show crew section
-                !crew.length ? (this.is.crew = false, this.currentTabCrew = "cast") : this.is.crew = true
-                // show cast section
-                !cast.length ? (this.is.cast = false, this.currentTabCrew = "crew") : this.is.cast = true
-                // show more/less button in cast tab if exist more then 6 person
-                cast.length > 6 ? this.button.isCast = true : this.button.isCast = false 
-                // show more/less button in crew tab if exist more then 6 person
-                crew.length > 6 ? this.button.isCrew = true : this.button.isCrew = false 
-                // if crew and cast don't exist hide all credits
-                if ( !this.is.crew && !this.is.cast ) {
-                    this.is.credits = false
-                }
-
-            }).then(()=> {
-                this.loading = false
-            })  
-        },
-         // get recommend shows from database
-        getRecommend() {
-            this.loading = true
-            axios.get(`${this.URL.database}tv/${this.$route.params.id}/recommendations${this.URL.apiKey}`)
-            .then(res => {
-               const URL = "https://image.tmdb.org/t/p/w500"
-                this.detail.recommend = res.data.results
-                // if is no poster image replace with holder
-                this.detail.recommend.forEach((poster)=>{
-                    if (poster.poster_path) {
-                        poster.poster_path = URL + poster.poster_path
-                    } else if (poster.poster_path == null) {
-                        poster.poster_path = this.holder.photo
-                    }
-                })
-                // get just year from release date
-                this.detail.recommend.forEach((year)=>{
-                    if (year.first_air_date) {
-                        year.first_air_date = year.first_air_date.slice(0,4)
-                    } else {
-                         year.release_date = "????"
-                    }
-                })
-                // sort movie by rate
-                this.detail.recommend.sort(this.dynamicSort("-vote_average"))
-                // render only 6 movies
-                if (this.detail.recommend) {
-                    this.detail.recommend = this.detail.recommend.slice(0,6)
-                }
-                // show recomend item if exist
-                this.detail.recommend.length > 0 ? this.is.recomend = true : this.is.recomend = false    
-                
-            }).then(()=> {
-                this.loading = false
-            })  
-        },
-
-        // get show trailer video from database
-        getTrailer() {
-            this.loading = true
-            axios.get(`${this.URL.database}tv/${this.$route.params.id}/videos${this.URL.apiKey}`)
-            .then(res => {
-                this.detail.video = res.data.results      
-                const URL = "https://www.youtube.com/embed/"
-                // set video url
-                this.detail.video.forEach((video)=>{
-                    
-                    if (video.key) {
-                        video.key = URL + video.key
-                    } 
-                    this.detail.video_trailer = video.key
-                })
-                //show trailer button if video exist
-                !this.detail.video.length ? this.is.video = false : this.is.video = true 
-                // show only 1 trailer
-                return this.detail.video_trailer
-            }).then(()=> {
-                this.loading = false
-            })  
-        },
+        
         // video trailer - active only when dialog si active
         trailer(){
+            
             if (this.video) {
-                return this.detail.video_trailer 
+                return this.detail.video
             } else if (!this.video) {
                 return ' '   
             }
@@ -558,23 +501,8 @@ export default {
 @import '../../assets/scss/singlePage/_seasons';
 @import '../../assets/scss/parts/_itemList';
 
-.up {
-    position: fixed;
-    right: 0;
-    bottom: 5%;
-    border-radius: $radius;
-
-    background: $color_main;
-    padding: 10px;
-}
-
-
 .relative {
     position: relative;
-}
-
-.active {
-    display: none;
 }
 
 </style>

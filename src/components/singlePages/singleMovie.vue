@@ -9,7 +9,9 @@
             backgroundSize: 'cover',
             backgroundPosition: 'center',
         }"   >
+      
         <img class="poster" :src="detail.data.poster_path" alt="">
+
         <div class="main_container">
             <!-- back button -->
             <router-link :to="{ name: 'movies' }"> 
@@ -91,20 +93,13 @@
         </div>
     </main>
     <!-- cast and crew section -->
-    <section v-if="!loading" class="cast animated">
-        <div class="cast_wrapper">
-            <!-- cast and crew tabs -->
-            <v-tabs v-model="currentTab" class="tab_menu" color="transparent" centered >
-                <v-tabs-slider color="black" ></v-tabs-slider>
-                <v-tab v-if="is.cast" class="tab_menu_item" href="#cast">
-                    Cast
-                </v-tab>
-                <v-tab v-if="is.crew" class="tab_menu_item" href="#crew">
-                    crew
-                </v-tab>
-                <!-- cast tab -->
-                <v-tab-item class="tab_item" id="cast">
-                    <div class="cast_person_wrapper" v-bind:class="{'showLess' : button.showLessCast }">
+    <section v-if="is.credits" class="cast animated">
+        <div class="cast_wrapper" v-if="!loading">
+
+            <v-expansion-panel>
+                <v-expansion-panel-content v-model="panel" class="credits" v-if="is.cast">
+                    <h1 slot="header" class="credits_title">Cast</h1>
+                    <div class="cast_person_wrapper">
                         <div v-for="(actor, index) in detail.credits.cast" :key="index" class="cast_person">
                             <router-link :to="{ name: 'singleActor', params: { id: actor.id } }"> 
                                 <figure class="cast_content">
@@ -118,11 +113,12 @@
                             <p class="cast_person_role">{{ actor.character}}</p>
                         </div>
                     </div>
-                    <button v-if="button.isCast" class="more_btn" v-on:click=" showMoreCast() ">{{ button.titleCast }}</button>
-                </v-tab-item>
-                <!-- crew tab -->
-                <v-tab-item class="tab_item" id="crew">
-                    <div class="cast_person_wrapper" v-bind:class="{'showLess' : button.showLessCrew }">
+                </v-expansion-panel-content>
+
+                <v-expansion-panel-content class="credits" v-if="is.crew">
+                    <h1 slot="header" class="credits_title">Crew</h1>
+       
+                     <div class="cast_person_wrapper" >
                         <div v-for="(actor, index) in detail.credits.crew" :key="index" class="cast_person">
                             <router-link :to="{ name: 'singleActor', params: { id: actor.id } }"> 
                                 <figure class="cast_content">
@@ -136,9 +132,9 @@
                             <p class="cast_person_role">{{ actor.job}}</p>
                         </div>                    
                     </div>
-                    <button v-if="button.isCrew" class="more_btn" v-on:click=" showMoreCrew() ">{{ button.titleCrew }}</button>
-                </v-tab-item>
-            </v-tabs><!-- end cast and crew tabs -->
+                </v-expansion-panel-content>
+            </v-expansion-panel>
+            
         </div> 
     </section>
     <!-- movies recommendations -->
@@ -176,26 +172,20 @@ export default {
 
     data () {
         return {
-            currentTab: "cast",
             video: false,
             loading: false,
             dialog: false,
+            // cast panel active
+            panel: true
         }
     },
 
     created(){
-        this.init()
+
         // render movie data
-        this.getMovieData()
-        // render movie credits
-        this.getMovieCredits()
-        // render movie recommendations
-        this.getRecommend()
-        // render trailer video
-        this.getTrailer()
+        this.getItemData()
 
-   
-
+       
     },
 
     computed: {
@@ -204,31 +194,16 @@ export default {
         holder(){ return this.$store.state.holder },
         detail(){ return this.$store.state.detail },
         is(){ return this.$store.state.is },
-        button(){ return this.$store.state.button },
-    },
-
-    watch: {
-        // show less person on inactive tab
-        currentTab() {
-
-            if (this.currentTab = "cast") {
-                this.button.showLessCrew = true
-                this.button.titleCrew = "show more crew"
-            } 
-            if (this.currentTab = "crew") {
-                this.button.showLessCast = true
-                this.button.titleCast = "show more cast"
-            }
-
-        },
-        
     },
 
     methods: {
-        // for start
+        //start setting - reset data
         init(){
-            this.button.showLessCast = true
-            this.detail.data.poster_path = ""
+            this.loading = true
+            this.detail.data = ""
+            this.detail.credits.cast = ""
+            this.detail.recommend = ""
+            this.detail.video = ""
         },
         // format budget and revenue currancy 
         formatNub(num){ 
@@ -238,14 +213,6 @@ export default {
                 maximumFractionDigits: 2
             })
             return num
-        },
-        // toggle cast more button
-        showMoreCast() {
-            this.$store.commit("showMoreCast")
-        },
-        // toggle crew more button
-        showMoreCrew() {
-            this.$store.commit("showMoreCrew")
         },
         // sort movies and tv shows by year
         dynamicSort(property) {
@@ -270,22 +237,27 @@ export default {
             if (window.innerWidth > 800) {
                 return this.detail.data.backdrop_path
             } else return ""
-    
         },
         // get movie data from database
-        getMovieData() {
-            this.loading = true
-            this.detail.data = ""
-            axios.get(`${this.URL.database}movie/${this.$route.params.id}${this.URL.apiKey}`)
+        getItemData() {
+            //start setting - reset data
+            this.init()
+            // API database
+            axios.get(`${this.URL.database}movie/${this.$route.params.id}${this.URL.apiKey}&append_to_response=videos,credits,recommendations`)
             .then(res => {
-                const URL = "https://image.tmdb.org/t/p/original"
+ 
+                //** MOVIE DETAIL **//
+                //*****************//
+                const URLposter = "https://image.tmdb.org/t/p/original"
                 this.detail.data = res.data
+       
                 // if is no poster image replace with holder
                 if (this.detail.data.poster_path) {
-                    this.detail.data.poster_path = URL + this.detail.data.poster_path
+                    this.detail.data.poster_path = URLposter + this.detail.data.poster_path
                 } else if (this.detail.data.poster_path == null) {
                     this.detail.data.poster_path = this.holder.detail
                 }
+
                 // slice overview -- show all overview button
                 if (this.detail.data.overview.length > 350) {
                     this.is.long = true
@@ -295,7 +267,7 @@ export default {
                     this.is.long = false
                 }
                 // set backdrop url
-                this.detail.data.backdrop_path = URL + this.detail.data.backdrop_path
+                this.detail.data.backdrop_path = URLposter + this.detail.data.backdrop_path
                 // get just year from release date
                 if(this.detail.data.release_date ) {
                    this.detail.data.release_date = this.detail.data.release_date.slice(0,4)
@@ -303,34 +275,24 @@ export default {
                 // format run time 
                 if (this.detail.data.runtime) {
                     this.detail.data.runtime = this.timeConvert(this.detail.data.runtime)
-                }  
-             
-            }).then(()=> {
-                this.loading = false
-            }) 
-        },
-        // get movie credits from database
-        getMovieCredits() {
-            this.loading = true
-            this.currentTab = "cast"
-            this.detail.credits.cast = ""
-            axios.get(`${this.URL.database}movie/${this.$route.params.id}/credits${this.URL.apiKey}`)
-            .then(res => {
-                const URL = "https://image.tmdb.org/t/p/w235_and_h235_face"
-                this.detail.credits.crew = res.data.crew
-                this.detail.credits.cast = res.data.cast
-
+                } 
+                
+                //** CREDITS **//
+                //************//
+                const URLface = "https://image.tmdb.org/t/p/w235_and_h235_face"
+                this.detail.credits.crew = res.data.credits.crew
+                this.detail.credits.cast = res.data.credits.cast
 
                 let crew = this.detail.credits.crew
                 let cast = this.detail.credits.cast
                 // only 3 crew person in overview
-                if (res.data.crew) {
-                   this.detail.credits.crew_short = res.data.crew.slice(0,3)
+                if (res.data.credits.crew) {
+                   this.detail.credits.crew_short = res.data.credits.crew.slice(0,3)
                 }
                 // if is no profile image in cast replace with holder
                 cast.forEach((profile)=> {
                     if (profile.profile_path) {
-                        profile.profile_path = URL + profile.profile_path
+                        profile.profile_path = URLface + profile.profile_path
                     } else if (profile.profile_path == null) {
                         profile.profile_path = this.holder.person
                     }
@@ -338,39 +300,29 @@ export default {
                 // if is no profile image in crew replace with holder
                 crew.forEach((profile)=> {
                     if (profile.profile_path) {
-                        profile.profile_path = URL + profile.profile_path
+                        profile.profile_path = URLface + profile.profile_path
                     } else if (profile.profile_path == null) {
                         profile.profile_path = this.holder.person
                     }
                 })
                 // show crew section
-                !crew.length ? (this.is.crew = false, this.currentTabCrew = "cast") : this.is.crew = true
+                !crew.length ? (this.is.crew = false) : this.is.crew = true
                 // show cast section
-                !cast.length ? (this.is.cast = false, this.currentTabCrew = "crew") : this.is.cast = true
-                // show more/less button in cast tab if exist more then 6 person
-                cast.length > 6 ? this.button.isCast = true : this.button.isCast = false 
-                // show more/less button in crew tab if exist more then 6 person
-                crew.length > 6 ? this.button.isCrew = true : this.button.isCrew = false 
+                !cast.length ? (this.is.cast = false) : this.is.cast = true
+
                 // if crew and cast don't exist hide all credits
                 if ( !this.is.crew && !this.is.cast ) {
                     this.is.credits = false
                 }
-            }).then(()=> {
-                this.loading = false
-            }) 
-        },
-        // get recommend movies from database
-        getRecommend() {
-            this.loading = true
-          //  this.detail.recommend = ""
-            axios.get(`${this.URL.database}movie/${this.$route.params.id}/recommendations${this.URL.apiKey}`)
-            .then(res => {
-               const URL = "https://image.tmdb.org/t/p/w500"
-                this.detail.recommend = res.data.results
+
+                //** RECOMMENDATIONS **//
+                //********************//
+                const URLrecom = "https://image.tmdb.org/t/p/w500"
+                this.detail.recommend = res.data.recommendations.results
                 // if is no poster image replace with holder
                 this.detail.recommend.forEach((poster)=>{
                     if (poster.poster_path) {
-                        poster.poster_path = URL + poster.poster_path
+                        poster.poster_path = URLrecom + poster.poster_path
                     } else if (poster.poster_path == null) {
                         poster.poster_path = this.URL.holder.detail
                     }
@@ -392,36 +344,29 @@ export default {
                 // show recomend item if exist
                 this.detail.recommend.length > 0 ? this.is.recomend = true : this.is.recomend = false  
 
-            }).then(()=> {
-                this.loading = false
+                //** TRAILER **//
+                //************//
+                const URLvideo = "https://www.youtube.com/embed/"
+                this.detail.video = res.data.videos.results   
 
-            })  
-        },
-        // get movie trailer video from database
-        getTrailer() {
-            axios.get(`${this.URL.database}movie/${this.$route.params.id}/videos${this.URL.apiKey}`)
-            .then(res => {
-                this.detail.video = res.data.results      
-                const URL = "https://www.youtube.com/embed/"
                 // set video url
-                this.detail.video.forEach((video)=>{
-                    
+                this.detail.video.forEach((video)=>{   
                     if (video.key) {
-                        video.key = URL + video.key
+                        video.key = URLvideo + video.key
                     } 
                     this.detail.video = video.key 
-                   
                 })
-                this.detail.video
                 //show trailer button if video exist
                 !this.detail.video.length ? this.is.video = false : this.is.video = true 
-                // show only 1 trailer
-                return this.detail.video
-                
+
+            }).then(()=> {
+                this.loading = false
             }) 
         },
+
         // video trailer - active only when dialog si active
         trailer(){
+          
             if (this.video) {
                 return this.detail.video
             } else if (!this.video) {
@@ -439,8 +384,6 @@ export default {
 @import '../../assets/scss/singlePage/_overview';
 @import '../../assets/scss/singlePage/_cast';
 @import '../../assets/scss/parts/_itemList';
-
-
 
 
 

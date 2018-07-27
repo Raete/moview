@@ -248,6 +248,11 @@ export default {
     @import '../assets/scss/parts/_itemList';
     @import '../assets/scss/parts/_pagination';
 
+    .item_wrapper {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
 
 
 </style>

@@ -4,7 +4,7 @@
             </div>
 
     <main v-if="!loading" class="main animated"  >
-        <img class="poster" :src="actor.img.profile_path" alt="">
+        <img class="poster" :src="actor.data.profile_path" alt="">
         <div class="main_container">
             <!-- back button -->
             <div @click="goBack()"> 
@@ -65,10 +65,10 @@
         <v-tabs color="transparent" >
             <v-tabs-slider color="black" ></v-tabs-slider>
 
-            <v-tab class="tab_menu_item" href="#movies">
+            <v-tab class="tab_menu_item" href="#movies" v-if="is.movies"  >
                 Movies
             </v-tab>
-            <v-tab class="tab_menu_item" href="#tvShows">
+            <v-tab class="tab_menu_item" href="#tvShows" v-if="is.shows">
                 TV Shows
             </v-tab>
            <!-- movies list -->
@@ -137,18 +137,8 @@ export default {
     },
 
     created(){
-       
         // render actor data
         this.getActorData()
-        // render movies credits
-        this.getMovieCredits()
-        // render shows credits
-        this.getShowCredits()
-        // render movie known
-        this.getMovieKnow()
-        // render actor image
-        this.getActorImg()
-
     },
 
     computed: {
@@ -160,7 +150,6 @@ export default {
     },
 
     methods: {
-       
         //go back
         goBack(){
             return window.history.back();
@@ -180,9 +169,13 @@ export default {
         // get actor data from database
         getActorData() {
             this.loading = true
-            axios.get(`${this.URL.database}person/${this.$route.params.id}${this.URL.apiKey}`)
+            this.actor.data = ""
+            this.actor.movieKnown = ""
+            axios.get(`${this.URL.database}person/${this.$route.params.id}${this.URL.apiKey}&append_to_response=movie_credits,tv_credits`)
             .then(res => {
-                const URLFace = "https://image.tmdb.org/t/p/w235_and_h235_face"
+                //** ACTOR DATA **//
+                //***************//
+                let URLFace
                 this.actor.data = res.data
                 // show only 350 characters overview
                 if (this.actor.data.biography.length > 350) {
@@ -193,96 +186,82 @@ export default {
                     this.is.long = false
                 }
                 // if is no poster image replace with holder
+                // TO DO RESIZE
                 if (this.actor.data.profile_path) {
+
+                    if (window.innerWidth > 800) {
+                        URLFace = "https://image.tmdb.org/t/p/original"
+                    } else {
+                        URLFace = "https://image.tmdb.org/t/p/w235_and_h235_face"
+                    }
+
                     this.actor.data.profile_path = URLFace + this.actor.data.profile_path
                 } else if (this.actor.data.profile_path == null) {
-                    this.actor.data.profile_path = this.holder.person
+                    this.actor.data.profile_path = this.holder.detail
                 }
-            }).then(()=> { 
-                this.loading = false
-            })  
-        },
-        // get image of actor
-        getActorImg() {
-            this.loading = true
-            this.actor.img = ""
-            axios.get(`${this.URL.database}person/${this.$route.params.id}${this.URL.apiKey}`)
-            .then(res => {
-                this.actor.img = res.data
-                const URL = "https://image.tmdb.org/t/p/original"
-                // if is no image replace with holder
-                if (this.actor.img.profile_path) {
-                    this.actor.img.profile_path = URL + this.actor.img.profile_path
-                } else if (this.actor.img.profile_path == null) {
-                    this.actor.img.profile_path = this.holder.photo
-                }
-            }).then(()=> {
-                this.loading = false
-            })  
-        },
-        // get movies credits
-        getMovieCredits() {
-            this.loading = true
-            axios.get(`${this.URL.database}person/${this.$route.params.id}/movie_credits${this.URL.apiKey}`)
-            .then(res => {
-                this.actor.movieCredits = res.data.cast
-                // sort list of movies by date
-                this.actor.movieCredits = this.actor.movieCredits.sort(this.dynamicSort("-release_date"))
-                this.actor.movieCredits.forEach((date)=>{
-                    // if somethig missing replace with ????
-                    if (!date.release_date) {
-                        date.release_date = "????"
-                    } else {
-                        date.release_date = date.release_date.slice(0,4)
-                    }
-                    if (!date.character) {
-                        date.character = "????"
-                    } 
-                    if (!date.title) {
-                        date.title = "????"
-                    } 
-                })
+                //** MOVIES CREDITS **//
+                //*****************//
+                // COPY data from database to actor.movieCredits 
+                this.actor.movieCredits = res.data.movie_credits.cast.slice()
+              
+                // show movies section if exist
+                if (this.actor.movieCredits) {
+                    this.is.movies = true
+                    // sort list of shows by date
+                    this.actor.movieCredits = this.actor.movieCredits.sort(this.dynamicSort("-release_date"))
+                    this.actor.movieCredits.forEach((date)=>{
+                        if (date.release_date) {
+                            date.release_date = date.release_date.slice(0,4)
+                        }
+                        // if somethig missing replace with ????
+                        if (date.release_date == "") {
+                            date.release_date = "????"
+                        } 
+                        if (date.character == "") {
+                            date.character = "????"
+                        } 
+                        if (date.title == "") {
+                            date.title = "????"
+                        } 
+                    })
 
-            }).then(()=> {
-                this.loading = false
-            }) 
-        },
-        // get shows credits
-        getShowCredits() {
-            this.loading = true
-            axios.get(`${this.URL.database}person/${this.$route.params.id}/tv_credits${this.URL.apiKey}`)
-            .then(res => {
-                this.actor.showCredits = res.data.cast
-                // sort list of shows by date
-                this.actor.showCredits = this.actor.showCredits.sort(this.dynamicSort("-first_air_date"))
-                this.actor.showCredits.forEach((date)=>{
-                    if (date.first_air_date) {
-                        date.first_air_date = date.first_air_date.slice(0,4)
-                    }
-                    // if somethig missing replace with ????
-                    if (date.first_air_date == "") {
-                        date.first_air_date = "????"
-                    } 
-                    if (date.character == "") {
-                        date.character = "????"
-                    } 
-                    if (date.title == "") {
-                        date.title = "????"
-                    } 
-                })
-           
-            }).then(()=> {
-                this.loading = false
-            }) 
-        },
-        // get movie known
-        getMovieKnow() {
-            this.loading = true
-            axios.get(`${this.URL.database}person/${this.$route.params.id}/movie_credits${this.URL.apiKey}`)
-            .then(res => {
+                } else if (!this.actor.movieCredits) {
+                    this.is.movies = false
+                }
+
+                //** TV SHOWS CREDITS **//
+                //*********************//
+                this.actor.showCredits = res.data.tv_credits.cast
+             
+                // show tv shows section if exist
+                if (this.actor.showCredits) {
+                    this.is.shows = true
+                    // sort list of shows by date
+                    this.actor.showCredits = this.actor.showCredits.sort(this.dynamicSort("-first_air_date"))
+                    this.actor.showCredits.forEach((date)=>{
+                        if (date.first_air_date) {
+                            date.first_air_date = date.first_air_date.slice(0,4)
+                        }
+                        // if somethig missing replace with ????
+                        if (date.first_air_date == "") {
+                            date.first_air_date = "????"
+                        } 
+                        if (date.character == "") {
+                            date.character = "????"
+                        } 
+                        if (date.title == "") {
+                            date.title = "????"
+                        } 
+                    })
+                } else if (!this.actor.showCredits) {
+                    this.is.shows = false
+                }
+
+                //** KNOWN FOR MOVIES **//
+                //*********************//
                 const URL = "https://image.tmdb.org/t/p/w500"
-                const URLFace = "https://image.tmdb.org/t/p/w235_and_h235_face"
-                this.actor.movieKnown = res.data.cast
+
+                this.actor.movieKnown = res.data.movie_credits.cast
                 // if is no poster image replace with holder
                 this.actor.movieKnown.forEach((poster)=>{
                     if (poster.poster_path) {
@@ -306,7 +285,7 @@ export default {
                     this.actor.movieKnown = this.actor.movieKnown.slice(0,6)
                 }
 
-            }).then(()=> {
+            }).then(()=> { 
                 this.loading = false
             })  
         },

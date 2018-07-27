@@ -29,22 +29,24 @@
                 
                     <v-select
                         v-model="selectYear"
-                        :items="movies.years"
+                        :items="items.years"
                         :search-input.sync="selectYear"
                         label="Select year"
                         prepend-icon="event"
+                        hide-details
                     ></v-select>
                
                 </div>
                 <!-- genres filter -->
                 <div class="filters_genres">
                     <v-autocomplete
-                        :items="movies.genres" 
+                        :items="items.genres" 
                         v-model="selectGenres"                 
                         label="Select genres"
                         item-text="name"
                         item-value="id"
                         prepend-icon="list"
+                        hide-details
                         multiple
                         chips
                         clearable
@@ -69,7 +71,7 @@
         <section class="item_container" v-if="searchInput.select">
 
             <div v-if="!loading" class="item_wrapper">
-                <div class="item" v-for="(film, index) in movies.search" :key="index">
+                <div class="item" v-for="(film, index) in items.search" :key="index">
                 <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
                     
                         <app-itemList>
@@ -97,7 +99,7 @@
             
             <div v-if="!loading" class="item_wrapper">
                
-                <div class="item" v-for="(film, index) in movies.discover" :key="index">
+                <div class="item" v-for="(film, index) in items.discover" :key="index">
                   
                     <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
                         <app-itemList>
@@ -161,27 +163,28 @@ export default {
     created(){
         // if is search input empty discover movies is render
         this.init()
-        this.discoverMovies()
+        this.discoverItems()
+        // creating list of years in select input
         this.getYearsList()
+        // creating list of genres in select input
         this.getGenresList()
-     
     },
     
     watch: {
         // watching changes in search input
         search(val) {
-            val && val !== this.searchInput.select && this.titleList(val, "search/movie")
-            this.searchMovies()
+            val && val !== this.searchInput.select && this.titleList(val)
+            this.searchItems()
         },
         // watching changes in genres input
         selectGenres(val) {
             this.page.cur = 1
-            this.discoverMovies()
+            this.discoverItems()
         },
         // watching changes in year input
         selectYear(val) {
             this.page.cur = 1
-            this.discoverMovies()
+            this.discoverItems()
         },
     },
 
@@ -189,7 +192,7 @@ export default {
         //get data from store
         URL(){ return this.$store.state.URL },
         holder(){ return this.$store.state.holder },
-        movies(){ return this.$store.state.movies },
+        items(){ return this.$store.state.items },
         page(){ return this.$store.state.page },
         totalPages(){ return this.$store.state.totalPages },
 
@@ -198,12 +201,12 @@ export default {
     methods: {
         //for start
         init(){
-           this.page.cur = 1
-           this.page.curSearch = 1
+            this.page.cur = 1
+            this.page.curSearch = 1
             !this.searchInput.select 
-            this.movies.discover = ""
-            this.movies.search = ""
-            this.movies.genres = []
+            this.items.discover = ""
+            this.items.search = ""
+            this.items.genres = []
 
 
         },
@@ -212,10 +215,10 @@ export default {
 
             if (this.searchInput.select) {
                 this.page.curSearch--
-                this.searchMovies()
+                this.searchItems()
             } else {
                 this.page.cur--
-                this.discoverMovies()
+                this.discoverItems()
             }
             this.scrollToTop(300)
         },
@@ -224,10 +227,10 @@ export default {
 
             if (this.searchInput.select) {
                 this.page.curSearch++
-                this.searchMovies()
+                this.searchItems()
             } else {
                 this.page.cur++
-                this.discoverMovies()
+                this.discoverItems()
             }
             this.scrollToTop(300)
         },
@@ -242,9 +245,9 @@ export default {
             },15)
         },
         // creating list of movie titles in autocomplete input 
-        titleList(searchTerm, place) {
+        titleList(searchTerm) {
             this.searchInput.loading = true
-            axios.get(`${this.URL.database}${place}${this.URL.apiKey}&query=${searchTerm}`)
+            axios.get(`${this.URL.database}search/movie${this.URL.apiKey}&query=${searchTerm}`)
             .then(res => {
                 let titles = res.data.results
                 titles.forEach((movie)=> {
@@ -257,7 +260,7 @@ export default {
             }) 
         },
         // get data from database with query
-        searchMovies() {
+        searchItems() {
             this.loading = true
             axios.get(`${this.URL.database}search/movie${this.URL.apiKey}&include_adult=false&page=${this.page.curSearch}&query=${this.searchInput.select}`)
             .then(res => {
@@ -266,9 +269,9 @@ export default {
                 // get total pages of searching movies
                 this.totalPages.search = res.data.total_pages
                 // get data results
-                this.movies.search = res.data.results
+                this.items.search = res.data.results
                 // creating complete img path 
-                this.movies.search.forEach((poster)=>{
+                this.items.search.forEach((poster)=>{
                     if (poster.poster_path) {
                         poster.poster_path = URL + poster.poster_path
                     } else if (poster.poster_path == null) {
@@ -277,7 +280,7 @@ export default {
                     }
                 })
                 // get just year from release date
-                this.movies.search.forEach((year)=>{
+                this.items.search.forEach((year)=>{
                     if(year.release_date) {
                         year.release_date = year.release_date.slice(0,4)
                     } else {
@@ -290,19 +293,19 @@ export default {
             })    
         },
         // get data from discover database 
-        discoverMovies() {
+        discoverItems() {
             this.loading = true
             axios.get(`${this.URL.database}discover/movie${this.URL.apiKey}&include_adult=false&page=${this.page.cur}&primary_release_year=${this.selectYear}&with_genres=${this.selectGenres}`)
             .then(res => {
                 // base url for image
                 const URL = "https://image.tmdb.org/t/p/w500"
                 // get data results        
-                this.movies.discover = res.data.results
+                this.items.discover = res.data.results
                
-                // get total pages of discover movies
+                // get total pages of discover items
                 this.totalPages.discover = res.data.total_pages   
                 // creating complete img path 
-                this.movies.discover.forEach((poster)=>{
+                this.items.discover.forEach((poster)=>{
                     if (poster.poster_path) {
                         poster.poster_path = URL + poster.poster_path
                     } else if (poster.poster_path == null) {
@@ -311,16 +314,13 @@ export default {
                     }
                 })
                 // get just year from release date
-                this.movies.discover.forEach((year)=>{
+                this.items.discover.forEach((year)=>{
                     if (year.release_date) {
                         year.release_date = year.release_date.slice(0,4)
                     } else {
                          year.release_date = "????"
                     }
                 })
-
-              
-   
 
             }).then(()=> { 
                 this.loading = false
@@ -329,17 +329,7 @@ export default {
         },
         // create list of years 
         getYearsList() {
-            // set year 1900
-            let first = "1900"
-            // set current year
-            let current = new Date().getFullYear()
-            // push list of year to movies.years
-            for (var i = first; i <= current; i++) this.movies.years.push(i);
-            // sorting years array first is "none" then current year - 1900
-            if(this.movies.years) {
-                this.movies.years = this.movies.years.slice(0, 1)
-                .concat(this.movies.years = this.movies.years.slice(1, this.movies.years.length).reverse())
-            }
+            this.$store.commit('getYearsList')
         },
         // creating list of genres 
         getGenresList(searchTerm) {
@@ -349,7 +339,7 @@ export default {
                let genres = res.data.genres
                 // push data to array
                 genres.forEach((genre)=> {
-                    this.movies.genres.push(genre) 
+                    this.items.genres.push(genre) 
                 })
                
             }) 
