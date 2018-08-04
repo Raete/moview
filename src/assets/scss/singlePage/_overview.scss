@@ -18,11 +18,23 @@
         max-width: $width;
         margin: 30px auto 0 auto;
         padding: 0 30px;
-        position: relative
+        position: relative;
+        &_header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+
+        }
     }
 }
 
 //--desktop--
+@media screen and (min-width: 1300px) {
+    .main_container {
+        font-size: 120%;
+    }
+}
+
 @media screen and (min-width: 1000px) {
     .main_container {
         display: flex;
@@ -31,7 +43,9 @@
         margin: 0;
         padding-left: 5%;
         max-width: 50%;
-        font-size: 120%;
+        &_header {
+            margin-bottom: 90px;
+        }
     }
 }
 
@@ -44,6 +58,9 @@
 }
 // DESCRIPTIONS
 .info {
+    &_wrapper {
+        position: relative;
+    }
     &_rate {
         display: flex;
         justify-content: center;
@@ -72,18 +89,12 @@
         padding-right: 10px;
     }
     &_time {
+        margin-bottom: 10px;
         span {
             font-weight: 700;
         }
     }
-    &_crew_title {
-        font-weight: 700;
-    }
-    &_crew {
-        margin: 10px 0;
-        padding: 0;
-    }
-    &_crew_name{
+    &_money {
         span {
             font-weight: 700;
         }
@@ -107,6 +118,13 @@
 
 .overview_more {
     background: $color-bg--light;
+}
+
+//--desktop--
+@media screen and (min-width: 1300px) {
+    .overview_more {
+        font-size: 120%;
+    }
 }
 
 //POSTER
@@ -150,10 +168,21 @@
     }
 }
 
+.over {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+}
+
+
 .hideVideo {
     display: none;
 }
 
+.video_background {
+    background: $color_main;
+}
 
 
 

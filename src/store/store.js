@@ -5,11 +5,15 @@ Vue.use(Vuex);
 
 export const store = new Vuex.Store({
     state: {
+        // base url 
         URL: { 
             img: "https://image.tmdb.org/t/p/w500" ,
             database: "https://api.themoviedb.org/3/",
             apiKey: "?api_key=0729eb044b5e37b6c0ff52a4c8617f94",
+            face: "https://image.tmdb.org/t/p/w235_and_h235_face",
+            actor: "https://image.tmdb.org/t/p/original"
         },
+        // img holders
         holder: {
             photo: require('../assets/img/holders/photo.svg'),
             person: require('../assets/img/holders/person.svg'),
@@ -34,6 +38,7 @@ export const store = new Vuex.Store({
             search: null,
             discover: null,
         },
+        // single pages
         detail: {
             data: [],
             credits: {
@@ -44,7 +49,22 @@ export const store = new Vuex.Store({
             video: [],
             episodes: [],
             seriesNum: [],
+
+            random: [],
         },
+        // add movie or tv show to favorite
+        like: {
+            icon: "favorite_border",
+            status: false,
+            movieData: [],
+            showData: [],
+        },
+        // trailer and full overview
+        box: {
+            overview: false,
+            video: false,
+        },
+        // if item exist
         is: {
             recomend: false,
             video: true,
@@ -57,6 +77,7 @@ export const store = new Vuex.Store({
             shows: false,
             movies: true
         },
+        // actors data
         actor: {
             data: [],
             img: "",
@@ -73,7 +94,7 @@ export const store = new Vuex.Store({
             // set year 1900
             let first = "1900"
             // set current year
-            let current = new Date().getFullYear()
+            let current = new Date().getFullYear() + 2
             // push list of year to movies.years
             for (var i = first; i <= current; i++) state.items.years.push(i);
             // sorting years array first is "none" then current year - 1900
@@ -82,6 +103,44 @@ export const store = new Vuex.Store({
                 .concat(state.items.years = state.items.years.slice(1, state.items.years.length).reverse())
             }
         },
+
+        scrollToTop(state, scrollDuration) {
+            let scrollStep = -window.scrollY / (scrollDuration / 15),
+                scrollInterval = setInterval(function(){
+                if ( window.scrollY != 0 ) {
+                    window.scrollBy( 0, scrollStep );
+                }
+                else clearInterval(scrollInterval); 
+            },15)
+        },
+
+        topBackground(state){
+            if (window.innerWidth > 800) {
+                return state.detail.data.backdrop_path
+            } else return ""
+        },
+
+        // sort movies and tv shows by year
+        // dynamicSort(state, property) {
+        //     let sortOrder = 1;
+        //     if (property[0] === "-") {
+        //         sortOrder = -1;
+        //         property = property.substr(1);
+        //     }
+        //     return function (a,b) {
+        //         let result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+        //         return result * sortOrder;
+        //     }
+        // },
+
+        readStorage(state){
+            const storeMovie = JSON.parse(localStorage.getItem("movieLikes"))
+            const storeShow = JSON.parse(localStorage.getItem("showLikes"))
+            // send data from local storage to like.movieData array
+            if (storeMovie) state.like.movieData = storeMovie
+            if (storeShow) state.like.showData = storeShow
+        },
+        
 
     },
 })

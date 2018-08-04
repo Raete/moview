@@ -1,24 +1,20 @@
 <template><div>
+ 
     <div class="menu">
         <div class="menu_wrapper">
             <router-link  :to="{ name: 'home' }" exact> 
                 <img src="@/assets/img/svg/logo.svg" alt="moview" class="menu_logo"> 
             </router-link>
             <div class="menu_control">
-                <router-link class="menu_control_item" 
-                :to="{ name: 'movies' }" exact> Movies </router-link>
-
-                <router-link class="menu_control_item"          
-                :to="{ name: 'shows' }" exact> TV Shows </router-link>
-
-                <router-link class="menu_control_item" 
-                :to="{ name: 'celebrities' }" exact> Celebrities </router-link>
+               
             </div>
         </div>
     </div>
+  
 </div></template>
 
 <script>
+import { mapState } from 'vuex';
 
 export default {
     data () {
@@ -26,14 +22,47 @@ export default {
 
         }
     },
+    computed(){
+       
+    },
+
+    computed: {
+        //get data from store
+        ...mapState([
+            'like',
+        ]),
+    },
+    methods: {
+        // if favorite movie or tv show exist show favourite button
+        showItem(){
+            let isMovie 
+            let isShow
+          
+            if (localStorage.movieLikes) {
+                isMovie = localStorage.movieLikes.length > 2 
+            } else isMovie = false
+      
+            if (localStorage.showLikes) {
+                isShow = localStorage.showLikes.length > 2 
+            } else isShow = false
+
+            if (isMovie || isShow) {
+                return true
+            } else return false
+
+        },
+
+    }
 }
 </script>
 
 
+
 <style lang='scss' scoped>
-@import '../../assets/scss/_variables';
-@import '../../assets/scss/parts/_general';
-@import '../../assets/scss/parts/_menu';
+    @import '../../assets/scss/_variables';
+    @import '../../assets/scss/parts/_general';
+    @import '../../assets/scss/parts/_menu';
+
 
 
 

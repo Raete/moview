@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Home from '@/components/home'
 import Movies from '@/components/movies'
 import Shows from '@/components/shows'
+import Profile from '@/components/profile'
 import Celebrities from '@/components/celebrities'
 import SingleMovie from '@/components/singlePages/singleMovie'
 import SingleShow from '@/components/singlePages/singleShow'
@@ -28,6 +29,11 @@ export default new Router({
             path: '/shows',
             name: 'shows',
             component: Shows
+        },
+        {
+            path: '/profile',
+            name: 'profile',
+            component: Profile
         },
         {
             path: '/celebrities',

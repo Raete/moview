@@ -1,16 +1,16 @@
 <template><div>
-    <v-app class="index">
+    <v-app>
         <app-menu></app-menu>
         <div class="loading" v-if="loading">
             <img src="@/assets/img/svg/loader.svg" alt="loading..." >
-            </div>
+        </div>
+        <app-submenu></app-submenu>
         <!-- filters -->
         <section class="filters">
             <div class="filters_wrapper">
                 <!-- search filter -->
                 <div class="filters_search">
                     <v-autocomplete
-                        :loading="searchInput.loading"
                         :items="searchInput.items"
                         :search-input.sync="search"
                         v-model="searchInput.select"
@@ -19,7 +19,8 @@
                         hide-no-data
                         hide-details
                         clearable
-                        prepend-icon="search"
+                        solo
+                        prepend-inner-icon="search"
                         label="Search TV Shows"
                     ></v-autocomplete>
                 </div>
@@ -30,7 +31,9 @@
                         :items="items.years"
                         :search-input.sync="selectYear"
                         label="Select year"
-                        prepend-icon="event"
+                        flat
+                        solo
+                        prepend-inner-icon="event"
                         hide-details
                     ></v-select>
                 </div>
@@ -42,7 +45,9 @@
                         label="Select genres"
                         item-text="name"
                         item-value="id"
-                        prepend-icon="list"
+                        flat
+                        solo
+                        prepend-inner-icon="list"
                         hide-details
                         multiple
                         chips
@@ -67,7 +72,7 @@
         <!-- search films -->    
         <section class="item_container" v-if="searchInput.select">
             <div v-if="!loading" class="item_wrapper">
-                <div class="item"   v-for="(film, index) in items.search" :key="index">
+                <div class="item" v-for="(film, index) in items.search" :key="index">
                 <router-link :to="{ name: 'singleShow', params: { id: film.id } }"> 
                     
                         <app-itemList>
@@ -94,25 +99,29 @@
             
             <div v-show="!loading" class="item_wrapper">
                 <div class="item" v-for="(film, index) in items.discover" :key="index">
-                <router-link :to="{ name: 'singleShow', params: { id: film.id } }"> 
-
-                    <app-itemList>
-                        <template slot="rate">{{film.vote_average}}</template>
-                        <template slot="year"> {{film.first_air_date}}</template>
-                        <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
-                    </app-itemList>
-
+                    <router-link :to="{ name: 'singleShow', params: { id: film.id } }"> 
+                        <app-itemList>
+                            <template slot="rate">{{film.vote_average}}</template>
+                            <template slot="year"> {{film.first_air_date}}</template>
+                            <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
+                        </app-itemList>
                     </router-link>
                     <h1 class="item_name"> {{film.name}} </h1>
                 </div>
             </div> 
       
-            <!-- pagination --> 
+             <!-- pagination --> 
             <div class="pages">
                 <div class="pages_wrapper">
-                    <button class="pages_btn pages_btn--prev" v-show="this.page.cur > 1" @click="prev">prev</button>
+                    <v-btn flat round v-show="this.page.cur > 1" @click="prev" >
+                        <v-icon color="primary"> keyboard_arrow_left </v-icon>
+                        prev
+                    </v-btn>
                     <p class="pages_total"> Currently on page: {{this.page.cur}} of {{this.totalPages.discover}}</p>
-                    <button class="pages_btn pages_btn--next" v-show="this.page.cur < this.totalPages.discover" @click="next">next</button>
+                    <v-btn flat round v-show="this.page.cur < this.totalPages.discover" @click="next" >
+                        next
+                        <v-icon color="primary"> keyboard_arrow_right </v-icon>
+                    </v-btn>
                 </div>
             </div>
         </section>
@@ -123,21 +132,23 @@
 
 <script>
 import menu from '../components/parts/menu.vue';
+import subMenu from '../components/parts/subMenu.vue';
 import itemList from '../components/templates/itemList.vue';
 import footer from '../components/parts/footer.vue';
 import axios from 'axios';
+import { mapState } from 'vuex';
 
 export default {
     components: {
         'app-menu': menu,
+        'app-submenu': subMenu,
         'app-itemList': itemList,
         'app-footer': footer,
     },
     data () {
         return {        
-         
             loading: false,
-            // serching filters
+            // filters
             search: "",
             selectYear: "",
             selectGenres: "",
@@ -153,10 +164,13 @@ export default {
     },
 
     created(){
-        // if is search input empty discover movies is render
+        
         this.init()
+        // render data from API
         this.discoverItems()
+        // creating list of years in select input
         this.getYearsList()
+        // creating list of genres in select input
         this.getGenresList()
     },
     
@@ -180,14 +194,13 @@ export default {
 
     computed: {
         //get data from store
-        URL(){ return this.$store.state.URL },
-        holder(){ return this.$store.state.holder },
-       // searchInput(){ return this.$store.state.searchInput },
-        items(){ return this.$store.state.items },
-        filters(){ return this.$store.state.filters },
-        page(){ return this.$store.state.page },
-        totalPages(){ return this.$store.state.totalPages },
-
+        ...mapState([
+            'URL',
+            'holder',
+            'items',
+            'page',
+            'totalPages',
+        ]),
     },
 
     methods: {
@@ -196,14 +209,12 @@ export default {
             this.page.cur = 1
             this.page.curSearch = 1
             !this.searchInput.select 
-
             this.items.discover = ""
             this.items.search = ""
             this.items.genres = []
         },
         //paginations prev button
         prev(){
-
             if (this.searchInput.select) {
                 this.page.curSearchP--
                 this.searchItems()
@@ -215,7 +226,6 @@ export default {
         },
         //paginations next button
         next(){
-    
             if (this.searchInput.select) {
                 this.page.curSearch++
                 this.searchItems()
@@ -225,14 +235,9 @@ export default {
             }
             this.scrollToTop(300)
         },
-        scrollToTop(scrollDuration) {
-            var scrollStep = -window.scrollY / (scrollDuration / 15),
-                scrollInterval = setInterval(function(){
-                if ( window.scrollY != 0 ) {
-                    window.scrollBy( 0, scrollStep );
-                }
-                else clearInterval(scrollInterval); 
-            },15)
+        // scroll to top
+        scrollToTop(time) {
+            this.$store.commit('scrollToTop', time)
         },
         // creating list of movie titles in autocomplete input 
         titleList(searchTerm) {
@@ -290,18 +295,19 @@ export default {
             this.loading = true
             axios.get(`${this.URL.database}discover/tv${this.URL.apiKey}&page=${this.page.cur}&first_air_date_year=${this.selectYear}&with_genres=${this.selectGenres}`)
             .then(res => {
+                
                 // base url for image
                 const URL = "https://image.tmdb.org/t/p/w500"
                 // get data results        
                 this.items.discover = res.data.results
-              
+             
                 // get total pages of discover items
                 this.totalPages.discover = res.data.total_pages   
                 // creating complete img path 
                 this.items.discover.forEach((poster)=>{
                     if (poster.poster_path) {
                         poster.poster_path = URL + poster.poster_path
-                    } else if (poster.poster_path == null) {
+                    } else if (poster == null || poster.poster_path == null) {
                         // replace poster with poster holder if is no poster
                         poster.poster_path = this.holder.photo
                     }

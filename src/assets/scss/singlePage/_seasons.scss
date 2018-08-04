@@ -36,23 +36,7 @@
     }
 }
 
-// to season button
-.up {
-    position: fixed;
-    right: 0;
-    bottom: 5%;
-    border-radius: $radius 0 0 $radius;
-    background: $color_main;
-    padding: 10px ;
-    transition: all .3s;
-    opacity: 0.8;
-    &:hover {
-        opacity: 1;
-    }
-    &_active {
-        opacity: 0; 
-     }
-}
+
 
 
 

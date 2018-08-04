@@ -24,6 +24,13 @@
 }
 
 //--desktop--
+@media screen and (min-width: 1300px) {
+    .info_wrapper {
+        font-size: 120%;
+    }
+}
+
+//--desktop--
 @media screen and (min-width: 800px) {
     .main_container {
         display: flex;
@@ -41,11 +48,7 @@
     }
 }
 
-@media screen and (min-width: 1000px) {
-    .main_container {
-        font-size: 120%;
-    }
-}
+
 // DESCRIPTIONS
 .info {
     &_name{
@@ -55,23 +58,27 @@
     &_overview_wrapper {
         margin: 30px 0;
         max-width: 600px;
-        pre {
-            white-space: pre-wrap; 
-            word-wrap: break-word;
-            font-family: inherit;
-        }
     }
     &_overview_title {
         font-size: 130%;
     }
     &_overview_text {
-        line-height: 150%
+        line-height: 150%;
+        margin-bottom: 10px;
     }
 }
 
 .overview_more {
     background: $color-bg--light;
 }
+
+//--desktop--
+@media screen and (min-width: 1300px) {
+    .overview_more {
+        font-size: 120%;
+    }
+}
+
 // actor image
 .cast_img {
     height: 200px;
@@ -140,46 +147,41 @@
     background: $color-bg--light;
 }
 
+.acting_wrapper {
+    margin: 0 auto;
+    width: 100%;
+
+}
+
 .acting {
     text-align: center;
     padding: 30px;
-    max-width: 800px;
+    width: 100%;
     margin: 0 auto;
-    &_film {
-        text-align: left;
-        margin: 0 20px;
-    }
+}
+
+.list {
+    background: transparent;
+    color: $color_text;
     &_year {
+        color: $color_text;
         font-weight: 700;
-    }
-    &_info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        font-size: 100%;
     }
     &_item {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 0;
-        border-bottom: 1px dashed darken( $color-bg--light, 30% );
-        &:first-child {
-            border-top: 1px dashed darken( $color-bg--light, 30% );  
-        }
-    }
-    &_title {
-        margin-bottom: 20px;
+        border-bottom: 1px solid darken( $color-bg--light, 20% );
     }
     &_rate {
-        display: flex;
-        justify-content: center;
+        color: $color_text;
+        font-size: 100%;
         min-width: 60px;
-        font-weight: 700;
-        color:$color-bg;
-        background: $color_text;
-        padding: 5px;
-        border-radius: 0 8px 0 8px;
+        text-align: right
     }
 }
 
+//--desktop--
+@media screen and (min-width: 1200px) {
+    .acting {
+        width: 70%;
+    }
+}

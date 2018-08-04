@@ -46,13 +46,12 @@ button {
 }
 
 ///*** BUTTONS ***///
-.back_btn {
+.btn_back {
     display: flex;
     justify-content: flex-start;
     align-content: center;
     align-items: center;
     text-align: right;
-    margin-bottom: 30px;
     transition: .3s;
     cursor: pointer;
     &:hover {
@@ -60,28 +59,30 @@ button {
     }
 }
 
-//--desktop--
-@media screen and (min-width: 1000px) {
-    .back_btn {
-        margin-bottom: 90px;
-    }
+.btn_like {
+    display: flex;
+    justify-content: flex-start;
+    align-content: center;
+    align-items: center;
 }
 
-.info_btn {
-    border: 2px solid $color_text;
-    border-radius: 8px;
+.btn_info {
+    background: $color_text; 
+    color: $color_main;
+    border-radius: 50px;
     padding: 10px 20px;
     text-align: center;
     font-weight: 700;
     transition: .3s;
     margin-top: 30px;
     &:hover {
-        background: $color_text;
-        color: $color_main
+        background: lighten($color_text, 1%);
+        color: $color_main;
+        box-shadow: 2px 2px 15px $color_text;
     }
 }
 
-.overview_btn {
+.btn_overview {
     display: block;
     font-weight: 700;
     border-bottom: 2px dotted transparent;
@@ -94,7 +95,11 @@ button {
 ///*** RECOMEND ITEMS ***///
 .recommend {
     text-align: center;
-    padding-top: 30px;
+    padding: 30px 0;
+    &_sub {
+        text-align: center;
+        font-size: 120%;
+    }
 }
 
 
@@ -116,17 +121,35 @@ button {
 
 }
 
+.pre_text {
+    white-space: pre-wrap; 
+    word-wrap: break-word;
+    font-family: inherit;
+}
+
+
 // vuetify 
+.v-dialog {
+    border-radius: 10px;
+}
 .application.theme--light {
     background: $color-bg
 }
 
+.theme--light .v-expansion-panel .v-expansion-panel__container {
+    border: none
+}
+
 .v-expansion-panel {
-    box-shadow: none
+    box-shadow: none;
 }
 
 .v-select.v-select--chips .v-select__selections {
     min-height: 0
+}
+
+.theme--light .v-text-field--solo .v-input__slot {
+    border-radius: 50px
 }
 
 @keyframes fadeIn {
@@ -144,4 +167,22 @@ button {
     animation-fill-mode: both;
     animation-name: fadeIn;
   }
+
+// to season button
+.up {
+    position: fixed;
+    right: 0;
+    bottom: 5%;
+    border-radius: $radius 0 0 $radius;
+    background: $color_main;
+    padding: 10px ;
+    transition: all .3s;
+    opacity: 0.8;
+    &:hover {
+        opacity: 1;
+    }
+    &_active {
+        opacity: 0; 
+     }
+}
       

@@ -1,17 +1,17 @@
 <template><div>
-    <v-app class="index">
-      <app-menu></app-menu>
+    <v-app>
+        <app-menu></app-menu>
         <!-- loading -->
         <div class="loading" v-if="loading">
             <img src="@/assets/img/svg/loader.svg" alt="loading..." >
-            </div>
+        </div>
+        <app-submenu></app-submenu>
         <!-- filters -->
         <section class="filters">
             <div class="filters_wrapper">
                 <!-- search filter -->
                 <div class="filters_search">
                     <v-autocomplete
-                        :loading="searchInput.loading"
                         :items="searchInput.items"
                         :search-input.sync="search"
                         v-model="searchInput.select"
@@ -20,7 +20,8 @@
                         hide-no-data
                         hide-details
                         clearable
-                        prepend-icon="search"
+                        solo
+                        prepend-inner-icon="search"
                         label="Search movies"
                     ></v-autocomplete>
                 </div>
@@ -32,7 +33,9 @@
                         :items="items.years"
                         :search-input.sync="selectYear"
                         label="Select year"
-                        prepend-icon="event"
+                        flat
+                        solo
+                        prepend-inner-icon="event"
                         hide-details
                     ></v-select>
                
@@ -45,11 +48,14 @@
                         label="Select genres"
                         item-text="name"
                         item-value="id"
-                        prepend-icon="list"
+                        flat
+                        solo
+                        prepend-inner-icon="list"
                         hide-details
                         multiple
                         chips
                         clearable
+                        hide-selected
                         autocomplete >
                         <template slot="selection" slot-scope="data">
                             <v-chip 
@@ -72,14 +78,12 @@
 
             <div v-if="!loading" class="item_wrapper">
                 <div class="item" v-for="(film, index) in items.search" :key="index">
-                <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
-                    
+                    <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
                         <app-itemList>
                             <template slot="rate">{{film.vote_average}}</template>
                             <template slot="year">{{film.release_date}}</template>
                             <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
                         </app-itemList>
-
                     </router-link>
                     <h1 class="item_name"> {{film.title}}  </h1>
                 </div>
@@ -96,11 +100,8 @@
         <!-- discover films -->    
         
         <section class="item_container" v-if="!searchInput.select">
-            
             <div v-if="!loading" class="item_wrapper">
-               
                 <div class="item" v-for="(film, index) in items.discover" :key="index">
-                  
                     <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
                         <app-itemList>
                             <template slot="rate">{{film.vote_average}}</template>
@@ -109,17 +110,21 @@
                         </app-itemList>
                     </router-link>
                     <h1 class="item_name"> {{film.title}} </h1>
-                
                 </div>
-               
             </div> 
            
             <!-- pagination --> 
             <div class="pages">
                 <div class="pages_wrapper">
-                    <button class="pages_btn pages_btn--prev" v-show="this.page.cur > 1" @click="prev">prev</button>
+                    <v-btn flat round v-show="this.page.cur > 1" @click="prev" >
+                        <v-icon color="primary"> keyboard_arrow_left </v-icon>
+                        prev
+                    </v-btn>
                     <p class="pages_total"> Currently on page: {{this.page.cur}} of {{this.totalPages.discover}}</p>
-                    <button class="pages_btn pages_btn--next" v-show="this.page.cur < this.totalPages.discover" @click="next">next</button>
+                    <v-btn flat round v-show="this.page.cur < this.totalPages.discover" @click="next" >
+                        next
+                        <v-icon color="primary"> keyboard_arrow_right </v-icon>
+                    </v-btn>
                 </div>
             </div>
         </section>
@@ -130,29 +135,30 @@
 
 <script>
 import menu from '../components/parts/menu.vue';
+import subMenu from '../components/parts/subMenu.vue';
 import itemList from '../components/templates/itemList.vue';
 import footer from '../components/parts/footer.vue';
 import axios from 'axios';
+import { mapState } from 'vuex';
 
 export default {
     components: {
         'app-menu': menu,
+        'app-submenu': subMenu,
         'app-itemList': itemList,
         'app-footer': footer,
     },
     name: 'home',
     data () {
-        return {        
-            // serching filters
+        return {   
+            loading: false,     
+            // filters
             search: "",
             selectYear: "",
             selectGenres: "",
             
-            loading: false,
-
             searchInput: {
                 search: "",
-                loading: false,
                 items: [],
                 select: null,
                 names: [],
@@ -161,8 +167,9 @@ export default {
     },
 
     created(){
-        // if is search input empty discover movies is render
+
         this.init()
+        // render data from API
         this.discoverItems()
         // creating list of years in select input
         this.getYearsList()
@@ -190,11 +197,13 @@ export default {
 
     computed: {
         //get data from store
-        URL(){ return this.$store.state.URL },
-        holder(){ return this.$store.state.holder },
-        items(){ return this.$store.state.items },
-        page(){ return this.$store.state.page },
-        totalPages(){ return this.$store.state.totalPages },
+        ...mapState([
+            'URL',
+            'holder',
+            'items',
+            'page',
+            'totalPages',
+        ]),
 
     },
 
@@ -207,12 +216,9 @@ export default {
             this.items.discover = ""
             this.items.search = ""
             this.items.genres = []
-
-
         },
         //paginations prev button
         prev(){
-
             if (this.searchInput.select) {
                 this.page.curSearch--
                 this.searchItems()
@@ -224,7 +230,6 @@ export default {
         },
         //paginations next button
         next(){
-
             if (this.searchInput.select) {
                 this.page.curSearch++
                 this.searchItems()
@@ -235,14 +240,8 @@ export default {
             this.scrollToTop(300)
         },
         // scroll to top
-        scrollToTop(scrollDuration) {
-            var scrollStep = -window.scrollY / (scrollDuration / 15),
-                scrollInterval = setInterval(function(){
-                if ( window.scrollY != 0 ) {
-                    window.scrollBy( 0, scrollStep );
-                }
-                else clearInterval(scrollInterval); 
-            },15)
+        scrollToTop(time) {
+            this.$store.commit('scrollToTop', time)
         },
         // creating list of movie titles in autocomplete input 
         titleList(searchTerm) {
