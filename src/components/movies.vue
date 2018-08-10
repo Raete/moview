@@ -91,9 +91,15 @@
             <!-- pagination --> 
             <div class="pages">
                 <div class="pages_wrapper">
-                    <button class="pages_btn pages_btn--prev" v-show="this.page.curSearch > 1" @click="prev">prev</button>
+                    <v-btn flat round v-show="this.page.curSearch > 1" @click="prev" >
+                        <v-icon color="primary"> keyboard_arrow_left </v-icon>
+                        prev
+                    </v-btn>
                     <p class="pages_total"> Currently on page: {{this.page.curSearch}} of {{this.totalPages.search}}</p>
-                    <button class="pages_btn pages_btn--next" v-show="this.page.curSearch < this.totalPages.search" @click="next">next</button>
+                    <v-btn flat round v-show="this.page.curSearch < this.totalPages.search" @click="next" >
+                        next
+                        <v-icon color="primary"> keyboard_arrow_right </v-icon>
+                    </v-btn>
                 </div>
             </div>
         </section>
@@ -175,6 +181,7 @@ export default {
         this.getYearsList()
         // creating list of genres in select input
         this.getGenresList()
+        
     },
     
     watch: {
@@ -213,9 +220,9 @@ export default {
             this.page.cur = 1
             this.page.curSearch = 1
             !this.searchInput.select 
-            this.items.discover = ""
-            this.items.search = ""
-            this.items.genres = []
+             this.items.discover = ""
+          //  this.items.search = ""
+          //  this.items.genres = []
         },
         //paginations prev button
         prev(){
@@ -286,6 +293,12 @@ export default {
                          year.release_date = "????"
                     }
                 })
+                // rate number formating to one decimal
+                this.items.search.forEach((rate)=>{
+                    if (rate.vote_average < 10) {
+                        rate.vote_average =  rate.vote_average.toFixed(1)
+                    }
+                })
             }).then(()=> { 
                 this.loading = false
                
@@ -320,7 +333,12 @@ export default {
                          year.release_date = "????"
                     }
                 })
-
+                // rate number formating to one decimal
+                this.items.discover.forEach((rate)=>{
+                    if (rate.vote_average < 10) {
+                        rate.vote_average =  rate.vote_average.toFixed(1)
+                    }
+                })
             }).then(()=> { 
                 this.loading = false
                
@@ -359,6 +377,5 @@ export default {
         flex-wrap: wrap;
         justify-content: center;
     }
-
-               
+      
 </style>

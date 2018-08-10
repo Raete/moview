@@ -15,6 +15,8 @@ import App from './App'
         primary: '#111A21',
         secondary: '#ffbd08',
         back: '#9b9b9b',
+        backLight: '#dbdcde',
+        background: '#F0F0F0',
 
         }
     }),

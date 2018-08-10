@@ -85,12 +85,18 @@
                     <h1 class="item_name"> {{film.original_name}}  </h1>
                 </div>
             </div> 
-            <!-- pagination --> 
+             <!-- pagination --> 
             <div class="pages">
                 <div class="pages_wrapper">
-                    <button class="pages_btn pages_btn--prev" v-show="this.page.curSearch > 1" @click="prev">prev</button>
+                    <v-btn flat round v-show="this.page.curSearch > 1" @click="prev" >
+                        <v-icon color="primary"> keyboard_arrow_left </v-icon>
+                        prev
+                    </v-btn>
                     <p class="pages_total"> Currently on page: {{this.page.curSearch}} of {{this.totalPages.search}}</p>
-                    <button class="pages_btn pages_btn--next" v-show="this.page.curSearch < this.totalPages.search" @click="next">next</button>
+                    <v-btn flat round v-show="this.page.curSearch < this.totalPages.search" @click="next" >
+                        next
+                        <v-icon color="primary"> keyboard_arrow_right </v-icon>
+                    </v-btn>
                 </div>
             </div>
         </section>
@@ -110,7 +116,7 @@
                 </div>
             </div> 
       
-             <!-- pagination --> 
+            <!-- pagination --> 
             <div class="pages">
                 <div class="pages_wrapper">
                     <v-btn flat round v-show="this.page.cur > 1" @click="prev" >
@@ -216,7 +222,7 @@ export default {
         //paginations prev button
         prev(){
             if (this.searchInput.select) {
-                this.page.curSearchP--
+                this.page.curSearch--
                 this.searchItems()
             } else {
                 this.page.cur--
@@ -260,7 +266,7 @@ export default {
             this.loading = true
             axios.get(`${this.URL.database}search/tv${this.URL.apiKey}&page=${this.page.curSearch}&query=${this.searchInput.select}`)
             .then(res => {
-           
+             
                 // base url for image
                 const URL = "https://image.tmdb.org/t/p/w500"
                 // get total pages of searching movies
@@ -282,6 +288,12 @@ export default {
                         year.first_air_date = year.first_air_date.slice(0,4)
                     } else {
                         year.first_air_date = "????"
+                    }
+                })
+                // rate number formating to one decimal
+                this.items.search.forEach((rate)=>{
+                    if (rate.vote_average < 10) {
+                        rate.vote_average =  rate.vote_average.toFixed(1)
                     }
                 })
             }).then(()=> { 
@@ -318,6 +330,12 @@ export default {
                         year.first_air_date = year.first_air_date.slice(0,4)
                     } else {
                         year.first_air_date = "????"
+                    }
+                })
+                // rate number formating to one decimal
+                this.items.discover.forEach((rate)=>{
+                    if (rate.vote_average < 10) {
+                        rate.vote_average =  rate.vote_average.toFixed(1)
                     }
                 })
             }).then(()=> { 
@@ -360,5 +378,4 @@ export default {
         justify-content: center;
     }
 
-   
 </style>

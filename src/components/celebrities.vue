@@ -264,6 +264,4 @@ export default {
         justify-content: center;
     }
 
-
-
 </style>

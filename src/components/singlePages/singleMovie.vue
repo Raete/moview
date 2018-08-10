@@ -5,7 +5,7 @@
         </div>
         <!-- open video -->
         <v-dialog v-model="box.video" width="700">
-            <v-card class="video_background"> 
+            <v-card> 
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn icon flat @click.native="box.video = false">
@@ -31,7 +31,7 @@
         </v-dialog>
 
         <main  v-if="!loading" class="main animated" v-bind:style="{ 
-                backgroundImage: 'url(' + topBackground() + ')',
+                backgroundImage: 'url(' + detail.data.backdrop_path + ')',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
             }"   >
@@ -88,7 +88,7 @@
                         <button v-if="is.long" @click.stop="showViewOnTop()" class="btn_overview" slot="activator" color="primary" dark>all overview</button>                     
                     </div>
                     <!-- movie trailer button - open video dialog -->
-                    <button slot="activator" v-if="is.video" @click.stop="showVideoOnTop()" class="btn_info">view trailer
+                    <button slot="activator" v-if="is.video" @click.stop="showVideoOnTop()" class="btn_video">view trailer
                     </button>
                 </section>
             </div>
@@ -183,6 +183,8 @@ export default {
         this.getItemData()
         // style favorite icon 
         this.styleFavIcon()
+
+
     },
 
     computed: {
@@ -242,16 +244,11 @@ export default {
             let hours = (data - minutes) / 60
             return  `${hours}h ${minutes}m`
         },
-        // background
-        topBackground(){
-            if (window.innerWidth > 800) {
-                return this.detail.data.backdrop_path
-            } else return ""
-        },
+
         // FAVORITE BUTTON
         // add like
-        addLike(id, title, poster, year, rate) {
-            const like = {id, title, poster, year, rate}
+        addLike(id, title, poster, year, rate, genres) {
+            const like = {id, title, poster, year, rate, genres}
             this.like.movieData.push(like)
             // add like to local storage
             localStorage.setItem('movieLikes',JSON.stringify(this.like.movieData) );
@@ -279,6 +276,7 @@ export default {
                     this.detail.data.poster_path,
                     this.detail.data.release_date,
                     this.detail.data.vote_average,
+                    this.detail.data.genres
                 )
                 // set icon style
                 this.like.icon = "favorite"
@@ -311,7 +309,7 @@ export default {
             // API database
             axios.get(`${this.URL.database}movie/${this.$route.params.id}${this.URL.apiKey}&append_to_response=videos,credits,recommendations`)
             .then(res => {
-
+             
                 //** MOVIE DETAIL **//
                 //*****************//
                 const URLposter = "https://image.tmdb.org/t/p/original"
@@ -342,6 +340,12 @@ export default {
                 if (this.detail.data.runtime) {
                     this.detail.data.runtime = this.timeConvert(this.detail.data.runtime)
                 } 
+                // rate number formating to one decimal
+                if (this.detail.data.vote_average < 10) {
+                    this.detail.data.vote_average = this.detail.data.vote_average.toFixed(1)
+                } 
+
+
                 
                 //** CREDITS **//
                 //************//
@@ -418,7 +422,7 @@ export default {
                 // set video url
                 this.detail.video.forEach((video)=>{   
                     if (video.key) {
-                        video.key = URLvideo + video.key
+                        video.key = URLvideo + video.key + "?rel=0&amp;autoplay=1"
                     } 
                     this.detail.video = video.key 
                 })
@@ -446,7 +450,8 @@ export default {
 <style lang='scss' scoped>
     @import '../../assets/scss/_variables';
     @import '../../assets/scss/parts/_general';
-    @import '../../assets/scss/singlePage/_overview';
-    @import '../../assets/scss/singlePage/_cast';
+    @import '../../assets/scss/singlePage/_movies';
+    @import '../../assets/scss/parts/_cast';
     @import '../../assets/scss/parts/_itemList';
+
 </style>

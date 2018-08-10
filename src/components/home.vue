@@ -1,4 +1,5 @@
 <template><div>
+    <v-app>
     
      
     <main v-for="(item, index) in randomImg" :key="index"  class="main"
@@ -11,12 +12,13 @@
     <div class="menu">
         <div class="menu_wrapper">
             <router-link  :to="{ name: 'home' }" exact> 
-                <img src="@/assets/img/svg/logo.svg" alt="moview" class="menu_logo"> 
+                
+                <img src="@/assets/img/svg/logo2.svg" alt="moview" class="menu_logo"> 
             </router-link>
             <div class="menu_control">
-                <router-link class="menu_control_item " :to="{ name: 'movies' }" exact> Movies </router-link>
-                <router-link class="menu_control_item " :to="{ name: 'shows' }" exact> TV Shows </router-link>
-                <router-link class="menu_control_item " :to="{ name: 'celebrities' }" exact> Celebrities </router-link>
+                <v-btn class="secondary--text" large round color="primary" :to="{ name: 'login' }" exact>Login</v-btn>
+               
+
             </div>
         </div>
     </div>
@@ -25,12 +27,17 @@
             
             <section class="claim_wrapper">
                 
-                <h1 class="claim">discover new stories</h1>
+                <h1 class="claim font-weight-black">discover <br>new stories</h1>
+                <v-btn  round large class="claim_btn secondary--text" color="primary" :to="{ name: 'movies' }" exact> start now </v-btn>
+                 
+
 
             </section>
+             
+
         </div>
     </main>
-    
+    </v-app>
 </div></template>
 
 <script>
@@ -60,16 +67,8 @@ export default {
 
 
 <style lang='scss' scoped>
-@import '../assets/scss/_variables';
-@import '../assets/scss/parts/_general';
-@import '../assets/scss/_home';
-@import '../assets/scss/parts/_menu';
-
-.menu {
-    background: transparent;
-    font-weight: 700;
-}
-
-
+    @import '../assets/scss/_variables';
+    @import '../assets/scss/parts/_general';
+    @import '../assets/scss/_home';
 
 </style>

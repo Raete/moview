@@ -19,8 +19,13 @@
         </v-dialog>
 
         <main v-if="!loading" class="main animated"  >
-            <img class="poster" :src="actor.data.profile_path" alt="">
+            <div class="poster">
+                <img class="poster" :src="actor.data.profile_path" alt="">
+            </div>
+           
             <div class="main_container">
+                <!-- person detail info - image -->
+                <!-- <img class="cast_img" :src="actor.data.profile_path" alt=""> -->
                 <!-- back button -->
                 <header class="main_container_header">
                     <v-btn flat round @click="goBack()" >
@@ -28,8 +33,7 @@
                         back
                     </v-btn>           
                 </header>
-                <!-- person detail info - image -->
-                <img class="cast_img" :src="actor.data.profile_path_face" alt="">
+                
                 <section class="info_wrapper">
                     <h1 v-if="actor.data.name" class="info_name">{{actor.data.name}}</h1>
                     <!-- person overview -->
@@ -74,10 +78,10 @@
             </div>
         </section>
 
-        <section v-if="!loading" class="acting animated" id="acting">
+        <section v-if="is.acting" class="acting animated" id="acting">
             <!-- acting list -->
                 <h1 class="acting_title">Acting</h1> 
-                <div class="acting_wrapper">
+                <div v-if="!loading" class="acting_wrapper">
                 <v-tabs color="transparent" >
                     <v-tabs-slider color="black" ></v-tabs-slider>
 
@@ -266,6 +270,7 @@ export default {
             .then(res => {
                 //** ACTOR DATA **//
                 //***************//
+
                 this.actor.data = res.data
                 // show only 350 characters overview
                 if (this.actor.data.biography.length > 350) {
@@ -315,10 +320,18 @@ export default {
                             date.title = "????"
                         } 
                     })
+                    // rate number formating to one decimal
+                    this.actor.movieCredits.forEach((rate)=>{
+                        if (rate.vote_average < 10) {
+                            rate.vote_average =  rate.vote_average.toFixed(1)
+                        }
+                    })
 
                 } else if (this.actor.movieCredits.length <= 0) {
                     this.is.movies = false
                 }
+
+          
 
                 //** TV SHOWS CREDITS **//
                 //*********************//
@@ -343,6 +356,13 @@ export default {
                         if (date.title == "") {
                             date.title = "????"
                         } 
+
+                    })
+                    // rate number formating to one decimal
+                    this.actor.showCredits.forEach((rate)=>{
+                        if (rate.vote_average < 10) {
+                            rate.vote_average =  rate.vote_average.toFixed(1)
+                        }
                     })
                 } else if (this.actor.showCredits.length <= 0) {
                     this.is.shows = false
@@ -355,6 +375,14 @@ export default {
                         ep.episode_count = ep.episode_count + " episode"
                     }
                 })
+
+                // show acting section if exist
+                if (this.actor.showCredits.length > 0 && this.actor.showCredits.length > 0){
+                    this.is.acting = true
+                } else if (this.actor.showCredits.length <= 0 && this.actor.showCredits.length <= 0) {
+                    this.is.acting = false
+                }
+                
 
                 //** KNOWN FOR - MOVIES **//
                 //*********************//
@@ -426,11 +454,10 @@ export default {
 
 
 <style lang='scss' scoped>
-@import '../../assets/scss/_variables';
-@import '../../assets/scss/parts/_general';
-@import '../../assets/scss/parts/_itemList';
-@import '../../assets/scss/singlePage/_actor';
-
+    @import '../../assets/scss/_variables';
+    @import '../../assets/scss/parts/_general';
+    @import '../../assets/scss/parts/_itemList';
+    @import '../../assets/scss/singlePage/_actor';
 
 
 </style>

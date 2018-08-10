@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/components/home'
+import Login from '@/components/login'
 import Movies from '@/components/movies'
 import Shows from '@/components/shows'
 import Profile from '@/components/profile'
@@ -19,6 +20,11 @@ export default new Router({
             path: '/',
             name: 'home',
             component: Home
+        },
+        {
+            path: '/login',
+            name: 'login',
+            component: Login
         },
         {
             path: '/movies',

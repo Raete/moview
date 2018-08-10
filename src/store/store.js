@@ -75,7 +75,8 @@ export const store = new Vuex.Store({
             tags: true,
             episode: true,
             shows: false,
-            movies: true
+            movies: true,
+            acting: true
         },
         // actors data
         actor: {
