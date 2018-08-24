@@ -28,20 +28,23 @@
                 
             </div>
         </section>  
-        <!-- search films -->    
+        <!-- search celebrity-->    
         <section class="item_container" v-if="searchInput.select">
             <div v-if="!loading" class="item_wrapper">
-                <div class="item"   v-for="(film, index) in items.search" :key="index">
-                <router-link :to="{ name: 'singleActor', params: { id: film.id } }"> 
-                    <figure class="item_content animated">
+                <div class="item" v-for="(actor, index) in items.search" :key="index">
+                    <!-- picture --> 
+                    <router-link :to="{ name: 'singleActor', params: { id: actor.id } }"> 
                         
-                        <img class="item_img" v-bind:src="film.profile_path" alt="">
-                        <figcaption class="item_hover">
-                            <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
-                        </figcaption>           
-                    </figure>
+                        <figure class="item_content animated">
+                            <img class="item_img" v-bind:src="actor.profile_path" alt="">
+                            <figcaption class="item_hover">
+                                <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                            </figcaption>           
+                        </figure>
+
                     </router-link>
-                    <h1 class="item_name"> {{film.name}}  </h1>
+                    <!-- name --> 
+                    <h1 class="item_name"> {{actor.name}} </h1>
                 </div>
             </div> 
             <!-- pagination --> 
@@ -53,20 +56,24 @@
                 </div>
             </div>
         </section>
-        <!-- discover films -->    
+        <!-- discover celebrity-->     
         <section class="item_container" v-if="!searchInput.select">
             <div v-if="!loading" class="item_wrapper">
-                <div class="item" v-for="(film, index) in items.discover" :key="index">
-                <router-link :to="{ name: 'singleActor', params: { id: film.id } }"> 
+                <div class="item" v-for="(actor, index) in items.discover" :key="index">
+                <!-- picture -->
+                <router-link :to="{ name: 'singleActor', params: { id: actor.id } }"> 
+                    
                     <figure class="item_content animated">
                         
-                        <img class="item_img" v-bind:src="film.profile_path" alt="">
+                        <img class="item_img" v-bind:src="actor.profile_path" alt="">
                         <figcaption class="item_hover">
                             <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
                         </figcaption>           
                     </figure>
+
                 </router-link>
-                <h1 class="item_name"> {{film.name}} </h1>
+                <!-- name -->
+                <h1 class="item_name"> {{actor.name}} </h1>
                     
                 </div>
             </div> 
@@ -116,6 +123,7 @@ export default {
                 select: null,
                 names: [],
             },
+            
         }
     },
 

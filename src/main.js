@@ -8,6 +8,7 @@ import { store } from './store/store'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import App from './App'
+import firebase from 'firebase'
 
     Vue.use(_);
     Vue.use(Vuetify, {
@@ -18,7 +19,7 @@ import App from './App'
         backLight: '#dbdcde',
         background: '#F0F0F0',
 
-        }
+        },
     }),
 
     Vue.use(VueAnalytics, {
@@ -28,16 +29,20 @@ import App from './App'
    
     Vue.config.productionTip = false
 
+let app = null;
 
+// wait for firebase auth to init before creating the app
+firebase.auth().onAuthStateChanged(() => {
 
-/* eslint-disable no-new */
-new Vue({
-    store: store,
-    el: '#app',
-    router,
-    components: { App },
-    template: '<App/>'
+  // init app if not already created
+  if(!app){
+    app = new Vue({
+        store: store,
+      el: '#app',
+      router,
+      components: { App },
+      template: '<App/>'
+    })
+  }
+
 })
-
-
- 

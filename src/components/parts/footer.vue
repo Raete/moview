@@ -24,6 +24,7 @@ export default {
 ///*** FOOTER ***///
 .app_footer {
     background: $color_bg--darken;
+    margin-top: 20px;
     &_wrapper {
         display: flex;
         justify-content: space-between;

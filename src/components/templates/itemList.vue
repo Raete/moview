@@ -33,7 +33,7 @@ export default {
 <style lang='scss' scoped>
     @import '../../assets/scss/_variables';
     @import '../../assets/scss/parts/_general';
-    @import '../../assets/scss/parts/_itemList';
+    @import '../../assets/scss/parts/_recommendList';
 
 
 

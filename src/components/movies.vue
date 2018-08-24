@@ -78,14 +78,30 @@
 
             <div v-if="!loading" class="item_wrapper">
                 <div class="item" v-for="(film, index) in items.search" :key="index">
+                    <!-- poster -->
                     <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
-                        <app-itemList>
-                            <template slot="rate">{{film.vote_average}}</template>
-                            <template slot="year">{{film.release_date}}</template>
-                            <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
-                        </app-itemList>
+
+                        <figure class="item_content animated" >
+                            <img class="item_img" v-bind:src="film.poster_path" alt="">
+                            <figcaption class="item_hover">
+                                <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                            </figcaption>           
+                        </figure>
+
                     </router-link>
-                    <h1 class="item_name"> {{film.title}}  </h1>
+                    <!-- block with bookmark and rate -->
+                    <div class="item_info">
+                        <!-- bookmark -->
+                        <v-btn v-model="mark" small fab depressed icon @click="markingButton(film.id, film)">
+                            <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
+                        </v-btn>  
+                        <!-- rate -->
+                        <div class="item_rate"> {{film.vote_average}}% </div>
+                    </div>
+                    <!-- title -->
+                    <h1 class="item_name"> {{film.title}} </h1>
+                    <span class="item_year">{{film.release_date}}</span>
+                
                 </div>
             </div> 
             <!-- pagination --> 
@@ -104,18 +120,33 @@
             </div>
         </section>
         <!-- discover films -->    
-        
         <section class="item_container" v-if="!searchInput.select">
             <div v-if="!loading" class="item_wrapper">
                 <div class="item" v-for="(film, index) in items.discover" :key="index">
+                    <!-- poster -->
                     <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
-                        <app-itemList>
-                            <template slot="rate">{{film.vote_average}}</template>
-                            <template slot="year">{{film.release_date}}</template>
-                            <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
-                        </app-itemList>
+
+                        <figure class="item_content animated" >
+                            <img class="item_img" v-bind:src="film.poster_path" alt="">
+                            <figcaption class="item_hover">
+                                <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                            </figcaption>           
+                        </figure>
+
                     </router-link>
+                    <!-- block with bookmark and rate -->
+                    <div class="item_info">
+                        <!-- bookmark -->
+                        <v-btn v-model="mark" small fab depressed icon @click="markingButton(film.id, film)">
+                            <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
+                        </v-btn>
+                        <!-- rate -->
+                        <div class="item_rate"> {{film.vote_average}}% </div>
+                    </div>
+                    <!-- title -->
                     <h1 class="item_name"> {{film.title}} </h1>
+                    <span class="item_year">{{film.release_date}}</span>
+                
                 </div>
             </div> 
            
@@ -134,27 +165,41 @@
                 </div>
             </div>
         </section>
+        <!-- alert messages -->
+        <v-alert
+            v-model="alert.active"
+            dismissible
+            :type="alert.type"
+            class="alert"
+            transition="fade-transition"
+            >
+            {{alert.text}}
+        </v-alert>
     </v-app>
     <app-footer></app-footer>
 
 </div></template>
 
 <script>
+// components
 import menu from '../components/parts/menu.vue';
 import subMenu from '../components/parts/subMenu.vue';
-import itemList from '../components/templates/itemList.vue';
 import footer from '../components/parts/footer.vue';
+// API database
 import axios from 'axios';
-import { mapState } from 'vuex';
+// firebase
+import db from '@/firebase/init'
+import firebase from 'firebase'
+// vuex -- store
+import { mapState, mapMutations } from 'vuex';
 
 export default {
     components: {
         'app-menu': menu,
         'app-submenu': subMenu,
-        'app-itemList': itemList,
         'app-footer': footer,
     },
-    name: 'home',
+    name: 'movies',
     data () {
         return {   
             loading: false,     
@@ -169,21 +214,26 @@ export default {
                 select: null,
                 names: [],
             },
+            // bookmark movies
+            mark: "",
+            movieData: {},
         }
     },
 
     created(){
 
         this.init()
+        // creating list of genres in select input
+        this.getGenresList()
         // render data from API
         this.discoverItems()
         // creating list of years in select input
         this.getYearsList()
-        // creating list of genres in select input
-        this.getGenresList()
-        
+        // get user data from firebase
+        this.getFirebaseData()
+
     },
-    
+
     watch: {
         // watching changes in search input
         search(val) {
@@ -199,19 +249,22 @@ export default {
         selectYear(val) {
             this.page.cur = 1
             this.discoverItems()
-        },
+        },      
     },
 
     computed: {
-        //get data from store
+        //get data from store (vuex)
         ...mapState([
             'URL',
             'holder',
             'items',
             'page',
             'totalPages',
+            'is',
+            'alert',
+            'btn',
+            'user',
         ]),
-
     },
 
     methods: {
@@ -221,11 +274,9 @@ export default {
             this.page.curSearch = 1
             !this.searchInput.select 
              this.items.discover = ""
-          //  this.items.search = ""
-          //  this.items.genres = []
         },
         //paginations prev button
-        prev(){
+        prev(page){
             if (this.searchInput.select) {
                 this.page.curSearch--
                 this.searchItems()
@@ -265,11 +316,139 @@ export default {
                 this.searchInput.loading = false
             }) 
         },
+        // get data from firebase
+        getFirebaseData(){
+            // get current user from firebase if user is login
+            if(firebase.auth().currentUser) {
+                db.collection('users').where('user_id', '==', firebase.auth().currentUser.uid).get()
+                .then(snapshot => {
+                    snapshot.forEach(doc => {
+                        //user slug
+                        this.user.id = doc.id
+
+                        // read firebase database in real time
+                        db.collection('movies_marked').where('user', '==', this.user.id)
+                        .onSnapshot((snapshot) => {
+                            snapshot.docChanges().forEach(change => {
+                                // add movie to array if movie is add to database
+                                if (change.type == 'added') {
+                                    let record = change.doc.data()
+                                    record.id = change.doc.id
+                                    this.user.movies.mark.push(record)
+                                }
+                                // remove movie from array if movie is remove from database
+                                if (change.type == 'removed') {
+                                    this.user.movies.mark = this.user.movies.mark.filter(item =>{
+                                        return item.id != change.doc.id
+                                    }) 
+                                }
+                            })
+                        })
+                    })
+                }) 
+            }  
+        },
+        // BOOKMARK BUTTON
+        // decide if movie is already marked
+        isMarked(id){
+            return this.user.movies.mark.findIndex(el => el.iId == id) !== -1
+        },
+        // add movie to watchlist and send to firebase
+        addMarkedItem(id, arr){
+
+            this.movieData = arr
+            db.collection('movies_marked').add({
+                id:     "",
+                iId:    this.movieData.id,
+                title:  this.movieData.title,
+                genres: this.movieData.genre_ids,
+                poster: this.movieData.poster_path,
+                rate:   this.movieData.vote_average,
+                year:   this.movieData.release_date,
+                user:   this.user.id
+
+            }).then(() => {
+                // alert type and settings
+                this.alert.type = "success"
+                this.infoAlert("Successfully added to watchlist")
+                
+            })
+            .catch(err => {
+                console.log(err)
+            })
+        },
+        // delete movie from firebase
+        deleteMarkedItem(id){
+            // *iId (item id) is id of movie from API and id is id of item in firebase
+            db.collection('movies_marked').where('user', '==', this.user.id).where('iId', '==', id).get()
+            .then(snapshot => {
+                // id of item in firebase
+                let snapshotID = snapshot.docs[0].id
+                // delete item from firebase
+                db.collection('movies_marked').doc(snapshotID).delete().then(()=> {
+                    // delete from local array
+                    this.user.movies.mark = this.user.movies.mark.filter(item =>{
+                        return item.id != snapshotID
+                    }) 
+                }) 
+            }) 
+            // alert type and settings
+            this.alert.type = "success"
+            this.infoAlert("Successfully removed from watchlist.")   
+        },
+
+        // alert messages
+        infoAlert(alertText){
+            this.$store.commit('infoAlert', alertText)
+        },
+
+        // add or remove bookmark
+        markingButton(id, arr){
+          
+           // if user is login then:
+            if(firebase.auth().currentUser){
+                // if movie is not mark then:
+                if (this.isMarked(id)) {
+                    // add movie to mark
+                    this.deleteMarkedItem(id)
+               
+                // if movie is mark then:
+                } else if (!this.isMarked(id)) {
+                    // delete movie from mark 
+                    this.addMarkedItem(id, arr)
+                }
+            // if user is not login then:
+            } else {
+                // show alert 
+                this.alert.type = "error"
+                this.infoAlert("You must log in.")
+            }
+
+        },
+        // stylize marking button depending on whether the movie is mark
+        styleMarkIcon(id){
+            // if user is login then:
+            if(firebase.auth().currentUser){
+                // if movie is marked then:    
+                if (this.isMarked(id)) {
+                    // slyle icon
+                    return "bookmark"
+                    // if not:
+                } else if (!this.isMarked(id)) {
+                    // style icon
+                    return "bookmark_border"
+                }
+            // if user is not login style icon
+            } else return "bookmark_border"
+            
+        },
+        // API DATABASE
         // get data from database with query
         searchItems() {
             this.loading = true
             axios.get(`${this.URL.database}search/movie${this.URL.apiKey}&include_adult=false&page=${this.page.curSearch}&query=${this.searchInput.select}`)
             .then(res => {
+                
                 // base url for image
                 const URL = "https://image.tmdb.org/t/p/w500"
                 // get total pages of searching movies
@@ -298,12 +477,16 @@ export default {
                     if (rate.vote_average < 10) {
                         rate.vote_average =  rate.vote_average.toFixed(1)
                     }
+                    if (rate.vote_average) {
+                        rate.vote_average =  rate.vote_average * 10
+                    }
                 })
             }).then(()=> { 
                 this.loading = false
                
             })    
         },
+       
         // get data from discover database 
         discoverItems() {
             this.loading = true
@@ -338,12 +521,39 @@ export default {
                     if (rate.vote_average < 10) {
                         rate.vote_average =  rate.vote_average.toFixed(1)
                     }
+                    if (rate.vote_average) {
+                        rate.vote_average =  rate.vote_average * 10
+                    }
                 })
+
+                // replace genres id with name ------TODO
+                // let place
+                // this.items.genres.forEach((i)=>{
+                //     if (i.id == 12) {
+                //         place = i.name
+                //     }
+                //     if (i.id == 14) {
+                //         place = i.name
+                //     }
+                  
+                // })
+
+                // this.items.discover.forEach((item)=>{
+                    
+                //     let index = item.genre_ids.indexOf(12)
+                //     if (index != -1) {
+                //         item.genre_ids[index] = place
+                //     }
+
+                   // console.log(item.genre_ids)
+                   
+                //})
+
             }).then(()=> { 
                 this.loading = false
-               
             })   
         },
+
         // create list of years 
         getYearsList() {
             this.$store.commit('getYearsList')
@@ -358,7 +568,6 @@ export default {
                 genres.forEach((genre)=> {
                     this.items.genres.push(genre) 
                 })
-               
             }) 
         },
     }, 
@@ -373,9 +582,4 @@ export default {
     @import '../assets/scss/parts/_itemList';
     @import '../assets/scss/parts/_pagination';
 
-    .item_wrapper {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-      
 </style>

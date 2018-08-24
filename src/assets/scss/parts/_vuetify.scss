@@ -40,3 +40,12 @@
 .fav_list_item .v-list__tile__content {
     padding-left: 20px;
 }
+// favorite checkbox label
+.v-input--selection-controls.v-input .v-label {
+    font-size: 90%;
+    color: $color_text
+}
+// favorite checkbox disable icon
+.theme--light .v-input--selection-controls.v-input--is-disabled .v-icon {
+    color: $color_text!important;
+}

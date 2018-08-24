@@ -16,8 +16,8 @@
                 <img src="@/assets/img/svg/logo2.svg" alt="moview" class="menu_logo"> 
             </router-link>
             <div class="menu_control">
-                <v-btn class="secondary--text" large round color="primary" :to="{ name: 'login' }" exact>Login</v-btn>
-               
+                <v-btn v-if="!user" class=" font-weight-bold secondary--text" color="primary" round  :to="{ name: 'login' }" exact>Login</v-btn>
+                <v-btn v-if="user" class=" font-weight-bold" color="primary"  flat round :to="{ name: 'profile' }" exact>Profile</v-btn>
 
             </div>
         </div>
@@ -42,6 +42,8 @@
 
 <script>
 import menu from '../components/parts/menu.vue';
+import firebase from 'firebase'
+import db from '@/firebase/init'
 export default {
     components: {
         'app-menu': menu,
@@ -55,13 +57,27 @@ export default {
                 { img: require('../assets/img/homeBack4.jpg')},
                 { img: require('../assets/img/homeBack5.jpg')},
             ], 
+            user: null
         }
+    },
+    created(){
+        // get current user from firebase
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                this.user = user
+            } else {
+                this.user = null
+            }
+        })
     },
     computed: {
         randomImg() {
             return this.backgroundImage = _.shuffle(this.backgroundImage).slice(0,1) 
         },
     },
+    methods: {
+ 
+    }
 }
 </script>
 

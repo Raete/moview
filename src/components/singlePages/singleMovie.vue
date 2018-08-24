@@ -3,7 +3,45 @@
         <div class="loading" v-if="loading">
             <img src="@/assets/img/svg/loader.svg" alt="loading..." >
         </div>
-        <!-- open video -->
+        <!-- opened video trailer -->
+        <v-dialog v-model="box.rate" width="700">
+            <v-card> 
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn icon flat @click.native="box.rate = false">
+                        <v-icon>close</v-icon>
+                    </v-btn>
+                </v-card-actions>
+                <v-card-text class="rating_wrapper">
+                    <v-slider
+                        v-model="rate"
+                        :tick-labels="rating"
+                        value="0"
+                        always-dirty
+                        max="10"
+                        thumb-label
+                        thumb-size="40"
+                        ticks="always"
+                    >
+                        <template
+                        slot="thumb-label"
+                        slot-scope="props"
+                        >
+                        <span>
+                            {{ rateLabel(props.value) }}
+                        </span>
+                        </template>
+                    </v-slider>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" flat @click.native="addRatedItem()">Save rating</v-btn>
+                </v-card-actions>
+                
+
+            </v-card>
+        </v-dialog>
+        <!-- opened video trailer -->
         <v-dialog v-model="box.video" width="700">
             <v-card> 
                 <v-card-actions>
@@ -17,7 +55,7 @@
                 </v-card-text>
             </v-card>
         </v-dialog>
-        <!-- open full overview -->
+        <!-- opened full overview -->
         <v-dialog v-model="box.overview" width="600px" >
             <v-card class="overview_more">
                 <v-card-actions>
@@ -29,16 +67,16 @@
                 <v-card-text >{{detail.data.overview}}</v-card-text>
             </v-card>
         </v-dialog>
-
-        <main  v-if="!loading" class="main animated" v-bind:style="{ 
-                backgroundImage: 'url(' + detail.data.backdrop_path + ')',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-            }"   >
-        
+        <!-- main container -->
+        <main v-if="!loading" class="main animated" v-bind:style="{ 
+            backgroundImage: 'url(' + detail.data.backdrop_path + ')',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+        }">
+            
             <img class="poster" :src="detail.data.poster_path" alt="">
-
-            <div class="main_container" >
+            <!-- info section -->
+            <section class="main_container" >
                 <!-- header -->
                 <header class="main_container_header">
                     <!-- back button -->
@@ -46,17 +84,21 @@
                         <v-icon color="primary"> keyboard_backspace </v-icon>
                         homepage
                     </v-btn>
-                    <!-- favorite button -->
-                    <v-btn flat round @click="likeButton()">
-                        <v-icon color="primary"> {{like.icon}} </v-icon>
-                        Add to favorite
-                    </v-btn>
+                    <!-- bookmark button -->
+                    <div>
+                        <v-btn flat round @click="markingButtonDetail()" >
+                            <v-icon size="25px" color="primary"> {{styleMarkIcon($route.params.id)}} </v-icon>
+                            {{this.styleMarkText($route.params.id)}}
+                        </v-btn>
+                    </div>
                 </header>
                 <!-- movie detail info -->
                 <section  class="info_wrapper">
-                    <span class="info_rate">{{detail.data.vote_average}}
-                        <img src="@/assets/img/svg/star_y.svg">
-                    </span>
+                    <div class="info_rate_wrapper">
+                        <p class="info_rate">  {{detail.data.vote_average}}%</p>
+                        <v-btn outline round color="primary"  @click.stop="showRateOnTop()" >rate movie</v-btn>
+                    </div>
+                   
                     <!-- movie name -->
                     <div class="info_name">
                         <h1 class="info_title">{{detail.data.title}}
@@ -91,7 +133,7 @@
                     <button slot="activator" v-if="is.video" @click.stop="showVideoOnTop()" class="btn_video">view trailer
                     </button>
                 </section>
-            </div>
+            </section>
         </main>
         <!-- cast and crew section -->
         <section v-if="is.credits" class="cast animated">
@@ -102,6 +144,7 @@
                         <h1 slot="header" class="credits_title">Cast</h1>
                         <div class="cast_person_wrapper">
                             <div v-for="(actor, index) in detail.credits.cast" :key="index" class="cast_person">
+                                <!-- picture -->
                                 <router-link :to="{ name: 'singleActor', params: { id: actor.id } }"> 
                                     <figure class="cast_content">
                                         <img class="cast_person_img" v-bind:src="actor.profile_path" alt="">
@@ -110,6 +153,7 @@
                                         </figcaption>           
                                     </figure>
                                 </router-link>
+                                <!-- name-->
                                 <h2 class="cast_person_name">{{ actor.name }}</h2>
                                 <p class="cast_person_role">{{ actor.character}}</p>
                             </div>
@@ -120,6 +164,7 @@
                         <h1 slot="header" class="credits_title">Crew</h1>
                         <div class="cast_person_wrapper" >
                             <div v-for="(actor, index) in detail.credits.crew" :key="index" class="cast_person">
+                                <!-- picture -->
                                 <router-link :to="{ name: 'singleActor', params: { id: actor.id } }"> 
                                     <figure class="cast_content">
                                         <img class="cast_person_img" v-bind:src="actor.profile_path" alt="">
@@ -128,6 +173,7 @@
                                         </figcaption>           
                                     </figure>
                                 </router-link>
+                                <!-- name-->
                                 <h2 class="cast_person_name">{{ actor.name }}</h2>
                                 <p class="cast_person_role">{{ actor.job}}</p>
                             </div>                    
@@ -137,54 +183,115 @@
             </div> 
         </section>
         <!-- movies recommendations -->
-        <section class="item_container animated" v-if="is.recomend">
-            <h1 class="recommend">Recommendations</h1> 
-            <div class="item_wrapper">
-                <div class="item" v-for="(film, index) in detail.recommend" :key="index">
-                    <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
-                        <app-itemList>
-                            <template slot="rate">{{film.vote_average}}</template>
-                            <template slot="year">{{film.release_date}}</template>
-                            <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
-                        </app-itemList>
-                    </router-link>
-                    <h1 class="item_name"> {{film.title}} </h1>
+        <section class="animated" v-if="is.recomend"> 
+            <div class="item_container">
+                <h1 class="recommend">Recommendations</h1> 
+            
+                <div class="item_wrapper">
+                    <div class="item" v-for="(film, index) in detail.recommend" :key="index">
+                        <!-- poster -->
+                        <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
+
+                            <figure class="item_content animated" >
+                                <img class="item_img" v-bind:src="film.poster_path" alt="">
+                                <figcaption class="item_hover">
+                                    <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                                </figcaption>           
+                            </figure>
+
+                        </router-link>
+                        <!-- block with bookmark and rate -->
+                        <div class="item_info">
+                            <!-- bookmark -->
+                            <v-btn v-model="mark" small fab depressed icon @click="markingButton(film.id, film)">
+                                <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
+                            </v-btn> 
+                            <!-- rate -->
+                            <div class="item_rate"> {{film.vote_average}}% </div>
+                        </div>
+                        <!-- title -->
+                        <h1 class="item_name"> {{film.title}} </h1>
+                        <span class="item_year">{{film.release_date}}</span>
+                    
+                    </div>
                 </div>
-            </div> 
+            </div>
         </section>
+        <!-- alert messages -->
+        <v-alert
+            v-model="alert.active"
+            dismissible
+            :type="alert.type"
+            class="alert"
+            transition="fade-transition"
+            >
+            {{alert.text}}
+        </v-alert>
     </v-app>
     <app-footer></app-footer>
 
 </div></template>
 
 <script>
+// components
 import footer from '@/components/parts/footer.vue';
-import itemList from '@/components/templates/itemList.vue';
+// API database
 import axios from 'axios';
+// firebase
+import db from '@/firebase/init'
+import firebase from 'firebase'
+// vuex -- store
 import { mapState, mapMutations } from 'vuex';
 
 
 export default {
     components: {
         'app-footer': footer,
-        'app-itemList': itemList,
     },
 
     data () {
         return {
+            rate: "",
             loading: false,
             // cast and crew expansion panel
             panel: true,   
+            // bookmark movies in recommend
+            mark: "",
+            showData: {},
+            rating: [
+                '0%',
+                '10%',
+                '20%',
+                '30%',
+                '40%',
+                '50%',
+                '60%',
+                '70%',
+                '80%',
+                '90%',
+                '100%',
+            ]
         }
     },
 
     created(){
+        // for start
+        this.init()
         // render movie data
         this.getItemData()
-        // style favorite icon 
-        this.styleFavIcon()
+        // get data from firebase
+        this.getFirebaseData()
 
+      
 
+    },
+
+    watch: {
+        rate(val) {
+            this.user.movies.curRate = val * 10
+            console.log(this.user.movies.curRate)
+      
+        },
     },
 
     computed: {
@@ -193,17 +300,23 @@ export default {
             'URL',
             'holder',
             'detail',
-            'like',
             'box',
             'is',
+            'alert',
+            'btn',
+            'user',
         ]),
     },
 
     methods: {
         ...mapMutations([
-            'readStorage',
+
         ]),
-        
+
+        rateLabel(val) {
+            return this.rating[val]
+        },
+
         //start setting - reset data
         init(){
             this.loading = true
@@ -211,9 +324,10 @@ export default {
             this.detail.credits.cast = ""
             this.detail.recommend = ""
             this.detail.video = ""
-
             this.box.video = false
             this.box.overview = false
+
+                                    
         },
         // format budget and revenue currancy 
         formatNub(num){ 
@@ -234,6 +348,10 @@ export default {
             this.scrollToTop(200)
             this.box.overview = !this.box.overview
         },
+        showRateOnTop(){
+            this.scrollToTop(200)
+            this.box.rate = !this.box.rate
+        },
         // scroll to top
         scrollToTop(time) {
             this.$store.commit('scrollToTop', time)
@@ -244,64 +362,211 @@ export default {
             let hours = (data - minutes) / 60
             return  `${hours}h ${minutes}m`
         },
+        // get data from firebase
+        getFirebaseData(){
+            // get current user from firebase if user is login
+            if(firebase.auth().currentUser) {
+                db.collection('users').where('user_id', '==', firebase.auth().currentUser.uid).get()
+                .then(snapshot => {
+                    snapshot.forEach(doc => {
+                        //user slug
+                        this.user.id = doc.id
 
-        // FAVORITE BUTTON
-        // add like
-        addLike(id, title, poster, year, rate, genres) {
-            const like = {id, title, poster, year, rate, genres}
-            this.like.movieData.push(like)
-            // add like to local storage
-            localStorage.setItem('movieLikes',JSON.stringify(this.like.movieData) );
-            return like
-        },
-        // remove like
-        deleteLike(id){
-            const index = this.like.movieData.findIndex(el => el.id == id)
-            this.like.movieData.splice(index, 1)
-            // remove like to local storage
-            localStorage.setItem('movieLikes',JSON.stringify(this.like.movieData) );
-        },
-        // check if movie is liked
-        isLiked(id){
-            return this.like.movieData.findIndex(el => el.id == id) !== -1
-        },
-        // add or remove like
-        likeButton(){
-            // if movie is not liked then:
-            if (!this.isLiked(this.$route.params.id)) {
-                // create new like object with id, title and poster path
-                this.addLike (
-                    this.$route.params.id,
-                    this.detail.data.title,
-                    this.detail.data.poster_path,
-                    this.detail.data.release_date,
-                    this.detail.data.vote_average,
-                    this.detail.data.genres
-                )
-                // set icon style
-                this.like.icon = "favorite"
-                // alert info message
-                this.like.alertText = "movie was add to favorite"
-            // if movie is liked then
-            } else {
-                // delete movie from likes array
-                this.deleteLike(this.$route.params.id)
-                // set icon style
-                this.like.icon = "favorite_border"
-                // alert info message
-                this.like.alertText = "movie was remove from favorite"
+                        // read firebase database in real time
+                        db.collection('movies_marked').where('user', '==', this.user.id)
+                        .onSnapshot((snapshot) => {
+                            snapshot.docChanges().forEach(change => {
+                                // if marked movie is add to the database then:
+                                if (change.type == 'added') {
+                                    // read record and save to array
+                                    let record = change.doc.data()
+                                    record.id = change.doc.id
+                                    this.user.movies.mark.push(record)
+                                }
+                                // if marked movie is remove to the database then:
+                                if (change.type == 'removed') {
+                                    // remove movie from array
+                                    this.user.movies.mark = this.user.movies.mark.filter(item =>{
+                                        return item.id != change.doc.id
+                                    }) 
+
+                                }
+                                
+                            })
+                        })
+                    })
+                })
             }
         },
-        // stylize like button depending on whether the movie is liked
-        styleFavIcon(){
-            // read data from local storage
-            this.readStorage()
-            // if is current movie liked then: 
-            if(this.isLiked(this.$route.params.id)){
-                // set icon style
-                this.like.icon = "favorite"
-            } else this.like.icon = "favorite_border"
+        addRatedItem(){
+            this.box.rate = false
+            // create new marked object with id, title and poster path... in firebase
+            db.collection('movies_rated').add({
+
+                user_rate: this.user.movies.curRate
+
+            }).then(() => {
+                // alert type and settings
+                this.alert.type = "success"
+                this.infoAlert("Successfully rated ")
+                console.log(this.user.movies.curRate)
+
+            }).catch(err => {
+                console.log(err)
+            })
         },
+
+
+        // BOOKMARK BUTTON in movie detail
+        // decide if movie is already marked
+        isMarked(id){
+            return this.user.movies.mark.findIndex(el => el.iId == id) !== -1
+        },
+        // add movie to wishlist
+        addMarkedItemDetail(){
+            // create new marked object with id, title and poster path... in firebase
+            db.collection('movies_marked').add({
+                id: "", // id in firebase - autogenerated by firebase
+                iId: this.$route.params.id, // item id from API
+                title: this.detail.data.title,
+                poster: this.detail.data.poster_path,
+                year: this.detail.data.release_date,
+                rate: this.detail.data.vote_average,
+                genres: this.detail.data.genres,
+                user: this.user.id,
+                user_rate: this.user.movies.curRate
+
+            }).then(() => {
+                // alert type and settings
+                this.alert.type = "success"
+                this.infoAlert("Successfully added to watchlist")
+
+            }).catch(err => {
+                console.log(err)
+            })
+        },
+        // delete movie from favorite
+        deleteMarkedItem(id){
+            // *iId (item id) is id of movie from API and id is id of item in firebase
+            db.collection('movies_marked').where('user', '==', this.user.id).where('iId', '==', id).get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    db.collection('movies_marked').doc(doc.id).delete().then(()=> {
+                        this.user.movies.mark = this.user.movies.mark.filter(item =>{
+                            return item.id != doc.id
+                        })
+                    })  
+                })
+            })
+            // alert type and settings
+            this.alert.type = "success"
+            this.infoAlert("Successfully removed from watchlist.")     
+        },
+
+        // alert messages
+        infoAlert(alertText){
+            this.$store.commit('infoAlert', alertText)
+        },
+        
+        // add or remove button
+        markingButtonDetail(){
+            // if user is login then:
+            if(firebase.auth().currentUser){
+                // if movie is not marked then:
+                if (this.isMarked(this.$route.params.id)) {
+                    // add movie to marked
+                    this.deleteMarkedItem(this.$route.params.id)
+                // if movie is marked then:
+                } else if (!this.isMarked(this.$route.params.id)) {
+                    // delete movie from marked 
+                    this.addMarkedItemDetail()
+                }
+            // if user is not login then:
+            } else {
+                // show alert 
+                this.alert.type = "error"
+                this.infoAlert("You must log in.")
+            }
+        },
+       
+        // BOOKMARK BUTTON in recommend movies
+        // add movie to watchlist and send to firebase*
+        addMarkedItem(id, arr){
+
+            this.movieData = arr
+            db.collection('movies_marked').add({
+                id: "",
+                iId: this.movieData.id,
+                title: this.movieData.title,
+                genres: this.movieData.genre_ids,
+                poster: this.movieData.poster_path,
+                rate: this.movieData.vote_average,
+                year: this.movieData.release_date,
+                user: this.user.id
+
+            }).then(() => {
+                // alert type and settings
+                this.alert.type = "success"
+                this.infoAlert("Successfully added to watchlist")
+                
+            })
+            .catch(err => {
+                console.log(err)
+            })
+        },
+        // add or remove bookmark
+        markingButton(id, arr){
+            // if user is login then:
+            if(firebase.auth().currentUser){
+                // if movie is not marked then:
+                if (this.isMarked(id)) {
+                    // add movie to wishlist
+                    this.deleteMarkedItem(id)
+               
+                // if movie is marked then:
+                } else if (!this.isMarked(id)) {
+                    // delete movie from wishlist 
+                    this.addMarkedItem(id, arr)
+                }
+            // if user is not login then:
+            } else {
+                // show alert 
+                this.alert.type = "error"
+                this.infoAlert("You must log in.")
+            }
+        },
+
+        // stylize marking button depending on whether the movie is mark
+        // icon button
+        styleMarkIcon(id){
+            // if user is login then:
+            if(firebase.auth().currentUser){
+       
+                if (this.isMarked(id)) {
+                    return "bookmark"
+                } else if (!this.isMarked(id)) {
+                    return "bookmark_border"
+                }
+            } else return "bookmark_border"
+            
+        },
+        // text button
+        styleMarkText(id){
+            // if user is login then:
+            if(firebase.auth().currentUser){
+
+                if (this.isMarked(id)) {
+                    return "Remove from watchlist"
+                } else if (!this.isMarked(id)) {
+                    return "Add to watchlist"
+                }
+            } else return "Add to watchlist"
+        },
+
+
+
+
+        // API DATABASE
         // get movie data from API database
         getItemData() {
             //start setting - reset data
@@ -343,6 +608,10 @@ export default {
                 // rate number formating to one decimal
                 if (this.detail.data.vote_average < 10) {
                     this.detail.data.vote_average = this.detail.data.vote_average.toFixed(1)
+                } 
+
+                if (this.detail.data.vote_average) {
+                    this.detail.data.vote_average = this.detail.data.vote_average * 10
                 } 
 
 
@@ -408,9 +677,22 @@ export default {
                     }
                 })
                 // render only 6 movies
-                if (this.detail.recommend){
-                    this.detail.recommend = this.detail.recommend.slice(0,6)
-                }
+                // if (this.detail.recommend){
+                //     this.detail.recommend = this.detail.recommend.slice(0,6)
+                // }
+
+                // rate number formating to one decimal
+                this.detail.recommend.forEach((rate)=>{
+                    if (rate.vote_average < 10) {
+                        rate.vote_average =  rate.vote_average.toFixed(1)
+                    }
+
+                    if (rate.vote_average) {
+                        rate.vote_average =  rate.vote_average * 10
+                    }
+                })
+
+
                 // show recomend item if exist
                 this.detail.recommend.length > 0 ? this.is.recomend = true : this.is.recomend = false  
 
@@ -453,5 +735,25 @@ export default {
     @import '../../assets/scss/singlePage/_movies';
     @import '../../assets/scss/parts/_cast';
     @import '../../assets/scss/parts/_itemList';
+
+    .item {
+    width: 160px; //160
+    &_wrapper {
+        display: flex;
+        padding: 25px 0 ;
+        max-width: $width; 
+        margin: 0 auto;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;  
+        text-align: left
+    
+    }
+}
+
+.rating_wrapper {
+    padding: 30px
+}
+
 
 </style>

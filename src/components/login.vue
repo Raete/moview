@@ -164,7 +164,7 @@ export default {
                         // this alias does not yet exists in the db
                         firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
                         .then(cred=> {
-                            console.log(cred.user)
+             
                             ref.set({
                                 alias: this.alias,
                                 user_id: cred.user.uid
@@ -172,7 +172,7 @@ export default {
                         }).then(() => {
                             db.collection('users').doc(this.slug).get()
                             .then(doc => {
-                                this.$router.push({ name: 'movies', params: { id: doc.id }})
+                                this.$router.push({ name: 'profile', params: { id: doc.id }})
                             })
                         })
                         .catch(err => {
@@ -190,12 +190,11 @@ export default {
                 this.feedback = null
                 firebase.auth().signInWithEmailAndPassword(this.email, this.password)
                 .then(cred => {
-                    console.log(cred.user)
                     let ref = db.collection('users')
                     ref.where('user_id', '==', firebase.auth().currentUser.uid).get()
                     .then(snapshot => {
                         snapshot.forEach(doc => {
-                            this.$router.push({ name: 'movies', params: { id: doc.id }})
+                            this.$router.push({ name: 'profile', params: { id: doc.id }})
                         })
                     })
                 })
@@ -368,7 +367,7 @@ export default {
 ///*** FOOTER ***///
 .app_footer {
     background: $color_bg--darken;
-    position: absolute;
+    position: relative;
     bottom: 0;
     width: 100%;
     &_wrapper {
@@ -379,6 +378,14 @@ export default {
         padding: 20px;
         text-align: center;
     }
+}
+
+@media screen and (min-width: 650px) {
+
+    .app_footer {
+       position: absolute;
+    }
+
 }
 
 </style>

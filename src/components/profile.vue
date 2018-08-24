@@ -2,116 +2,68 @@
     <v-app>
         <app-menu></app-menu>
         <app-submenu></app-submenu>
-        <main class="container" :class="{ containerFull: isFull }">
-            <section class="container_movies" :class="{ containerItemsFull: isFull }">
-                <h3  v-if="like.movieData.length" class="favorite_title">Favorite movies </h3>
-                <!-- <div class="item_wrapper">
-                    <div class="item" v-for="(film, index) in like.movieData" :key="index">
-                        <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
-                            <app-itemList>
-                                <template slot="rate">{{film.rate}} </template>
-                                <template slot="year">{{film.year}} </template>
-                                <img slot="img" class="item_img" v-bind:src="film.poster" alt="">
-                            </app-itemList>
-                        </router-link>
-                        <h1 class="item_name"> {{film.title}} </h1>
-                    </div>
-                </div> -->
-                <v-list  v-if="like.movieData.length" class="list">
-                    <template v-for="(film, index) in  like.movieData">
-                        <v-list-tile
-                            :key="index"
-                            ripple
-                            :to="{ name: 'singleMovie', params: { id: film.id } }"
-                            class="fav_list_item"
-                        >
-                            <v-list-tile-avatar>
-                                <img class="fav_list_img" v-bind:src="film.poster" alt="">
-                            </v-list-tile-avatar>
+        
+        <main class="container">
 
-                            <v-list-tile-content>
-                                <v-list-tile-title class="fav_list_name">{{film.title}} ({{film.year}}) </v-list-tile-title>
-                            
-                                <v-list-tile-sub-title  class="fav_list_role">
-                                    <template v-for="(tag, index) in  film.genres">
-                                    <span :key="index"> {{tag.name}}, </span> 
-                                    </template>
-                                </v-list-tile-sub-title>
-            
-                            </v-list-tile-content>
-            
-                            <v-list-tile-action>
-                                <v-list-tile-action-text class="fav_list_rate">
-                                    {{film.rate}} 
-                                    <v-icon color="primary"> star </v-icon>
-                                </v-list-tile-action-text>
-                            </v-list-tile-action>
+            <header class="profile_header">
+                <h1 class="user_name">{{user.name }}</h1>
+                <v-btn v-if="user.login" class=" font-weight-bold" color="primary" flat round @click="logout" exact>Log out</v-btn>
+            </header>
 
-                            <v-list-tile-action>
-                                <v-btn icon ripple>
-                                    <v-icon @click.prevent="deleteMovie(film.id)">close</v-icon>
-                                </v-btn>
-                            </v-list-tile-action>
-
-                        </v-list-tile>
+            <section class="item_container" >
+                <h3 v-if="user.movies.mark.length" class="favorite_title">Bookmark Movies ({{user.movies.mark.length }})</h3>
+                 
+                <div class="item_wrapper">
+                    <div class="item" v-for="(film, index) in user.movies.mark" :key="index">
                         
-                    </template>
-                </v-list>
+                        <router-link :to="{ name: 'singleMovie', params: { id: film.iId } }"> 
+
+                            <figure class="item_content animated" >
+                                <img class="item_img" v-bind:src="film.poster" alt="">
+                                <figcaption class="item_hover">
+                                    <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                                </figcaption>           
+                            </figure>
+
+                        </router-link>
+
+                        <div class="item_info">
+                            <div class="item_rate">{{film.rate}}%</div>
+                            <v-btn icon ripple>
+                                <v-icon @click.prevent="deleteMovie(film.id)">close</v-icon>
+                            </v-btn>
+                        </div>
+                        <h1 class="item_name"> {{film.title}} </h1>
+                        <span class="item_year">{{film.year}}</span>
+                    </div>
+                </div> 
             </section>
-            <section class="container_shows" :class="{ containerItemsFull: isFull }">
-                <h3  v-if="like.showData.length" class="favorite_title">Favorite TV Shows </h3>
-                <!-- <div class="item_wrapper">
-                    <div class="item" v-for="(film, index) in like.showData" :key="index">
-                        <router-link :to="{ name: 'singleShow', params: { id: film.id } }"> 
-                            <app-itemList>
-                                <template slot="rate">{{film.rate}} </template>
-                                <template slot="year">{{film.year}} </template>
-                                <img slot="img" class="item_img" v-bind:src="film.poster" alt="">
-                            </app-itemList>
-                        </router-link>
-                        <h1 class="item_name"> {{film.title}} </h1>
-                    </div>
-                </div>  -->
-                <v-list  v-if="like.showData.length" class="list">
-                    <template v-for="(film, index) in  like.showData">
-                        <v-list-tile
-                            :key="index"
-                            ripple
-                            :to="{ name: 'singleShow', params: { id: film.id } }"
-                            class="fav_list_item"
-                        >
-                            <v-list-tile-avatar>
-                                <img class="fav_list_img" v-bind:src="film.poster" alt="">
-                            </v-list-tile-avatar>
 
-                            <v-list-tile-content>
-                                <v-list-tile-title class="fav_list_name">{{film.title}} ({{film.year}}) </v-list-tile-title>
-                            
-                                <v-list-tile-sub-title  class="fav_list_role">
-                                    <template v-for="(tag, index) in  film.genres">
-                                    <span :key="index"> {{tag.name}}, </span> 
-                                    </template>
-                                </v-list-tile-sub-title>
-            
-                            </v-list-tile-content>
-            
-                            <v-list-tile-action>
-                                <v-list-tile-action-text class="fav_list_rate">
-                                    {{film.rate}} 
-                                    <v-icon color="primary"> star </v-icon>
-                                </v-list-tile-action-text>
-                            </v-list-tile-action>
-
-                            <v-list-tile-action>
-                                <v-btn icon ripple>
-                                    <v-icon @click.prevent="deleteShow(film.id)">close</v-icon>
-                                </v-btn>
-                            </v-list-tile-action>
-
-                        </v-list-tile>
+            <section class="item_container" >
+                <h3 v-if="user.shows.mark.length" class="favorite_title">Bookmark TV Shows ({{user.shows.mark.length }})</h3>
+                <div class="item_wrapper">
+                    <div class="item" v-for="(film, index) in user.shows.mark" :key="index">
                         
-                    </template>
-                </v-list>
+                        <router-link :to="{ name: 'singleShow', params: { id: film.iId } }"> 
+
+                            <figure class="item_content animated" >
+                                <img class="item_img" v-bind:src="film.poster" alt="">
+                                <figcaption class="item_hover">
+                                    <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                                </figcaption>           
+                            </figure>
+
+                        </router-link>
+                        <div class="item_info">
+                            <div class="item_rate">{{film.rate}}%</div>
+                            <v-btn icon ripple>
+                                <v-icon @click.prevent="deleteShow(film.id)">close</v-icon>
+                            </v-btn>
+                        </div>
+                        <h1 class="item_name"> {{film.title}} </h1>
+                        <span class="item_year">{{film.year}}</span>
+                    </div>
+                </div> 
             </section>
         </main>
     </v-app>
@@ -121,9 +73,10 @@
 <script>
 import menu from '../components/parts/menu.vue';
 import subMenu from '../components/parts/subMenu.vue';
-import itemList from '../components/templates/itemList.vue';
 import footer from '../components/parts/footer.vue';
 import axios from 'axios';
+import db from '@/firebase/init'
+import firebase from 'firebase'
 import { mapState, mapMutations } from 'vuex';
 
 
@@ -132,7 +85,6 @@ export default {
     components: {
         'app-menu': menu,
         'app-submenu': subMenu,
-        'app-itemList': itemList,
         'app-footer': footer,
     },
 
@@ -140,21 +92,32 @@ export default {
     name: 'profile',
     data () {
         return {
-            tags: [],
-            isFull: true
-    
-
+            // wide layout
+            isFull: true,
+            // current user data
+            user: {
+                login: null,
+                id: null,
+                name: "",
+                movies: {
+                    mark: [],
+                    rate: [],
+                },
+                shows: {
+                    mark: [],
+                    rate: [],
+                },
+            },
         }
     },
     created(){
 
-        this.readStorage()
-        this.switchList()
+        // get current user from firebase
+        this.getCurrentUser()
+        // get user data from firebase
+        this.getUserData()
 
-
-    
-
-
+        
     },
     computed: {
         //get data from store
@@ -162,36 +125,80 @@ export default {
             'URL',
             'holder',
             'detail',
-            'like',
-            'box',
-            'is',
         ]),
     },
 
     methods: {
         ...mapMutations([
-            'readStorage',
+        
         ]),
+        // get current user from firebase
+        getCurrentUser(){
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    this.user.login = user
+                } else {
+                    this.user.login = null
+                }
+            })
+        },
+        // get user data from firebase
+        getUserData(){
+            db.collection('users').where('user_id', '==', firebase.auth().currentUser.uid).get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    // id of current user
+                    this.user.id = doc.id
+                    // get username from database
+                    db.collection('users').doc(this.user.id).get()
+                        .then(user => {
+                            this.user.name = user.data().alias  
+                        }) 
+                
+                    //get marked movies of current user from database 
+                    db.collection('movies_marked').where('user', '==', this.user.id).get()
+                    .then(snapshot => {
+                        snapshot.forEach(doc => {
+                            let record = doc.data()
+                            record.id = doc.id
+                            this.user.movies.mark.push(record)
+                        })
+                    })  
 
-        // remove movie like
+                    //get marked shows of current user from database 
+                    db.collection('shows_marked').where('user', '==', this.user.id).get()
+                    .then(snapshot => {
+                        snapshot.forEach(doc => {
+                            let record = doc.data()
+                            record.id = doc.id
+                            this.user.shows.mark.push(record)
+                        })
+                    })  
+                })
+            })
+        },
+        // logout current user redirect to login page
+        logout(){
+            firebase.auth().signOut().then(() => {
+                this.$router.push({ name: 'login'})
+            })
+        },
+        
+        // remove movie from watchlist
         deleteMovie(id){
-            const index = this.like.movieData.findIndex(el => el.id == id)
-            this.like.movieData.splice(index, 1)
-            // remove like to local storage
-            localStorage.setItem('movieLikes',JSON.stringify(this.like.movieData) );
+            db.collection('movies_marked').doc(id).delete().then(()=> {
+                    this.user.movies.mark = this.user.movies.mark.filter(item =>{
+                    return item.id != id
+                })
+            })
         },
-        // remove show like
+        // remove show from watchlist
         deleteShow(id){
-            const index = this.like.showData.findIndex(el => el.id == id)
-            this.like.showData.splice(index, 1)
-            // remove like to local storage
-            localStorage.setItem('showLikes',JSON.stringify(this.like.showData) );
-        },
-        // switch list to full width
-        switchList(){
-            if(this.like.showData.length && this.like.movieData.length) {
-                this.isFull = false
-            } else this.isFull = true
+            db.collection('shows_marked').doc(id).delete().then(()=> {
+                    this.user.shows.mark = this.user.shows.mark.filter(item =>{
+                    return item.id != id
+                })
+            })
         },
     }
 
@@ -200,82 +207,49 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-    @import '../assets/scss/_variables';
-    @import '../assets/scss/parts/_general';
-    @import '../assets/scss/parts/_itemList';
+@import '../assets/scss/_variables';
+@import '../assets/scss/parts/_general';
+@import '../assets/scss/parts/_itemList';
 
-    .container {
-        max-width: $width;
-        display: flex;
-        flex-direction: column;
-        &_movies, &_shows {
-            width: 100%;
-        }
-
-    }
-
-    .favorite_title {
-       // text-align: center;
-        margin-top: 20px;
-    }
-
-    .item_wrapper {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .fav_list {
-    color: $color_text;
-    &_year {
-        color: $color_text;
-        font-weight: 700;
-        font-size: 100%;
-    }
-    &_item {
-        border-bottom: 1px solid darken( $color-bg--light, 20% );
- 
-
-    }
-    &_rate {
-        color: $color_text;
-        font-size: 100%;
-        min-width: 60px;
-        text-align: right
-    }
-}
-
-.fav_list_role {
-    display: inline-block;
-}
-
-.fav_list_img {
-    height: 100px;
-    width: auto;
-    border-radius: $radius;
-}
-
-//--desktop--
-@media screen and (min-width: 750px) {
-    .container {
-        flex-direction: row; //*column, justify-content: flex-start;
-        &_movies, &_shows {
-            width: 50%; //* 100%
-        }
-        &_movies {
-            margin-right: 20px;
-        }
-
-
-    }
-}
-// switch to full width list
-.containerFull {
+.container {
+    max-width: $width;
+    display: flex;
     flex-direction: column;
-    justify-content: flex-start;
 }
 
-.containerItemsFull {
-     width: 100%;
+.profile_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
 }
+
+.item {
+    width: 160px; //160
+    &_wrapper {
+        display: flex;
+        padding: 25px 0 ;
+        max-width: $width; 
+        margin: 0 auto;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;  
+        text-align: left
+
+    }
+    &_info {
+        padding: 5px 0 5px 9px
+    }
+}
+
+
+//--desktop--//
+@media screen and (min-width: 1200px) {
+    .item_wrapper {
+       // justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
 
 </style>

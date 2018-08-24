@@ -9,7 +9,7 @@
             <div class="menu_control">
                 <v-btn v-if="!user" class=" font-weight-bold" color="primary"   round  :to="{ name: 'login' }" exact>Login</v-btn>
                 <v-btn v-if="user" class=" font-weight-bold" color="primary"  flat round :to="{ name: 'profile' }" exact>Profile</v-btn>
-                <v-btn v-if="user" class=" font-weight-bold" color="primary" flat  round  @click="logout" exact>Log out</v-btn>
+                <!-- <v-btn v-if="user" class=" font-weight-bold" color="primary" flat  round  @click="logout" exact>Log out</v-btn> -->
 
             </div>
         </div>

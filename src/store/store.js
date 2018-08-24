@@ -52,17 +52,12 @@ export const store = new Vuex.Store({
 
             random: [],
         },
-        // add movie or tv show to favorite
-        like: {
-            icon: "favorite_border",
-            status: false,
-            movieData: [],
-            showData: [],
-        },
+
         // trailer and full overview
         box: {
             overview: false,
             video: false,
+            rate: false,
         },
         // if item exist
         is: {
@@ -76,7 +71,9 @@ export const store = new Vuex.Store({
             episode: true,
             shows: false,
             movies: true,
-            acting: true
+            acting: true,
+            favorite: false,
+            book: false
         },
         // actors data
         actor: {
@@ -86,6 +83,26 @@ export const store = new Vuex.Store({
             showCredits: [],
             movieKnown: [],
         },
+        // alert messages
+        alert: {
+            active: false,
+            type: "error",
+            text: ""
+        },
+        // current user data
+        user: {
+            id: null,
+            movies: {
+                mark: [],
+                rate: [],
+                curRate: ""
+            },
+            shows: {
+                mark: [],
+                rate: [],
+            },
+        },
+
 
     },
     mutations: {
@@ -121,27 +138,12 @@ export const store = new Vuex.Store({
             } else return ""
         },
 
-        // sort movies and tv shows by year
-        // dynamicSort(state, property) {
-        //     let sortOrder = 1;
-        //     if (property[0] === "-") {
-        //         sortOrder = -1;
-        //         property = property.substr(1);
-        //     }
-        //     return function (a,b) {
-        //         let result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
-        //         return result * sortOrder;
-        //     }
-        // },
-
-        readStorage(state){
-            const storeMovie = JSON.parse(localStorage.getItem("movieLikes"))
-            const storeShow = JSON.parse(localStorage.getItem("showLikes"))
-            // send data from local storage to like.movieData array
-            if (storeMovie) state.like.movieData = storeMovie
-            if (storeShow) state.like.showData = storeShow
+        infoAlert(state, payload){
+            state.alert.active = true
+            state.alert.text = payload
+            setTimeout(() => {
+                state.alert.active = false
+            }, 1500)
         },
-        
-
     },
 })

@@ -52,6 +52,7 @@
                         multiple
                         chips
                         clearable
+                        hide-selected
                         autocomplete >
                         <template slot="selection" slot-scope="data">
                             <v-chip 
@@ -73,16 +74,30 @@
         <section class="item_container" v-if="searchInput.select">
             <div v-if="!loading" class="item_wrapper">
                 <div class="item" v-for="(film, index) in items.search" :key="index">
-                <router-link :to="{ name: 'singleShow', params: { id: film.id } }"> 
-                    
-                        <app-itemList>
-                            <template slot="rate">{{film.vote_average}}</template>
-                            <template slot="year"> {{film.first_air_date}}</template>
-                            <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
-                        </app-itemList>
+                    <!-- poster -->
+                    <router-link :to="{ name: 'singleShow', params: { id: film.id } }"> 
+
+                        <figure class="item_content animated" >
+                            <img class="item_img" v-bind:src="film.poster_path" alt="">
+                            <figcaption class="item_hover">
+                                <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                            </figcaption>           
+                        </figure>
 
                     </router-link>
-                    <h1 class="item_name"> {{film.original_name}}  </h1>
+                    <!-- block with bookmark and rate -->
+                    <div class="item_info">
+                        <!-- bookmark -->
+                        <v-btn v-model="mark" small fab depressed icon @click="markingButton(film.id, film)">
+                            <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
+                        </v-btn>  
+                        <!-- rate -->
+                        <div class="item_rate"> {{film.vote_average}}% </div>
+                    </div>
+                    <!-- title-->
+                    <h1 class="item_name"> {{film.original_name}} </h1>
+                    <span class="item_year">{{film.first_air_date}}</span>
+                
                 </div>
             </div> 
              <!-- pagination --> 
@@ -102,20 +117,34 @@
         </section>
         <!-- discover films -->    
         <section class="item_container" v-if="!searchInput.select">
-            
-            <div v-show="!loading" class="item_wrapper">
+            <div v-if="!loading" class="item_wrapper">
                 <div class="item" v-for="(film, index) in items.discover" :key="index">
+                    <!-- poster -->
                     <router-link :to="{ name: 'singleShow', params: { id: film.id } }"> 
-                        <app-itemList>
-                            <template slot="rate">{{film.vote_average}}</template>
-                            <template slot="year"> {{film.first_air_date}}</template>
-                            <img slot="img" class="item_img" v-bind:src="film.poster_path" alt="">
-                        </app-itemList>
+
+                        <figure class="item_content animated" >
+                            <img class="item_img" v-bind:src="film.poster_path" alt="">
+                            <figcaption class="item_hover">
+                                <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                            </figcaption>           
+                        </figure>
+
                     </router-link>
-                    <h1 class="item_name"> {{film.name}} </h1>
+                    <!-- block with bookmark and rate -->
+                    <div class="item_info">
+                        <!-- bookmark -->
+                        <v-btn v-model="mark" small fab depressed icon @click="markingButton(film.id, film)">
+                            <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
+                        </v-btn>  
+                        <!-- rate -->
+                        <div class="item_rate"> {{film.vote_average}}% </div>
+                    </div>
+                    <!-- title-->
+                    <h1 class="item_name"> {{film.original_name}} </h1>
+                    <span class="item_year">{{film.first_air_date}}</span>
+                
                 </div>
-            </div> 
-      
+            </div>
             <!-- pagination --> 
             <div class="pages">
                 <div class="pages_wrapper">
@@ -131,26 +160,41 @@
                 </div>
             </div>
         </section>
+        <!-- alert messages -->
+        <v-alert
+            v-model="alert.active"
+            dismissible
+            :type="alert.type"
+            class="alert"
+            transition="fade-transition"
+            >
+            {{alert.text}}
+        </v-alert>
     </v-app>
     <app-footer></app-footer>
 
 </div></template>
 
 <script>
+// components
 import menu from '../components/parts/menu.vue';
 import subMenu from '../components/parts/subMenu.vue';
-import itemList from '../components/templates/itemList.vue';
 import footer from '../components/parts/footer.vue';
+// API database
 import axios from 'axios';
-import { mapState } from 'vuex';
+// firebase
+import db from '@/firebase/init'
+import firebase from 'firebase'
+// vuex -- store
+import { mapState, mapMutations } from 'vuex';
 
 export default {
     components: {
         'app-menu': menu,
         'app-submenu': subMenu,
-        'app-itemList': itemList,
         'app-footer': footer,
     },
+    name: 'shows',
     data () {
         return {        
             loading: false,
@@ -166,6 +210,9 @@ export default {
                 select: null,
                 names: [],
             },
+            // bookmark movies
+            mark: "",
+            showData: {},
         }
     },
 
@@ -178,6 +225,9 @@ export default {
         this.getYearsList()
         // creating list of genres in select input
         this.getGenresList()
+        // get data from firebase
+        this.getFirebaseData()
+
     },
     
     watch: {
@@ -206,6 +256,10 @@ export default {
             'items',
             'page',
             'totalPages',
+            'is',
+            'alert',
+            'btn',
+            'user',
         ]),
     },
 
@@ -260,6 +314,132 @@ export default {
                 this.searchInput.loading = false
             }) 
         },
+        // get data from firebase
+        getFirebaseData(){
+            // get current user from firebase if user is login
+            if(firebase.auth().currentUser) {
+                db.collection('users').where('user_id', '==', firebase.auth().currentUser.uid).get()
+                .then(snapshot => {
+                    snapshot.forEach(doc => {
+                        //user slug
+                        this.user.id = doc.id
+
+                        // read firebase database in real time
+                        db.collection('shows_marked').where('user', '==', this.user.id)
+                        .onSnapshot((snapshot) => {
+                            snapshot.docChanges().forEach(change => {
+                                // add tv show to array if tv show is add to database
+                                if (change.type == 'added') {
+                                    let record = change.doc.data()
+                                    record.id = change.doc.id
+                                    this.user.shows.mark.push(record)
+                                }
+                                // remove tv show from array if tv show is remove from database 
+                                if (change.type == 'removed') {
+                                    this.user.shows.mark = this.user.shows.mark.filter(item =>{
+                                        return item.id != change.doc.id
+                                    }) 
+                                }
+                            })
+                        })
+                    })
+                }) 
+            } 
+        },
+        // BOOKMARK BUTTON
+        // decide if tv show is already marked
+        isMarked(id){
+            return this.user.shows.mark.findIndex(el => el.iId == id) !== -1
+        },
+        // add tv show to watchlist and send to firebase
+        addMarkedItem(id, arr){
+
+            this.showData = arr
+            db.collection('shows_marked').add({
+                id: "",
+                iId: this.showData.id,
+                title: this.showData.original_name,
+                genres: this.showData.genre_ids,
+                poster: this.showData.poster_path,
+                rate: this.showData.vote_average,
+                year: this.showData.first_air_date,
+                user: this.user.id
+
+            }).then(() => {
+                // alert type and settings
+                this.alert.type = "success"
+                this.infoAlert("Successfully added to watchlist")
+                
+            })
+            .catch(err => {
+                console.log(err)
+            })
+        },
+
+        // delete tv show from firebase
+        deleteMarkedItem(id){
+            // *iId (item id) is id of tv show from API and id is id of item in firebase
+            db.collection('shows_marked').where('user', '==', this.user.id).where('iId', '==', id).get()
+            .then(snapshot => {
+                // id of item in firebase
+                let snapshotID = snapshot.docs[0].id
+                // delete item from firebase
+                db.collection('shows_marked').doc(snapshotID).delete().then(()=> {
+                    // delete from local array
+                    this.user.shows.mark = this.user.shows.mark.filter(item =>{
+                        return item.id != snapshotID
+                    }) 
+                }) 
+            }) 
+            // alert type and settings
+            this.alert.type = "success"
+            this.infoAlert("Successfully removed from watchlist.")    
+        },
+
+        // alert messages
+        infoAlert(alertText){
+            this.$store.commit('infoAlert', alertText)
+        },
+
+        // add or remove bookmark
+        markingButton(id, arr){
+             // if user is login then:
+            if(firebase.auth().currentUser){
+                // if tv show is not mark then:
+                if (this.isMarked(id)) {
+                    // add tv show to mark
+                    this.deleteMarkedItem(id)
+               
+                // if tv show is mark then:
+                } else if (!this.isMarked(id)) {
+                    // delete tv show from mark 
+                    this.addMarkedItem(id, arr)
+                }
+            // if user is not login then:
+            } else {
+                // show alert 
+                this.alert.type = "error"
+                this.infoAlert("You must log in.")
+            }
+        },
+        // stylize marking button depending on whether the tv show is mark
+        styleMarkIcon(id){
+            // if user is login then:
+            if(firebase.auth().currentUser){
+                // if tv show is marked then: 
+                if (this.isMarked(id)) {
+                    // slyle icon
+                    return "bookmark"
+                    // if not:
+                } else if (!this.isMarked(id)) {
+                    // style icon
+                    return "bookmark_border"
+                }
+            // if user is not login style icon
+            } else return "bookmark_border"  
+        },
+
+        // API DATABASE
         // get data from database with query
         searchItems() {
             this.items.search = ""
@@ -294,6 +474,10 @@ export default {
                 this.items.search.forEach((rate)=>{
                     if (rate.vote_average < 10) {
                         rate.vote_average =  rate.vote_average.toFixed(1)
+                    }
+
+                    if (rate.vote_average) {
+                        rate.vote_average =  rate.vote_average * 10
                     }
                 })
             }).then(()=> { 
@@ -337,6 +521,11 @@ export default {
                     if (rate.vote_average < 10) {
                         rate.vote_average =  rate.vote_average.toFixed(1)
                     }
+
+                    if (rate.vote_average) {
+                        rate.vote_average =  rate.vote_average * 10
+                    }
+  
                 })
             }).then(()=> { 
                 this.loading = false
@@ -372,10 +561,5 @@ export default {
     @import '../assets/scss/parts/_filters';
     @import '../assets/scss/parts/_itemList';
     @import '../assets/scss/parts/_pagination';
-
-    .item_wrapper {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
 
 </style>

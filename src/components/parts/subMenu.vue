@@ -15,11 +15,6 @@
                     <v-icon color="primary"> person </v-icon>
                     Celebrities
                 </v-btn>
-                <v-btn v-if="showItem()" flat round :to="{ name: 'profile' }" >
-                    <v-icon color="primary"> favorite </v-icon>
-                    Favorite
-                </v-btn>
-
         </div>
     </div>
    
@@ -71,12 +66,11 @@ export default {
     @import '../../assets/scss/_variables';
     @import '../../assets/scss/parts/_general';
 
-    .menu {
+    .menu_wrapper {
         display: flex;
+        flex-wrap: wrap;
         justify-content: center;
-        &_wrapper {
-            text-align: center 
-        }
+
     }
 
 </style>
