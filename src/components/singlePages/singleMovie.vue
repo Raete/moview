@@ -3,7 +3,7 @@
         <div class="loading" v-if="loading">
             <img src="@/assets/img/svg/loader.svg" alt="loading..." >
         </div>
-        <!-- opened video trailer -->
+        <!-- opened rating slider-->
         <v-dialog v-model="box.rate" width="700">
             <v-card> 
                 <v-card-actions>
@@ -17,7 +17,6 @@
                         v-model="rate"
                         :tick-labels="rating"
                         value="0"
-                        always-dirty
                         max="10"
                         thumb-label
                         thumb-size="40"
@@ -27,23 +26,22 @@
                         slot="thumb-label"
                         slot-scope="props"
                         >
-                        <span>
-                            {{ rateLabel(props.value) }}
-                        </span>
+                            <span>
+                                {{ rateLabel(props.value) }}
+                            </span>
                         </template>
                     </v-slider>
                 </v-card-text>
-                <v-card-actions>
+                <v-card-actions> 
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" flat @click.native="addRatedItem()">Save rating</v-btn>
+                    <v-btn color="primary" round flat @click.native="ratingButton()">{{styleSaveRateBtn($route.params.id)}}</v-btn>
+                    <v-btn v-if="isRated($route.params.id)" color="primary" round flat @click.native="deleteRateItem($route.params.id)">Delete rating</v-btn>
                 </v-card-actions>
-                
-
             </v-card>
         </v-dialog>
         <!-- opened video trailer -->
-        <v-dialog v-model="box.video" width="700">
-            <v-card> 
+        <v-dialog v-model="box.video" width="700" >
+            <v-card class="dialog_video"> 
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn icon flat @click.native="box.video = false">
@@ -96,7 +94,7 @@
                 <section  class="info_wrapper">
                     <div class="info_rate_wrapper">
                         <p class="info_rate">  {{detail.data.vote_average}}%</p>
-                        <v-btn outline round color="primary"  @click.stop="showRateOnTop()" >rate movie</v-btn>
+                        <v-btn outline round color="primary"  @click.stop="showRateOnTop()" >{{this.styleRateText($route.params.id)}}</v-btn>
                     </div>
                    
                     <!-- movie name -->
@@ -109,7 +107,7 @@
                     </div>
                     <!-- movie tags -->
                     <ul class="info_tags">
-                        <li v-for="tag in detail.data.genres" :key="tag.id" class="info_tag">{{tag.name}}</li>
+                        <li v-for="(tag, index) in detail.data.genres" :key="index" class="info_tag">{{tag.name}}</li>
                     </ul>
                     <!-- movie run time-->
                     <p v-if="detail.data.runtime" class="info_time">Run time:
@@ -130,8 +128,7 @@
                         <button v-if="is.long" @click.stop="showViewOnTop()" class="btn_overview" slot="activator" color="primary" dark>all overview</button>                     
                     </div>
                     <!-- movie trailer button - open video dialog -->
-                    <button slot="activator" v-if="is.video" @click.stop="showVideoOnTop()" class="btn_video">view trailer
-                    </button>
+                    <button slot="activator" v-if="is.video" @click.stop="showVideoOnTop()" class="btn_video">view trailer</button>
                 </section>
             </section>
         </main>
@@ -239,9 +236,9 @@ import footer from '@/components/parts/footer.vue';
 import axios from 'axios';
 // firebase
 import db from '@/firebase/init'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 // vuex -- store
-import { mapState, mapMutations } from 'vuex';
+import { mapState } from 'vuex';
 
 
 export default {
@@ -257,20 +254,8 @@ export default {
             panel: true,   
             // bookmark movies in recommend
             mark: "",
-            showData: {},
-            rating: [
-                '0%',
-                '10%',
-                '20%',
-                '30%',
-                '40%',
-                '50%',
-                '60%',
-                '70%',
-                '80%',
-                '90%',
-                '100%',
-            ]
+            movieData: {},
+            
         }
     },
 
@@ -281,16 +266,11 @@ export default {
         this.getItemData()
         // get data from firebase
         this.getFirebaseData()
-
-      
-
     },
 
     watch: {
         rate(val) {
             this.user.movies.curRate = val * 10
-            console.log(this.user.movies.curRate)
-      
         },
     },
 
@@ -305,17 +285,11 @@ export default {
             'alert',
             'btn',
             'user',
+            'rating',
         ]),
     },
 
     methods: {
-        ...mapMutations([
-
-        ]),
-
-        rateLabel(val) {
-            return this.rating[val]
-        },
 
         //start setting - reset data
         init(){
@@ -325,9 +299,7 @@ export default {
             this.detail.recommend = ""
             this.detail.video = ""
             this.box.video = false
-            this.box.overview = false
-
-                                    
+            this.box.overview = false                      
         },
         // format budget and revenue currancy 
         formatNub(num){ 
@@ -349,8 +321,14 @@ export default {
             this.box.overview = !this.box.overview
         },
         showRateOnTop(){
-            this.scrollToTop(200)
-            this.box.rate = !this.box.rate
+            if(firebase.auth().currentUser){
+                this.scrollToTop(200)
+                this.box.rate = !this.box.rate
+            } else {
+                // show alert 
+                this.alert.type = "error"
+                this.infoAlert("You must log in.")
+            }
         },
         // scroll to top
         scrollToTop(time) {
@@ -389,33 +367,155 @@ export default {
                                     this.user.movies.mark = this.user.movies.mark.filter(item =>{
                                         return item.id != change.doc.id
                                     }) 
-
-                                }
-                                
+                                }    
                             })
+                        })
+
+                        // read firebase database in real time
+                        db.collection('movies_rated').where('user', '==', this.user.id)
+                        .onSnapshot((snapshot) => {
+                            snapshot.docChanges().forEach(change => {
+                                let userRate
+                                // if marked movie is add to the database then:
+                                if (change.type == 'added') {
+                                    userRate = snapshot.docs[0].data().user_rate
+                                    this.user.movies.curRate = userRate
+                                    // read record and save to array
+                                    let record = change.doc.data()
+                                    record.id = change.doc.id
+                                    this.user.movies.rate.push(record)
+                                }
+                                // if marked movie is remove to the database then:
+                                if (change.type == 'removed') {
+                                    // remove movie from array
+                                    this.user.movies.rate = this.user.movies.rate.filter(item =>{
+                                        return item.id != change.doc.id
+                                    }) 
+                                } 
+                            })  
                         })
                     })
                 })
             }
         },
-        addRatedItem(){
-            this.box.rate = false
+        // RATE BUTTON 
+        // decide if movie is already rated
+        isRated(id){
+            return this.user.movies.rate.findIndex(el => el.iId == id) !== -1
+        },
+
+        rateLabel(val) {
+            return this.rating[val]
+        },
+        // add movie to wishlist
+        addRateItem(){
             // create new marked object with id, title and poster path... in firebase
             db.collection('movies_rated').add({
-
+                id: "", // id in firebase - autogenerated by firebase
+                iId: this.$route.params.id, // item id from API
+                title: this.detail.data.title,
+                poster: this.detail.data.poster_path,
+                year: this.detail.data.release_date,
+                rate: this.detail.data.vote_average,
+                genres: this.detail.data.genres,
+                user: this.user.id,
                 user_rate: this.user.movies.curRate
 
             }).then(() => {
                 // alert type and settings
                 this.alert.type = "success"
-                this.infoAlert("Successfully rated ")
-                console.log(this.user.movies.curRate)
+                this.infoAlert("Successfully rated")
 
             }).catch(err => {
                 console.log(err)
             })
         },
+        // add movie to wishlist
+        updateRateItem(id){
+             // *iId (item id) is id of movie from API and id is id of item in firebase
+            db.collection('movies_rated').where('user', '==', this.user.id).where('iId', '==', id).get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    db.collection('movies_rated').doc(doc.id).update({
+                        user_rate: this.user.movies.curRate
 
+                    }).then(() => {
+                        // alert type and settings
+                        this.alert.type = "success"
+                        this.infoAlert("Successfully update")
+
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                })
+            })
+        },
+        // delete movie from 
+        deleteRateItem(id){
+            // *iId (item id) is id of movie from API and id is id of item in firebase
+            db.collection('movies_rated').where('user', '==', this.user.id).where('iId', '==', id).get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    db.collection('movies_rated').doc(doc.id).delete().then(()=> {
+                        this.user.movies.rate = this.user.movies.rate.filter(item =>{
+                            return item.id != doc.id
+                        })
+                    })  
+                })
+            })
+            // alert type and settings
+            this.alert.type = "success"
+            this.infoAlert("Successfully removed rate.")     
+            this.box.rate = false
+        },
+
+        // add or remove button
+        ratingButton(){
+            // if user is login then:
+            if(firebase.auth().currentUser){
+                // if movie is not marked then:
+                if (this.isRated(this.$route.params.id)) {
+                    // add movie to marked
+                    this.updateRateItem(this.$route.params.id)
+                   // this.deleteRateItem(this.$route.params.id)
+
+                // if movie is marked then:
+                } else if (!this.isRated(this.$route.params.id)) {
+                    // delete movie from marked 
+                    this.addRateItem()
+                }
+            // if user is not login then:
+            } else {
+                // show alert 
+                this.alert.type = "error"
+                this.infoAlert("You must log in.")
+            }
+            this.box.rate = false
+        },
+
+        // stylize rating button depending on whether the movie is rated
+        // text button
+        styleRateText(id){
+            // if user is login then:
+            if(firebase.auth().currentUser){
+
+                if (this.isRated(id)) {
+                    return `Your rate is: ${this.user.movies.curRate}%`
+                } else if (!this.isRated(id)) {
+                    return "Rate movie"
+                }
+            } else return "Rate movie"
+        },
+        // text button
+        styleSaveRateBtn(id){
+         
+            if (this.isRated(id)) {
+                return "Update rating"
+            } else if (!this.isRated(id)) {
+                return "Save rating"
+            }
+         
+        },
 
         // BOOKMARK BUTTON in movie detail
         // decide if movie is already marked
@@ -445,7 +545,7 @@ export default {
                 console.log(err)
             })
         },
-        // delete movie from favorite
+        // delete movie from wishlist
         deleteMarkedItem(id){
             // *iId (item id) is id of movie from API and id is id of item in firebase
             db.collection('movies_marked').where('user', '==', this.user.id).where('iId', '==', id).get()
@@ -563,9 +663,6 @@ export default {
             } else return "Add to watchlist"
         },
 
-
-
-
         // API DATABASE
         // get movie data from API database
         getItemData() {
@@ -613,9 +710,7 @@ export default {
                 if (this.detail.data.vote_average) {
                     this.detail.data.vote_average = this.detail.data.vote_average * 10
                 } 
-
-
-                
+           
                 //** CREDITS **//
                 //************//
                 const URLface = "https://image.tmdb.org/t/p/w235_and_h235_face"
@@ -676,10 +771,6 @@ export default {
                          year.release_date = "????"
                     }
                 })
-                // render only 6 movies
-                // if (this.detail.recommend){
-                //     this.detail.recommend = this.detail.recommend.slice(0,6)
-                // }
 
                 // rate number formating to one decimal
                 this.detail.recommend.forEach((rate)=>{
@@ -737,23 +828,17 @@ export default {
     @import '../../assets/scss/parts/_itemList';
 
     .item {
-    width: 160px; //160
-    &_wrapper {
-        display: flex;
-        padding: 25px 0 ;
-        max-width: $width; 
-        margin: 0 auto;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        justify-content: flex-start;  
-        text-align: left
-    
+        width: 160px;
+        &_wrapper {
+            padding: 25px 0;
+            flex-wrap: nowrap;
+            justify-content: flex-start;  
+            text-align: left
+        }
     }
-}
 
-.rating_wrapper {
-    padding: 30px
-}
-
+    .rating_wrapper {
+        padding: 30px
+    }
 
 </style>

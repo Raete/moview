@@ -236,9 +236,10 @@ export default {
             dialog: false,
             // back to top button is appear
             show: true,
-            // bookmark
+            // bookmarks (v-model)
             markMovie: "",
             markShow: "",
+            // item data for firebase
             movieData: {},
             showData: {},
         }
@@ -250,9 +251,7 @@ export default {
          // back to seasons button
         window.addEventListener("scroll", this.scrollButton)
         // get data from firebase
-        this.getFirebaseDataShow()
-        this.getFirebaseDataMovie()
-        
+        this.getFirebaseData()
     },
 
     computed: {
@@ -290,36 +289,6 @@ export default {
             this.scrollToTop(300)
             this.dialog = !this.dialog
         },
-        // scroll to top
-        // scrollToTop(scrollDuration) {
-        //     var scrollStep = -window.scrollY / (scrollDuration / 15),
-        //         scrollInterval = setInterval(function(){
-        //         if ( window.scrollY != 0 ) {
-        //             window.scrollBy( 0, scrollStep );
-        //         }
-        //         else clearInterval(scrollInterval); 
-        //     },15)
-        // },  
-        // // scroll to anchor element (seasons)
-        // scrollTo(time) {
-        //     this.$store.commit('scrollToTop', time)
-        // },
-        // // smooth scrolling
-        // smoothScrollTo(elem) {
-        //     let _this = this
-        //     let jump = parseInt(elem.getBoundingClientRect().top * .3);
-        //     document.body.scrollTop += jump;
-        //     document.documentElement.scrollTop += jump
-        //     //lastjump detects anchor unreachable, also manual scrolling to cancel animation if scroll > jump
-        //     if (!elem.lastjump || elem.lastjump > Math.abs(jump)) {
-        //         elem.lastjump = Math.abs(jump)
-        //         setTimeout(()=> {
-        //         _this.smoothScrollTo(elem)
-        //         }, 20)
-        //     } else {
-        //         elem.lastjump = null;
-        //     }
-        // },
 
         // scroll to top
         scrollToTop(time) {
@@ -335,7 +304,7 @@ export default {
         },
         // FIREBASE DATA
         // get movies data from firebase
-        getFirebaseDataMovie(){
+        getFirebaseData(){
             // get current user from firebase if user is login
             if(firebase.auth().currentUser) {
                 db.collection('users').where('user_id', '==', firebase.auth().currentUser.uid).get()
@@ -362,33 +331,19 @@ export default {
                                 }
                             })
                         })
-                    })
-                }) 
-            }  
-        },
 
-        // get tv shows data from firebase
-        getFirebaseDataShow(){
-            // get current user from firebase if user is login
-            if(firebase.auth().currentUser) {
-                db.collection('users').where('user_id', '==', firebase.auth().currentUser.uid).get()
-                .then(snapshot => {
-                    snapshot.forEach(doc => {
-                        //user slug
-                        this.user.id = doc.id
                         // read firebase database in real time
                         db.collection('shows_marked').where('user', '==', this.user.id)
                         .onSnapshot((snapshot) => {
                             snapshot.docChanges().forEach(change => {
-                                
+                                // add tv show to array if tv show is add to database
                                 if (change.type == 'added') {
                                     let record = change.doc.data()
                                     record.id = change.doc.id
                                     this.user.shows.mark.push(record)
                                 }
-
+                                // remove tv show from array if tv show is remove from database
                                 if (change.type == 'removed') {
-
                                     this.user.shows.mark = this.user.shows.mark.filter(item =>{
                                         return item.id != change.doc.id
                                     }) 
@@ -397,7 +352,7 @@ export default {
                         })
                     })
                 }) 
-            } 
+            }  
         },
 
         // BOOKMARK BUTTON -- MOVIE
@@ -719,8 +674,7 @@ export default {
                          year.release_date = "????"
                     }
                 })
-                // sort movie by rate
-                // this.actor.movieKnown.sort(this.dynamicSort("-vote_average"))
+
                 // render only 6 movies
                 if (this.actor.movieKnown) {
                     this.actor.movieKnown = this.actor.movieKnown.slice(0,6)
@@ -749,8 +703,7 @@ export default {
                          year.first_air_date = "????"
                     }
                 })
-                // sort movie by rate
-                // this.actor.TVKnown.sort(this.dynamicSort("-vote_average"))
+
                 // render only 6 movies
                 if (this.actor.TVKnown) {
                     this.actor.TVKnown = this.actor.TVKnown.slice(0,6)
@@ -773,19 +726,13 @@ export default {
     @import '../../assets/scss/parts/_itemList';
     @import '../../assets/scss/singlePage/_actor';
     
-.item {
-    width: 160px; //160
-    &_wrapper {
-        display: flex;
-        padding: 25px 0 ;
-        max-width: $width; 
-        margin: 0 auto;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        justify-content: flex-start;  
-        text-align: left
-    
+    .item {
+        width: 160px; 
+        &_wrapper {
+            padding: 25px 0 ;
+            flex-wrap: nowrap;
+            justify-content: flex-start;  
+        }
     }
-}
 
 </style>

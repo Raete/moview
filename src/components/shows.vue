@@ -4,7 +4,7 @@
         <div class="loading" v-if="loading">
             <img src="@/assets/img/svg/loader.svg" alt="loading..." >
         </div>
-        <app-submenu></app-submenu>
+        <h1 class="page_title">Discover new tv shows</h1>
         <!-- filters -->
         <section class="filters">
             <div class="filters_wrapper">
@@ -178,7 +178,6 @@
 <script>
 // components
 import menu from '../components/parts/menu.vue';
-import subMenu from '../components/parts/subMenu.vue';
 import footer from '../components/parts/footer.vue';
 // API database
 import axios from 'axios';
@@ -186,12 +185,11 @@ import axios from 'axios';
 import db from '@/firebase/init'
 import firebase from 'firebase'
 // vuex -- store
-import { mapState, mapMutations } from 'vuex';
+import { mapState } from 'vuex';
 
 export default {
     components: {
         'app-menu': menu,
-        'app-submenu': subMenu,
         'app-footer': footer,
     },
     name: 'shows',

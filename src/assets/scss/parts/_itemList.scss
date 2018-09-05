@@ -16,11 +16,13 @@
         flex-wrap: wrap;
         justify-content: center;
         text-align: left;
+        margin-bottom: 50px;
         &::-webkit-scrollbar {
             width: 10px;
             height: 10px;
             border-radius: 50px;
             background: $color-bg;
+            
         }
         &::-webkit-scrollbar-thumb {
             border-radius: 5px;

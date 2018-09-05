@@ -5,7 +5,8 @@
         <div class="loading" v-if="loading">
             <img src="@/assets/img/svg/loader.svg" alt="loading..." >
         </div>
-        <app-submenu></app-submenu>
+        <!-- page title -->
+        <h1 class="page_title">Discover new movies</h1>
         <!-- filters -->
         <section class="filters">
             <div class="filters_wrapper">
@@ -183,7 +184,6 @@
 <script>
 // components
 import menu from '../components/parts/menu.vue';
-import subMenu from '../components/parts/subMenu.vue';
 import footer from '../components/parts/footer.vue';
 // API database
 import axios from 'axios';
@@ -191,12 +191,11 @@ import axios from 'axios';
 import db from '@/firebase/init'
 import firebase from 'firebase'
 // vuex -- store
-import { mapState, mapMutations } from 'vuex';
+import { mapState } from 'vuex';
 
 export default {
     components: {
         'app-menu': menu,
-        'app-submenu': subMenu,
         'app-footer': footer,
     },
     name: 'movies',
@@ -276,7 +275,7 @@ export default {
              this.items.discover = ""
         },
         //paginations prev button
-        prev(page){
+        prev(){
             if (this.searchInput.select) {
                 this.page.curSearch--
                 this.searchItems()
@@ -525,29 +524,6 @@ export default {
                         rate.vote_average =  rate.vote_average * 10
                     }
                 })
-
-                // replace genres id with name ------TODO
-                // let place
-                // this.items.genres.forEach((i)=>{
-                //     if (i.id == 12) {
-                //         place = i.name
-                //     }
-                //     if (i.id == 14) {
-                //         place = i.name
-                //     }
-                  
-                // })
-
-                // this.items.discover.forEach((item)=>{
-                    
-                //     let index = item.genre_ids.indexOf(12)
-                //     if (index != -1) {
-                //         item.genre_ids[index] = place
-                //     }
-
-                   // console.log(item.genre_ids)
-                   
-                //})
 
             }).then(()=> { 
                 this.loading = false

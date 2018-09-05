@@ -3,6 +3,42 @@
         <div class="loading" v-if="loading">
             <img src="@/assets/img/svg/loader.svg" alt="loading..." >
         </div>
+        <!-- opened rating slider-->
+        <v-dialog v-model="box.rate" width="700">
+            <v-card> 
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn icon flat @click.native="box.rate = false">
+                        <v-icon>close</v-icon>
+                    </v-btn>
+                </v-card-actions>
+                <v-card-text class="rating_wrapper">
+                    <v-slider
+                        v-model="rate"
+                        :tick-labels="rating"
+                        value="0"
+                        max="10"
+                        thumb-label
+                        thumb-size="40"
+                        ticks="always"
+                    >
+                        <template
+                        slot="thumb-label"
+                        slot-scope="props"
+                        >
+                        <span>
+                            {{ rateLabel(props.value) }}
+                        </span>
+                        </template>
+                    </v-slider>
+                </v-card-text>
+                <v-card-actions> 
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" round flat @click.native="ratingButton()">Save rating</v-btn>
+                    <v-btn v-if="isRated($route.params.id)" color="primary" round flat @click.native="deleteRateItem($route.params.id)">Delete rating</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
         <!-- opened video trailer -->
         <v-dialog v-model="box.video" width="700">
             <v-card>
@@ -57,8 +93,8 @@
                 <!-- show detail info -->
                 <section  class="info_wrapper">
                     <div class="info_rate_wrapper">
-                        <p class="info_rate">  {{detail.data.vote_average}}%</p>
-                        <v-btn outline round color="primary">rate movie</v-btn>
+                        <p class="info_rate"> {{detail.data.vote_average}}% </p>
+                        <v-btn outline round color="primary"  @click.stop="showRateOnTop()" >{{this.styleRateText($route.params.id)}}</v-btn>
                     </div>
                     <!-- show name -->
                     <div class="info_name">
@@ -70,7 +106,7 @@
                     </div>
                     <!-- show tags -->
                     <ul class="info_tags">
-                        <li v-for="tag in detail.data.genres" :key="tag.id" class="info_tag">{{tag.name}}</li>
+                        <li v-for="(tag, index) in detail.data.genres" :key="index" class="info_tag">{{tag.name}}</li>
                     </ul>
                     <!-- show episode time-->
                     <p class="info_time" v-if="is.episode">Average episode time:
@@ -240,7 +276,7 @@ import axios from 'axios';
 import db from '@/firebase/init'
 import firebase from 'firebase'
 // vuex -- store
-import { mapState, mapMutations } from 'vuex';
+import { mapState } from 'vuex';
 
 
 export default {
@@ -260,6 +296,7 @@ export default {
             // back to top button
             show: true,
             // bookmark shows in recommend
+            rate: "",
             mark: "",
             showData: {},
         }
@@ -276,14 +313,15 @@ export default {
         this.getFirebaseData()
         // back to seasons button
         window.addEventListener("scroll", this.scrollButton)
-
-        
     },
 
     watch: {
         currentTab(){
             // set number of season in episode list
             this.getEpisode(this.currentTab.split("_").pop())
+        },
+        rate(val) {
+            this.user.shows.curRate = val * 10
         },
     },
 
@@ -298,6 +336,7 @@ export default {
             'alert',
             'btn',
             'user',
+            'rating',
         ]),
     },
 
@@ -313,26 +352,6 @@ export default {
             this.box.video = false
             this.box.overview = false
         },
-        // scroll to anchor element (seasons)
-        // scrollTo(name) {
-        //     this.smoothScrollTo(document.getElementById(name));
-        // },
-        // // smooth scrolling
-        // smoothScrollTo(elem) {
-        //     let _this = this
-        //     let jump = parseInt(elem.getBoundingClientRect().top * .3);
-        //     document.body.scrollTop += jump;
-        //     document.documentElement.scrollTop += jump
-        //     //lastjump detects anchor unreachable, also manual scrolling to cancel animation if scroll > jump
-        //     if (!elem.lastjump || elem.lastjump > Math.abs(jump)) {
-        //         elem.lastjump = Math.abs(jump)
-        //         setTimeout(()=> {
-        //         _this.smoothScrollTo(elem)
-        //         }, 20)
-        //     } else {
-        //         elem.lastjump = null;
-        //     }
-        // },
 
         // back to top button is appear
         scrollButton() {
@@ -351,6 +370,16 @@ export default {
         showViewOnTop(){
             this.scrollToTop(200)
             this.box.overview = !this.box.overview
+        },
+        showRateOnTop(){
+            if(firebase.auth().currentUser){
+                this.scrollToTop(200)
+                this.box.rate = !this.box.rate
+            } else {
+                // show alert 
+                this.alert.type = "error"
+                this.infoAlert("You must log in.")
+            }
         },
         // scroll to top
         scrollToTop(time) {
@@ -405,14 +434,144 @@ export default {
                                         return item.id != change.doc.id
                                     }) 
                                 }
-                            
                             })
+                        })
+                        // read firebase database in real time
+                        db.collection('shows_rated').where('user', '==', this.user.id)
+                        .onSnapshot((snapshot) => {
+                            snapshot.docChanges().forEach(change => {
+                                let userRate
+                                // if marked movie is add to the database then:
+                                if (change.type == 'added') {
+                                    userRate = snapshot.docs[0].data().user_rate
+                                    this.user.shows.curRate = userRate
+                                    // read record and save to array
+                                    let record = change.doc.data()
+                                    record.id = change.doc.id
+                                    this.user.shows.rate.push(record)
+                                }
+                                // if marked movie is remove to the database then:
+                                if (change.type == 'removed') {
+                                    // remove movie from array
+                                    this.user.shows.rate = this.user.shows.rate.filter(item =>{
+                                        return item.id != change.doc.id
+                                    }) 
+                                } 
+                            })  
                         })
                     })
                 })
             }
-
         },
+        // RATE BUTTON 
+        
+        rateLabel(val) {
+            return this.rating[val]
+        },
+        // decide if movie is already rated
+        isRated(id){
+            return this.user.shows.rate.findIndex(el => el.iId == id) !== -1
+        },
+        // add movie to wishlist
+        addRateItem(){
+            // create new marked object with id, title and poster path... in firebase
+            db.collection('shows_rated').add({
+                id: "", // id in firebase - autogenerated by firebase
+                iId: this.$route.params.id, // item id from API
+                title: this.detail.data.name,
+                poster: this.detail.data.poster_path,
+                year: this.detail.data.first_air_date,
+                rate: this.detail.data.vote_average,
+                genres: this.detail.data.genres,
+                user: this.user.id,
+                user_rate: this.user.shows.curRate
+
+            }).then(() => {
+                // alert type and settings
+                this.alert.type = "success"
+                this.infoAlert("Successfully rated")
+
+            }).catch(err => {
+                console.log(err)
+            })
+        },
+        // add movie to wishlist
+        updateRateItem(id){
+             // *iId (item id) is id of movie from API and id is id of item in firebase
+            db.collection('shows_rated').where('user', '==', this.user.id).where('iId', '==', id).get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    db.collection('shows_rated').doc(doc.id).update({
+                        user_rate: this.user.shows.curRate
+
+                    }).then(() => {
+                        // alert type and settings
+                        this.alert.type = "success"
+                        this.infoAlert("Successfully update")
+
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                })
+            })
+        },
+        // delete movie from 
+        deleteRateItem(id){
+            // *iId (item id) is id of movie from API and id is id of item in firebase
+            db.collection('shows_rated').where('user', '==', this.user.id).where('iId', '==', id).get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    db.collection('shows_rated').doc(doc.id).delete().then(()=> {
+                        this.user.shows.rate = this.user.shows.rate.filter(item =>{
+                            return item.id != doc.id
+                        })
+                    })  
+                })
+            })
+            // alert type and settings
+            this.alert.type = "success"
+            this.infoAlert("Successfully removed rate.")     
+            this.box.rate = false
+        },
+
+        // add or remove button
+        ratingButton(){
+            // if user is login then:
+            if(firebase.auth().currentUser){
+                // if movie is not marked then:
+                if (this.isRated(this.$route.params.id)) {
+                    // add movie to marked
+                    this.updateRateItem(this.$route.params.id)
+                   // this.deleteRateItem(this.$route.params.id)
+
+                // if movie is marked then:
+                } else if (!this.isRated(this.$route.params.id)) {
+                    // delete movie from marked 
+                    this.addRateItem()
+                }
+            // if user is not login then:
+            } else {
+                // show alert 
+                this.alert.type = "error"
+                this.infoAlert("You must log in.")
+            }
+            this.box.rate = false
+        },
+
+        // stylize marking button depending on whether the movie is rated
+        // text button
+        styleRateText(id){
+            // if user is login then:
+            if(firebase.auth().currentUser){
+
+                if (this.isRated(id)) {
+                   return `Your rate is: ${this.user.shows.curRate}%`
+                } else if (!this.isRated(id)) {
+                    return "Rate TV show"
+                }
+            } else return "Rate TV show"
+        },
+
         // BOOKMARK BUTTON in show detail
         // decide if show is already marked
         isMarked(id){
@@ -531,7 +690,7 @@ export default {
             }
         },
 
-        // stylize marking button depending on whether the movie is mark*
+        // stylize marking button depending on whether the movie is mark
         // icon button
         styleMarkIcon(id){
             // if user is login then:
@@ -614,10 +773,7 @@ export default {
 
                 let crew = this.detail.credits.crew
                 let cast = this.detail.credits.cast
-                // only 3 crew person in overview
-                // if (this.detail.credits.crew) {
-                //    this.detail.credits.crew = this.detail.credits.crew.slice(0,3)
-                // }
+
                 // if is no profile image in cast replace with holder
                 cast.forEach((profile)=> {
                     if (profile.profile_path) {
@@ -670,12 +826,6 @@ export default {
                          year.first_air_date = "????"
                     }
                 })
-                // sort movie by rate
-                // this.detail.recommend.sort(this.dynamicSort("-vote_average"))
-                // render only 6 movies
-                // if (this.detail.recommend) {
-                //     this.detail.recommend = this.detail.recommend.slice(0,6)
-                // }
 
                 // rate number formating to one decimal
                 this.detail.recommend.forEach((rate)=>{
@@ -764,18 +914,13 @@ export default {
     @import '../../assets/scss/parts/_seasons';
 
      .item {
-    width: 160px; //160
-    &_wrapper {
-        display: flex;
-        padding: 25px 0 ;
-        max-width: $width; 
-        margin: 0 auto;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        justify-content: flex-start;  
-        text-align: left
-    
+        width: 160px;
+        &_wrapper {
+            padding: 25px 0;
+            flex-wrap: nowrap;
+            justify-content: flex-start;  
+            text-align: left
+        }
     }
-}
 
 </style>

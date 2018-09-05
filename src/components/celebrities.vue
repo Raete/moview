@@ -4,7 +4,7 @@
         <div class="loading" v-if="loading">
             <img src="@/assets/img/svg/loader.svg" alt="moview" >
         </div>
-        <app-submenu></app-submenu>
+        <h1 class="page_title">popular celebrities</h1>
      
         <!-- filters -->
         <section class="filters">
@@ -25,7 +25,6 @@
                         label="Search celebrities"
                     ></v-autocomplete>
                 </div>
-                
             </div>
         </section>  
         <!-- search celebrity-->    
@@ -64,7 +63,6 @@
                 <router-link :to="{ name: 'singleActor', params: { id: actor.id } }"> 
                     
                     <figure class="item_content animated">
-                        
                         <img class="item_img" v-bind:src="actor.profile_path" alt="">
                         <figcaption class="item_hover">
                             <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
@@ -98,16 +96,17 @@
 </div></template>
 
 <script>
+// components
 import menu from '@/components/parts/menu.vue';
-import subMenu from '../components/parts/subMenu.vue';
 import footer from '@/components/parts/footer.vue';
+// API database
 import axios from 'axios';
+// vuex -- store
 import { mapState } from 'vuex';
 
 export default {
     components: {
         'app-menu': menu,
-        'app-submenu': subMenu,
         'app-footer': footer,
     },
     data () {

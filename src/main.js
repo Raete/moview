@@ -8,7 +8,7 @@ import { store } from './store/store'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import App from './App'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 
     Vue.use(_);
     Vue.use(Vuetify, {
