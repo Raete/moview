@@ -1,57 +1,32 @@
-///*** OVERVIEW ***///
-.main {
-    display: flex;
-    font-size: 100%;
-    height: 100%;
-    padding-bottom: 20px;
-    position: relative;
-    &:before {
-        content: "";
-        position:absolute;
-        left: 0;
-        top: 0;        
-        height: 100%;
-        width: 100%;
-        background: rgba($color_main, .9);
-    }
-    &_container {
-        max-width: $width;
-        margin: 30px auto 0 auto;
-        padding: 0 30px;
-        position: relative
-    }
-}
-
-//--desktop--
-@media screen and (min-width: 1000px) {
-    .main_container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        margin: 0;
-        padding-left: 5%;
-        max-width: 50%;
-        font-size: 120%;
-    }
-}
-
-//--desktop--
-@media screen and (min-width: 800px) {
-    .main {
-        height: 100vh;
-        padding: 0;
-    }
-}
 // DESCRIPTIONS
+@import '../../assets/scss/parts/_overview';
 .info {
+    &_wrapper {
+        position: relative;
+    }
     &_rate {
         display: flex;
-        justify-content: center;
-        width: 55px;
-        color: $color_main;
-        background: $color_text;
-        padding: 5px;
-        border-radius: 0 8px 0 8px;
+        align-items: center;
+        font-size: 150%;
+        font-weight: 700;
+        color: $color_text;
+       // background: $color_text;
+       // padding: 5px;
+        //border-radius: 0 8px 0 8px;
+        &_btn {
+            background: rgba(0,0,0,.1);
+            padding: 5px 16px;
+            border-radius: 50px;
+            text-transform: uppercase
+        }
+        &_wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+    }
+    &_name {
+       // margin-top: 10px;
     }
     &_title {
         font-size: 220%;
@@ -72,18 +47,12 @@
         padding-right: 10px;
     }
     &_time {
+        margin-bottom: 10px;
         span {
             font-weight: 700;
         }
     }
-    &_crew_title {
-        font-weight: 700;
-    }
-    &_crew {
-        margin: 10px 0;
-        padding: 0;
-    }
-    &_crew_name{
+    &_money {
         span {
             font-weight: 700;
         }
@@ -107,6 +76,41 @@
 
 .overview_more {
     background: $color-bg--light;
+}
+
+//--desktop--
+@media screen and (min-width: 1300px) {
+    .overview_more {
+        font-size: 120%;
+    }
+}
+
+// button video
+.btn_video {
+    background: $color_text; 
+    color: $color_main;
+    border-radius: 50px;
+    padding: 10px 20px;
+    text-align: center;
+    font-weight: 700;
+    transition: .3s;
+    margin-top: 30px;
+    &:hover {
+        background: lighten($color_text, 1%);
+        color: $color_main;
+        box-shadow: 2px 2px 15px $color_text;
+    }
+}
+
+// button all overview 
+.btn_overview {
+    display: block;
+    font-weight: 700;
+    border-bottom: 2px dotted transparent;
+    transition: .3s;
+    &:hover {
+        border-bottom: 2px dotted $color_text;
+    }
 }
 
 //POSTER
@@ -149,11 +153,3 @@
         height: 100%;
     }
 }
-
-.hideVideo {
-    display: none;
-}
-
-
-
-

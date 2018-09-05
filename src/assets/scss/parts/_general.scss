@@ -1,4 +1,5 @@
-
+// vuetify custom setting
+@import '_vuetify';
 ///*** GENERAL SETTINGS ***///
 
 html {
@@ -38,65 +39,21 @@ button {
     border: 0;
 }
 
-.tab_item {
-    margin-top: 40px;
-}
-.tab_menu_item {
-    font-weight: 700;
-}
-
-///*** BUTTONS ***///
-.back_btn {
-    display: flex;
-    justify-content: flex-start;
-    align-content: center;
-    align-items: center;
-    text-align: right;
-    margin-bottom: 30px;
-    transition: .3s;
-    cursor: pointer;
-    &:hover {
-        font-weight: 700;
-    }
-}
-
-//--desktop--
-@media screen and (min-width: 1000px) {
-    .back_btn {
-        margin-bottom: 90px;
-    }
-}
-
-.info_btn {
-    border: 2px solid $color_text;
-    border-radius: 8px;
-    padding: 10px 20px;
+.page_title {
     text-align: center;
-    font-weight: 700;
-    transition: .3s;
-    margin-top: 30px;
-    &:hover {
-        background: $color_text;
-        color: $color_main
-    }
-}
-
-.overview_btn {
-    display: block;
-    font-weight: 700;
-    border-bottom: 2px dotted transparent;
-    transition: .3s;
-    &:hover {
-        border-bottom: 2px dotted $color_text;
-    }
+    text-transform: uppercase;
+   font-weight: 900;
 }
 
 ///*** RECOMEND ITEMS ***///
 .recommend {
     text-align: center;
-    padding-top: 30px;
+    padding: 30px 0;
+    &_sub {
+        text-align: center;
+        font-size: 120%;
+    }
 }
-
 
 .loading {
     display: flex;
@@ -113,28 +70,50 @@ button {
         height: 100px;
         width: auto
     }
-
+}
+// text in more overview box
+.pre_text {
+    white-space: pre-wrap; 
+    word-wrap: break-word;
+    font-family: inherit;
 }
 
-// vuetify 
-.application.theme--light {
-    background: $color-bg
-}
-
-
-@keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-  
-    to {
-      opacity: 1;
-    }
-  }
-  
-  .animated {
+// animation
+.animated {
     animation-duration: 1s;
     animation-fill-mode: both;
     animation-name: fadeIn;
-  }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0 }
+    to { opacity: 1 }
+}
+  
+// to button
+.up {
+    position: fixed;
+    right: 0;
+    bottom: 5%;
+    border-radius: $radius 0 0 $radius;
+    background: $color_main;
+    padding: 10px ;
+    transition: all .3s;
+    opacity: 0.8;
+    &:hover {
+        opacity: 1;
+    }
+    &_active {
+        opacity: 0; 
+     }
+}
+
+.alert {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        margin: 0;
+        z-index: 10;
+        border: 0
+    }
       

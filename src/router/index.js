@@ -1,8 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import firebase from 'firebase'
 import Home from '@/components/home'
+import Login from '@/components/login'
 import Movies from '@/components/movies'
 import Shows from '@/components/shows'
+import Profile from '@/components/profile'
 import Celebrities from '@/components/celebrities'
 import SingleMovie from '@/components/singlePages/singleMovie'
 import SingleShow from '@/components/singlePages/singleShow'
@@ -11,13 +14,18 @@ import SingleActor from '@/components/singlePages/singleActor'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   //  mode: 'history',
     routes: [
         {
             path: '/',
             name: 'home',
             component: Home
+        },
+        {
+            path: '/login',
+            name: 'login',
+            component: Login
         },
         {
             path: '/movies',
@@ -28,6 +36,14 @@ export default new Router({
             path: '/shows',
             name: 'shows',
             component: Shows
+        },
+        {
+            path: '/profile',
+            name: 'profile',
+            component: Profile,
+            meta: {
+                requiresAuth: true
+            }
         },
         {
             path: '/celebrities',
@@ -64,3 +80,28 @@ export default new Router({
 //     }
 // },
 })
+
+// router guards
+router.beforeEach((to, from, next) => {
+    // check to see if route has auth guard
+    if(to.matched.some(rec => rec.meta.requiresAuth)){
+      // check auth state of user
+      let user = firebase.auth().currentUser
+      if (user) {
+        // User is signed in. Proceed to route
+        next()
+      } else {
+        // No user is signed in. Redirect to login
+        next({
+          name: 'login'
+        })
+      }
+    } else {
+      // if route is not guarded by auth, proceed
+      next()
+    }
+  })
+  
+  export default router
+
+  

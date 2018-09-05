@@ -5,11 +5,15 @@ Vue.use(Vuex);
 
 export const store = new Vuex.Store({
     state: {
+        // base url 
         URL: { 
             img: "https://image.tmdb.org/t/p/w500" ,
             database: "https://api.themoviedb.org/3/",
             apiKey: "?api_key=0729eb044b5e37b6c0ff52a4c8617f94",
+            face: "https://image.tmdb.org/t/p/w235_and_h235_face",
+            actor: "https://image.tmdb.org/t/p/original"
         },
+        // img holders
         holder: {
             photo: require('../assets/img/holders/photo.svg'),
             person: require('../assets/img/holders/person.svg'),
@@ -17,7 +21,7 @@ export const store = new Vuex.Store({
             detail: require('../assets/img/holders/detail.svg'),
         },
 
-        movies: {
+        items: {
             discover: [],
             search: [],
             years: ["All"],
@@ -34,6 +38,7 @@ export const store = new Vuex.Store({
             search: null,
             discover: null,
         },
+        // single pages
         detail: {
             data: [],
             credits: {
@@ -44,7 +49,17 @@ export const store = new Vuex.Store({
             video: [],
             episodes: [],
             seriesNum: [],
+
+            random: [],
         },
+
+        // trailer and full overview
+        box: {
+            overview: false,
+            video: false,
+            rate: false,
+        },
+        // if item exist
         is: {
             recomend: false,
             video: true,
@@ -54,15 +69,13 @@ export const store = new Vuex.Store({
             credits: true,
             tags: true,
             episode: true,
+            shows: false,
+            movies: true,
+            acting: true,
+            favorite: false,
+            book: false
         },
-        button: {
-            showLessCast: true,
-            showLessCrew: true,
-            titleCast: "show more cast",
-            titleCrew: "show more crew",
-            isCrew: false,
-            isCast: false,
-        },
+        // actors data
         actor: {
             data: [],
             img: "",
@@ -70,37 +83,81 @@ export const store = new Vuex.Store({
             showCredits: [],
             movieKnown: [],
         },
+        // alert messages
+        alert: {
+            active: false,
+            type: "error",
+            text: ""
+        },
+        // current user data
+        user: {
+            id: null,
+            movies: {
+                mark: [],
+                rate: [],
+                curRate: ""
+            },
+            shows: {
+                mark: [],
+                rate: [],
+                curRate: ""
+            },
+        },
+        rating: [
+            '0%',
+            '10%',
+            '20%',
+            '30%',
+            '40%',
+            '50%',
+            '60%',
+            '70%',
+            '80%',
+            '90%',
+            '100%',
+        ]
+
 
     },
     mutations: {
-        dynamicSort(state, payload) {
-            var sortOrder = 1;
-            if(payload[0] === "-") {
-                sortOrder = -1;
-                payload = payload.substr(1);
-            }
-            return function (a,b) {
-                var result = (a[payload] < b[payload]) ? -1 : (a[payload] > b[payload]) ? 1 : 0;
-                return result * sortOrder;
-            }
-        },
-        showMoreCrew() {
-            this.state.button.showLessCrew = !this.state.button.showLessCrew
-            if (this.state.button.showLessCrew) {
-                this.state.button.titleCrew = 'show more crew'
-            } else {
-                this.state.button.titleCrew = 'show less crew'
+
+        // create list of years 
+        getYearsList(state) {
+            // set year 1900
+            let first = "1900"
+            // set current year
+            let current = new Date().getFullYear() + 2
+            // push list of year to movies.years
+            for (var i = first; i <= current; i++) state.items.years.push(i);
+            // sorting years array first is "none" then current year - 1900
+            if (state.items.years) {
+                state.items.years = state.items.years.slice(0, 1)
+                .concat(state.items.years = state.items.years.slice(1, state.items.years.length).reverse())
             }
         },
-        showMoreCast() {
-            this.state.button.showLessCast = !this.state.button.showLessCast
-            if (this.state.button.showLessCast) {
-                this.state.button.titleCast = 'show more cast'
-            } else {
-                this.state.button.titleCast = 'show less cast'
-            }
+
+        scrollToTop(state, scrollDuration) {
+            let scrollStep = -window.scrollY / (scrollDuration / 15),
+                scrollInterval = setInterval(function(){
+                if ( window.scrollY != 0 ) {
+                    window.scrollBy( 0, scrollStep );
+                }
+                else clearInterval(scrollInterval); 
+            },15)
         },
-        
-        
+
+        topBackground(state){
+            if (window.innerWidth > 800) {
+                return state.detail.data.backdrop_path
+            } else return ""
+        },
+
+        infoAlert(state, payload){
+            state.alert.active = true
+            state.alert.text = payload
+            setTimeout(() => {
+                state.alert.active = false
+            }, 1500)
+        },
     },
 })

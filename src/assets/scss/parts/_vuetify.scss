@@ -1,0 +1,51 @@
+// vuetify settings
+// background app
+.application.theme--light {
+    background: $color-bg
+}
+// cast and crew without border
+.theme--light .v-expansion-panel .v-expansion-panel__container {
+    border: none
+}
+// cast and crew without shadow
+.v-expansion-panel {
+    box-shadow: none;
+}
+// filter genres height
+.v-select.v-select--chips .v-select__selections {
+    min-height: 0
+}
+// filters border
+.theme--light .v-text-field--solo .v-input__slot {
+    border-radius: 50px
+}
+// list in actor single background
+.theme--light .v-list {
+    background: transparent;
+}
+// video and more overview 
+// radius corner
+.v-dialog {
+    border-radius: 10px;
+}
+// background
+.dialog_video .v-card__actions {
+    background: $color_main;
+}
+
+.fav_list_item .v-list__tile {
+    height: 120px;
+}
+
+.fav_list_item .v-list__tile__content {
+    padding-left: 20px;
+}
+// favorite checkbox label
+.v-input--selection-controls.v-input .v-label {
+    font-size: 90%;
+    color: $color_text
+}
+// favorite checkbox disable icon
+.theme--light .v-input--selection-controls.v-input--is-disabled .v-icon {
+    color: $color_text!important;
+}
