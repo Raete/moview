@@ -9,7 +9,7 @@ export const store = new Vuex.Store({
         URL: { 
             img: "https://image.tmdb.org/t/p/w500" ,
             database: "https://api.themoviedb.org/3/",
-            apiKey: "?api_key=0729eb044b5e37b6c0ff52a4c8617f94",
+            apiKey: "",
             face: "https://image.tmdb.org/t/p/w235_and_h235_face",
             actor: "https://image.tmdb.org/t/p/original"
         },
