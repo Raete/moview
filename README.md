@@ -1,21 +1,8 @@
-# moview
+## moview
 
-> Movies and TV Shows database
+ Movies and TV Shows database with Vue.js, Vuetify and Firebase
 
-## Build Setup
+ Film data provided by [The Movie DB](https://www.themoviedb.org).
+ Created by [Jana Koudelková](http://www.janakoudelkova.cz)
 
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+ **[Visit moview](http://moview.janakoudelkova.cz/#/)**
