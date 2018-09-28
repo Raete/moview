@@ -4,7 +4,7 @@
             <div class="menu">
                 <div class="menu_wrapper">
                     <!-- logo -->
-                    <router-link  :to="{ name: 'home' }" exact> 
+                    <router-link  :to="{ name: 'movies' }" exact> 
                         <img src="@/assets/img/svg/logo.svg" alt="moview" class="menu_logo"> 
                     </router-link>
                 </div>
