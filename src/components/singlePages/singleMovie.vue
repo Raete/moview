@@ -187,24 +187,35 @@
                 <div class="item_wrapper">
                     <div class="item" v-for="(film, index) in detail.recommend" :key="index">
                         <!-- poster -->
-                        <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
+                        <div class="poster_wrapper">
+                            <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
 
-                            <figure class="item_content animated" >
-                                <img class="item_img" v-bind:src="film.poster_path" alt="">
-                                <figcaption class="item_hover">
-                                    <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
-                                </figcaption>           
-                            </figure>
+                                <figure class="item_content animated" >
+                                    <img class="item_img" v-bind:src="film.poster_path" alt="">
+                                    <figcaption class="item_hover">
+                                        <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                                    </figcaption>           
+                                </figure>
 
-                        </router-link>
+                            </router-link>
+                            <div class="poster_shadow--colored" v-bind:style="{ 
+                                backgroundImage: 'url(' + film.poster_path + ')',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                            }"></div>
+                        </div>
                         <!-- block with bookmark and rate -->
                         <div class="item_info">
-                            <!-- bookmark -->
-                            <v-btn v-model="mark" small fab depressed icon @click="markingButton(film.id, film)">
-                                <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
-                            </v-btn> 
                             <!-- rate -->
                             <div class="item_rate"> {{film.vote_average}}% </div>
+                            <!-- bookmark -->
+                            <v-tooltip left color="primary">
+                                <v-btn v-model="mark" slot="activator" small fab depressed icon @click="markingButton(film.id, film)">
+                                    <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
+                                </v-btn> 
+                                <span>Bookmark</span>
+                            </v-tooltip>
+                            
                         </div>
                         <!-- title -->
                         <h1 class="item_name"> {{film.title}} </h1>
@@ -828,9 +839,8 @@ export default {
     @import '../../assets/scss/parts/_itemList';
 
     .item {
-        width: 160px;
+      //  width: 160px;
         &_wrapper {
-            padding: 25px 0;
             flex-wrap: nowrap;
             justify-content: flex-start;  
             text-align: left

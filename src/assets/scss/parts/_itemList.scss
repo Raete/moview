@@ -9,7 +9,7 @@
     }
     &_wrapper {
         display: flex;
-        padding: 25px ;
+        padding: 25px 10px;
         max-width: $width; 
         margin: 0 auto;
         overflow-x: auto;
@@ -34,9 +34,10 @@
         position: relative;
         align-self: stretch;
         border-radius: $radius;
-        box-shadow: 2px 2px 15px darken( $color-bg--light, 50% );
+        box-shadow: 2px -3px 18px darken( $color-bg--light, 30% );
         cursor: pointer;
         overflow: hidden;
+        z-index: 2;
         &:hover {
             img {
                 transform: scale3d(1.10,1.10,1);
@@ -76,14 +77,13 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin: -5px 0 10px 0;
-        padding: 6px 18px 3px 10px;
-        border-radius: 0 0 $radius $radius;
-        background: darken( $color-bg, 5% )
+        padding-left: 7px;
+        margin-top: 3px;
     }
     &_year {
         font-weight: 400;
-        color: darken( $color-bg--light, 60% )
+        color: darken( $color-bg--light, 60% );
+        padding-left: 7px;
     }
     &_rate {
         font-size: 120%;
@@ -92,10 +92,25 @@
     &_name {
         font-size: 120%;
         line-height: 110%;
-        margin-top: 5px;
+        padding-left: 7px;
     }
 }
 
+// poster and poster colored shadow
+.poster {
+    &_wrapper {
+        position: relative;
+    }
+    &_shadow--colored {
+        transform: scale(0.96);
+        top: 14px;
+        filter: blur(10px);
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transition: opacity .45s;
+    }
+}
 
 .bookmark {
     margin: 0;

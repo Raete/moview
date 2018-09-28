@@ -30,15 +30,22 @@
                     <div class="item_wrapper">
                         <div class="item" v-for="(film, index) in user.movies.mark" :key="index">
                             <!-- poster -->
-                            <router-link :to="{ name: 'singleMovie', params: { id: film.iId } }">     
-                                <figure class="item_content animated">
-                                    <img class="item_img" v-bind:src="film.poster" alt="">
-                                    <figcaption class="item_hover">
-                                        <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
-                                    </figcaption>           
-                                </figure>
-                            </router-link>
-                            <!-- block with bookmark and rate -->
+                            <div class="poster_wrapper">
+                                <router-link :to="{ name: 'singleMovie', params: { id: film.iId } }">     
+                                    <figure class="item_content animated">
+                                        <img class="item_img" v-bind:src="film.poster" alt="">
+                                        <figcaption class="item_hover">
+                                            <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                                        </figcaption>           
+                                    </figure>
+                                </router-link>
+                                <div class="poster_shadow--colored" v-bind:style="{ 
+                                    backgroundImage: 'url(' + film.poster + ')',
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                }"></div>
+                            </div>
+                            <!-- block with bookmark and delete -->
                             <div class="item_info">
                                 <!-- rating -->
                                 <div class="item_rate">{{film.rate}}%</div>
@@ -58,15 +65,22 @@
                     <div class="item_wrapper">
                         <div class="item" v-for="(film, index) in user.shows.mark" :key="index">
                             <!-- poster -->
-                            <router-link :to="{ name: 'singleShow', params: { id: film.iId } }"> 
-                                <figure class="item_content animated" >
-                                    <img class="item_img" v-bind:src="film.poster" alt="">
-                                    <figcaption class="item_hover">
-                                        <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
-                                    </figcaption>           
-                                </figure>
-                            </router-link>
-                            <!-- block with bookmark and rate -->
+                            <div class="poster_wrapper">
+                                <router-link :to="{ name: 'singleShow', params: { id: film.iId } }"> 
+                                    <figure class="item_content animated" >
+                                        <img class="item_img" v-bind:src="film.poster" alt="">
+                                        <figcaption class="item_hover">
+                                            <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                                        </figcaption>           
+                                    </figure>
+                                </router-link>
+                                <div class="poster_shadow--colored" v-bind:style="{ 
+                                        backgroundImage: 'url(' + film.poster + ')',
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                    }"></div>
+                            </div>
+                            <!-- block with bookmark and delete -->
                             <div class="item_info">
                                 <!-- rating -->
                                 <div class="item_rate">{{film.rate}}%</div>
@@ -91,15 +105,22 @@
                     <div class="item_wrapper">
                         <div class="item" v-for="(film, index) in user.movies.rate" :key="index">
                             <!-- poster -->
-                            <router-link :to="{ name: 'singleShow', params: { id: film.iId } }"> 
-                                <figure class="item_content animated" >
-                                    <img class="item_img" v-bind:src="film.poster" alt="">
-                                    <figcaption class="item_hover">
-                                        <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
-                                    </figcaption>           
-                                </figure>
-                            </router-link>
-                            <!-- block with bookmark and rate -->
+                            <div class="poster_wrapper">
+                                <router-link :to="{ name: 'singleMovie', params: { id: film.iId } }"> 
+                                    <figure class="item_content animated" >
+                                        <img class="item_img" v-bind:src="film.poster" alt="">
+                                        <figcaption class="item_hover">
+                                            <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                                        </figcaption>           
+                                    </figure>
+                                </router-link>
+                                <div class="poster_shadow--colored" v-bind:style="{ 
+                                    backgroundImage: 'url(' + film.poster + ')',
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                }"></div>
+                            </div>
+                            <!-- block with bookmark and delete -->
                             <div class="item_info">
                                 <!-- rating -->
                                 <div class="item_rate">{{film.user_rate}}%</div>
@@ -119,15 +140,22 @@
                     <div class="item_wrapper">
                         <div class="item" v-for="(film, index) in user.shows.rate" :key="index">
                             <!-- poster -->
-                            <router-link :to="{ name: 'singleShow', params: { id: film.iId } }"> 
-                                <figure class="item_content animated" >
-                                    <img class="item_img" v-bind:src="film.poster" alt="">
-                                    <figcaption class="item_hover">
-                                        <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
-                                    </figcaption>           
-                                </figure>
-                            </router-link>
-                            <!-- block with bookmark and rate -->
+                            <div class="poster_wrapper">
+                                <router-link :to="{ name: 'singleShow', params: { id: film.iId } }"> 
+                                    <figure class="item_content animated" >
+                                        <img class="item_img" v-bind:src="film.poster" alt="">
+                                        <figcaption class="item_hover">
+                                            <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                                        </figcaption>           
+                                    </figure>
+                                </router-link>
+                                <div class="poster_shadow--colored" v-bind:style="{ 
+                                    backgroundImage: 'url(' + film.poster + ')',
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                }"></div>
+                            </div>
+                            <!-- block with bookmark and delete -->
                             <div class="item_info">
                                 <!-- rating -->
                                 <div class="item_rate">{{film.user_rate}}%</div>
@@ -384,9 +412,9 @@ export default {
 }
 
 .item {
-    width: 160px; 
+   // width: 160px; 
     &_wrapper {
-        padding: 25px 0 ;
+      
         flex-wrap: nowrap;
         overflow-x: auto;
         justify-content: flex-start;  
