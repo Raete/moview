@@ -182,29 +182,40 @@
         <!-- movies recommendations -->
         <section class="animated" v-if="is.recomend"> 
             <div class="item_container">
-                <h1 class="recommend">Recommendations</h1> 
+                <h1 class="recommend">Similar movies</h1> 
             
                 <div class="item_wrapper">
                     <div class="item" v-for="(film, index) in detail.recommend" :key="index">
                         <!-- poster -->
-                        <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
+                        <div class="poster_wrapper">
+                            <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
 
-                            <figure class="item_content animated" >
-                                <img class="item_img" v-bind:src="film.poster_path" alt="">
-                                <figcaption class="item_hover">
-                                    <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
-                                </figcaption>           
-                            </figure>
+                                <figure class="item_content animated" >
+                                    <img class="item_img" v-bind:src="film.poster_path" alt="">
+                                    <figcaption class="item_hover">
+                                        <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                                    </figcaption>           
+                                </figure>
 
-                        </router-link>
+                            </router-link>
+                            <div class="poster_shadow--colored" v-bind:style="{ 
+                                backgroundImage: 'url(' + film.poster_path + ')',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                            }"></div>
+                        </div>
                         <!-- block with bookmark and rate -->
                         <div class="item_info">
-                            <!-- bookmark -->
-                            <v-btn v-model="mark" small fab depressed icon @click="markingButton(film.id, film)">
-                                <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
-                            </v-btn> 
                             <!-- rate -->
                             <div class="item_rate"> {{film.vote_average}}% </div>
+                            <!-- bookmark -->
+                            <v-tooltip left color="primary">
+                                <v-btn v-model="mark" slot="activator" small fab depressed icon @click="markingButton(film.id, film)">
+                                    <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
+                                </v-btn> 
+                                <span>Bookmark</span>
+                            </v-tooltip>
+                            
                         </div>
                         <!-- title -->
                         <h1 class="item_name"> {{film.title}} </h1>
@@ -344,11 +355,27 @@ export default {
         getFirebaseData(){
             // get current user from firebase if user is login
             if(firebase.auth().currentUser) {
+
+             
+                     
+
+
+
                 db.collection('users').where('user_id', '==', firebase.auth().currentUser.uid).get()
                 .then(snapshot => {
                     snapshot.forEach(doc => {
                         //user slug
                         this.user.id = doc.id
+                        // get user rate from database
+                        db.collection('movies_rated').where('user', '==', this.user.id).where('iId', '==', this.$route.params.id).get()
+                        .then(snapshot => {    
+                             
+                            if (snapshot.docs[0]) {
+                                this.user.movies.curRate = snapshot.docs[0].data().user_rate
+                            }   
+                                
+                            
+                        }) 
 
                         // read firebase database in real time
                         db.collection('movies_marked').where('user', '==', this.user.id)
@@ -373,6 +400,7 @@ export default {
 
                         // read firebase database in real time
                         db.collection('movies_rated').where('user', '==', this.user.id)
+                        .where('iId', '==', this.$route.params.id)
                         .onSnapshot((snapshot) => {
                             snapshot.docChanges().forEach(change => {
                                 let userRate
@@ -669,8 +697,9 @@ export default {
             //start setting - reset data
             this.init()
             // API database
-            axios.get(`${this.URL.database}movie/${this.$route.params.id}${this.URL.apiKey}&append_to_response=videos,credits,recommendations`)
+            axios.get(`${this.URL.database}movie/${this.$route.params.id}${this.URL.apiKey}&append_to_response=videos,credits,recommendations,similar`)
             .then(res => {
+           
              
                 //** MOVIE DETAIL **//
                 //*****************//
@@ -754,7 +783,7 @@ export default {
                 //** RECOMMENDATIONS **//
                 //********************//
                 const URLrecom = "https://image.tmdb.org/t/p/w500"
-                this.detail.recommend = res.data.recommendations.results
+                this.detail.recommend = res.data.similar.results
                 // if is no poster image replace with holder
                 this.detail.recommend.forEach((poster)=>{
                     if (poster.poster_path) {
@@ -828,9 +857,8 @@ export default {
     @import '../../assets/scss/parts/_itemList';
 
     .item {
-        width: 160px;
+      //  width: 160px;
         &_wrapper {
-            padding: 25px 0;
             flex-wrap: nowrap;
             justify-content: flex-start;  
             text-align: left

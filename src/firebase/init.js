@@ -1,5 +1,6 @@
 import firebase from 'firebase/app'
-import firestore from 'firebase/firestore'
+import 'firebase/database'
+//import firestore from 'firebase/firestore'
 
 // Initialize Firebase
 // firebase database setup

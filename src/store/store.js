@@ -95,7 +95,9 @@ export const store = new Vuex.Store({
             movies: {
                 mark: [],
                 rate: [],
-                curRate: ""
+                curRate: "",
+                userRate: null
+                
             },
             shows: {
                 mark: [],

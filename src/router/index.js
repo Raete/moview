@@ -18,7 +18,7 @@ const router = new Router({
   //  mode: 'history',
     routes: [
         {
-            path: '/',
+            path: '/home',
             name: 'home',
             component: Home
         },
@@ -28,7 +28,7 @@ const router = new Router({
             component: Login
         },
         {
-            path: '/movies',
+            path: '/',
             name: 'movies',
             component: Movies
         },
