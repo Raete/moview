@@ -182,7 +182,7 @@
         <!-- movies recommendations -->
         <section class="animated" v-if="is.recomend"> 
             <div class="item_container">
-                <h1 class="recommend">Recommendations</h1> 
+                <h1 class="recommend">Similar movies</h1> 
             
                 <div class="item_wrapper">
                     <div class="item" v-for="(film, index) in detail.recommend" :key="index">
@@ -355,11 +355,27 @@ export default {
         getFirebaseData(){
             // get current user from firebase if user is login
             if(firebase.auth().currentUser) {
+
+             
+                     
+
+
+
                 db.collection('users').where('user_id', '==', firebase.auth().currentUser.uid).get()
                 .then(snapshot => {
                     snapshot.forEach(doc => {
                         //user slug
                         this.user.id = doc.id
+                        // get user rate from database
+                        db.collection('movies_rated').where('user', '==', this.user.id).where('iId', '==', this.$route.params.id).get()
+                        .then(snapshot => {    
+                             
+                            if (snapshot.docs[0]) {
+                                this.user.movies.curRate = snapshot.docs[0].data().user_rate
+                            }   
+                                
+                            
+                        }) 
 
                         // read firebase database in real time
                         db.collection('movies_marked').where('user', '==', this.user.id)
@@ -384,6 +400,7 @@ export default {
 
                         // read firebase database in real time
                         db.collection('movies_rated').where('user', '==', this.user.id)
+                        .where('iId', '==', this.$route.params.id)
                         .onSnapshot((snapshot) => {
                             snapshot.docChanges().forEach(change => {
                                 let userRate
@@ -680,8 +697,9 @@ export default {
             //start setting - reset data
             this.init()
             // API database
-            axios.get(`${this.URL.database}movie/${this.$route.params.id}${this.URL.apiKey}&append_to_response=videos,credits,recommendations`)
+            axios.get(`${this.URL.database}movie/${this.$route.params.id}${this.URL.apiKey}&append_to_response=videos,credits,recommendations,similar`)
             .then(res => {
+           
              
                 //** MOVIE DETAIL **//
                 //*****************//
@@ -765,7 +783,7 @@ export default {
                 //** RECOMMENDATIONS **//
                 //********************//
                 const URLrecom = "https://image.tmdb.org/t/p/w500"
-                this.detail.recommend = res.data.recommendations.results
+                this.detail.recommend = res.data.similar.results
                 // if is no poster image replace with holder
                 this.detail.recommend.forEach((poster)=>{
                     if (poster.poster_path) {

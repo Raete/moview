@@ -183,7 +183,7 @@ import footer from '../components/parts/footer.vue';
 import axios from 'axios';
 // firebase
 import db from '@/firebase/init'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 // vuex -- store
 import { mapState } from 'vuex';
 // moment
@@ -286,6 +286,7 @@ export default {
                 snapshot.forEach(doc => {
                     // id of current user
                     this.user.id = doc.id
+                
                     // get username from database
                     db.collection('users').doc(this.user.id).get()
                         .then(user => {
@@ -294,7 +295,7 @@ export default {
                         }) 
                 
                     //get marked movies of current user from database 
-                    db.collection('movies_marked').where('user', '==', this.user.id).get()
+                    db.collection('movies_marked').orderBy('rate', 'desc').where('user', '==', this.user.id).get()
                     .then(snapshot => {
                         snapshot.forEach(doc => {
                             let record = doc.data()
@@ -304,7 +305,7 @@ export default {
                     })  
 
                     //get marked shows of current user from database 
-                    db.collection('shows_marked').where('user', '==', this.user.id).get()
+                    db.collection('shows_marked').orderBy('rate', 'desc').where('user', '==', this.user.id).get()
                     .then(snapshot => {
                         snapshot.forEach(doc => {
                             let record = doc.data()
@@ -314,7 +315,7 @@ export default {
                     })  
 
                     //get rated movies of current user from database 
-                    db.collection('movies_rated').where('user', '==', this.user.id).get()
+                    db.collection('movies_rated').orderBy('rate', 'desc').where('user', '==', this.user.id).get()
                     .then(snapshot => {
                         snapshot.forEach(doc => {
                             let record = doc.data()
@@ -324,7 +325,7 @@ export default {
                     })  
 
                     //get rated shows of current user from database 
-                    db.collection('shows_rated').where('user', '==', this.user.id).get()
+                    db.collection('shows_rated').orderBy('rate', 'desc').where('user', '==', this.user.id).get()
                     .then(snapshot => {
                         snapshot.forEach(doc => {
                             let record = doc.data()

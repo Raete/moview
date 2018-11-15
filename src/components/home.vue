@@ -36,7 +36,7 @@
 // components
 import menu from '../components/parts/menu.vue';
 // firebase
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 import db from '@/firebase/init'
 
 export default {

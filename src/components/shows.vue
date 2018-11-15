@@ -205,7 +205,7 @@ import footer from '../components/parts/footer.vue';
 import axios from 'axios';
 // firebase
 import db from '@/firebase/init'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 // vuex -- store
 import { mapState } from 'vuex';
 

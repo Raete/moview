@@ -102,7 +102,7 @@
 import footer from '../components/parts/footer.vue'
 //firebase
 import db from '@/firebase/init'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 // slug from username
 import slugify from 'slugify'
 
@@ -165,9 +165,12 @@ export default {
                         // this alias does not yet exists in the db
                         firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
                         .then(cred=> {
+                            
                             // set data about user
-                            ref.set({
+                            db.collection('users').doc(this.slug).set({
                                 alias: this.alias,
+                                email: this.email,
+                                password: this.password,
                                 user_id: cred.user.uid,
                                 date: Date.now()
                             })
