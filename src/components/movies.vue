@@ -24,6 +24,7 @@
                         solo
                         prepend-inner-icon="search"
                         label="Search movies"
+                        @change="searchItems()"
                     ></v-autocomplete>
                 </div>
                 <!-- year filter -->
@@ -259,7 +260,6 @@ export default {
         // watching changes in search input
         search(val) {
             val && val !== this.searchInput.select && this.titleList(val)
-            this.searchItems()
         },
         // watching changes in genres input
         selectGenres(val) {

@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import firebase from 'firebase'
-import Home from '@/components/home'
+
 import Login from '@/components/login'
 import Movies from '@/components/movies'
 import Shows from '@/components/shows'
 import Profile from '@/components/profile'
-import Celebrities from '@/components/celebrities'
+
 import SingleMovie from '@/components/singlePages/singleMovie'
 import SingleShow from '@/components/singlePages/singleShow'
 import SingleActor from '@/components/singlePages/singleActor'
@@ -17,11 +17,6 @@ Vue.use(Router)
 const router = new Router({
     mode: 'history',
     routes: [
-        {
-            path: '/home',
-            name: 'home',
-            component: Home
-        },
         {
             path: '/login',
             name: 'login',
@@ -44,11 +39,6 @@ const router = new Router({
             meta: {
                 requiresAuth: true
             }
-        },
-        {
-            path: '/celebrities',
-            name: 'celebrities',
-            component: Celebrities
         },
         {
             path: '/singleMovie/:id',
