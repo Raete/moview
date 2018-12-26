@@ -27,7 +27,7 @@
             <div class="main_container">
                 <!-- back button -->
                 <header class="main_container_header">
-                    <v-btn flat round @click="goBack()" >
+                    <v-btn class="btn_animated_left" flat round @click="goBack()" >
                         <v-icon color="primary"> keyboard_backspace </v-icon>
                         back
                     </v-btn>           
@@ -46,95 +46,6 @@
             </div>
         </main>
 
-        <section v-if="!loading && is.recomend"  class=" animated">
-            <!-- known for -->
-            <div class="item_container">
-                <h1 class="recommend" > Known for</h1> 
-                <!-- movies -->
-                <h2 class="recommend_sub">movies</h2>
-                <div class="item_wrapper">
-                    <div class="item" v-for="(film, index) in actor.movieKnown" :key="index">
-                        <!-- poster -->
-                        <div class="poster_wrapper">
-                            <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
-
-                                <figure class="item_content animated" >
-                                    <img class="item_img" v-bind:src="film.poster_path" alt="">
-                                    <figcaption class="item_hover">
-                                        <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
-                                    </figcaption>           
-                                </figure>
-
-                            </router-link>
-                            <div class="poster_shadow--colored" v-bind:style="{ 
-                                backgroundImage: 'url(' + film.poster_path + ')',
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                            }"></div>
-                        </div>
-                        <!-- block with bookmark and rate -->
-                        <div class="item_info">
-                            <!-- rate -->
-                            <div class="item_rate">{{film.vote_average}}%</div>
-                            <!-- bookmark -->
-                            <v-tooltip left color="primary">
-                                <v-btn v-model="markMovie" slot="activator" small fab depressed icon @click="markingButtonMovie(film.id, film)">
-                                    <v-icon size="25px">{{styleMarkIconMovie(film.id)}}</v-icon>
-                                </v-btn> 
-                                <span>Bookmark</span>
-                            </v-tooltip>
-                            
-                        </div>
-                        <!-- title -->
-                        <h1 class="item_name"> {{film.title}} </h1>
-                        <span class="item_year">{{film.release_date}}</span>
-                    
-                    </div>
-                </div> 
-                <!-- shows -->
-                <h2 class="recommend_sub">TV Shows</h2>
-                <div class="item_wrapper">
-                    <div class="item" v-for="(film, index) in actor.TVKnown" :key="index">
-                        <!-- poster -->
-                        <div class="poster_wrapper">
-                            <router-link :to="{ name: 'singleShow', params: { id: film.id } }"> 
-
-                                <figure class="item_content animated" >
-                                    <img class="item_img" v-bind:src="film.poster_path" alt="">
-                                    <figcaption class="item_hover">
-                                        <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
-                                    </figcaption>           
-                                </figure>
-
-                            </router-link>
-                            <div class="poster_shadow--colored" v-bind:style="{ 
-                                backgroundImage: 'url(' + film.poster_path + ')',
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                            }"></div>
-                        </div>
-                        <!-- block with bookmark and rate -->
-                        <div class="item_info">
-                            <!-- rate -->
-                            <div class="item_rate">{{film.vote_average}}%</div>
-                            <!-- bookmark -->
-                            <v-tooltip left color="primary">
-                                <v-btn v-model="markShow" slot="activator" small fab depressed icon @click="markingButtonShow(film.id, film)">
-                                    <v-icon size="25px">{{styleMarkIconShow(film.id)}}</v-icon>
-                                </v-btn> 
-                                <span>Bookmark</span>
-                            </v-tooltip>
-                            
-                        </div>
-                        <!-- title -->
-                        <h1 class="item_name"> {{film.original_name}} </h1>
-                        <span class="item_year">{{film.first_air_date}}</span>
-                    
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <section v-if="is.acting" class="acting animated" id="acting">
                 <!-- acting list -->
                 <h1 class="acting_title">Acting</h1> 
@@ -150,7 +61,7 @@
                     </v-tab>
                     <!-- movies list -->
                     <v-tab-item class="tab_item" id="movies">
-                        <v-list two-line class="list">
+                        <v-list three-line class="list">
                             <template v-for="(film, index) in  actor.movieCredits">
                                 <v-list-tile
                                     :key="index"
@@ -158,30 +69,38 @@
                                     :to="{ name: 'singleMovie', params: { id: film.id } }"
                                     class="list_item"
                                 >
+                                    <!-- movie poster -->
                                     <v-list-tile-action>
-                                        <v-list-tile-action-text class="list_year">{{film.release_date}} </v-list-tile-action-text>
+                                        <img class="list_img" :src="film.poster_path" alt="">
                                     </v-list-tile-action>
-
-                                    <v-list-tile-content>
-                                        <v-list-tile-title class="list_name">{{film.title}}</v-list-tile-title>
-                                        <v-list-tile-sub-title class="list_role">{{film.character}}</v-list-tile-sub-title>
-                                    </v-list-tile-content>
-                    
+                                    <!-- date -->
                                     <v-list-tile-action>
-                                        <v-list-tile-action-text class="list_rate">
-                                            {{film.vote_average}}% 
-                                            
+                                        <v-list-tile-action-text class="list_year">
+                                            {{film.release_date}} 
                                         </v-list-tile-action-text>
                                     </v-list-tile-action>
-  
-                                </v-list-tile>
-                               
+                                    <!-- movie title and role -->
+                                    <v-list-tile-content>
+                                        <v-list-tile-title class="list_name">
+                                            {{film.title}}
+                                        </v-list-tile-title>
+                                        <v-list-tile-sub-title class="list_role">
+                                            {{film.character}}
+                                        </v-list-tile-sub-title>
+                                    </v-list-tile-content>
+                                    <!-- rate -->
+                                    <v-list-tile-action>
+                                        <v-list-tile-action-text class="list_rate">
+                                            {{film.vote_average}}%                                   
+                                        </v-list-tile-action-text>
+                                    </v-list-tile-action>
+                                </v-list-tile>   
                             </template>
                         </v-list>
                     </v-tab-item>
                     <!-- shows list -->
                     <v-tab-item class="tab_item" id="tvShows">
-                        <v-list two-line class="list">
+                        <v-list three-line class="list">
                             <template v-for="(film, index) in  actor.showCredits">
                                 <v-list-tile
                                     :key="index"
@@ -189,21 +108,31 @@
                                     :to="{ name: 'singleShow', params: { id: film.id } }"
                                     class="list_item"
                                 >
+                                    <!-- tv show poster -->
                                     <v-list-tile-action>
-                                        <v-list-tile-action-text class="list_year">{{film.first_air_date}} </v-list-tile-action-text>
+                                        <img class="list_img" :src="film.poster_path" alt="">
                                     </v-list-tile-action>
-
+                                    <!-- date -->
+                                    <v-list-tile-action>
+                                        <v-list-tile-action-text class="list_year">
+                                            {{film.first_air_date}} 
+                                        </v-list-tile-action-text>
+                                    </v-list-tile-action>
+                                    <!-- tv show title and role -->
                                     <v-list-tile-content>
-                                        <v-list-tile-title class="list_name">{{film.name}}</v-list-tile-title>
-                                        <v-list-tile-sub-title class="list_role">{{film.character}}, ({{film.episode_count}})</v-list-tile-sub-title>
+                                        <v-list-tile-title class="list_name">
+                                            {{film.name}}
+                                        </v-list-tile-title>
+                                        <v-list-tile-sub-title class="list_role">
+                                            {{film.character}}, ({{film.episode_count}})
+                                        </v-list-tile-sub-title>
                                     </v-list-tile-content>
-                    
+                                    <!-- rate-->
                                     <v-list-tile-action>
                                         <v-list-tile-action-text class="list_rate">
                                             {{film.vote_average}}%
                                         </v-list-tile-action-text>
                                     </v-list-tile-action>
-  
                                 </v-list-tile>
                             </template>
                         </v-list>
@@ -224,7 +153,7 @@
     </v-app>
     <app-footer></app-footer>
     <!-- go up button -->
-    <button @click="scrollToTop(300) " class="up" :class="{ up_active: show }"> go to top</button>
+    <button @click="scrollToTop(300) " class="up" :class="{ up_active: show.backToTop }"> go to top</button>
    
 </div></template>
 
@@ -233,9 +162,6 @@
 import footer from '@/components/parts/footer.vue';
 // API database
 import axios from 'axios';
-// firebase
-import db from '@/firebase/init'
-import firebase from 'firebase/app'
 // vuex -- store
 import { mapState, mapMutations } from 'vuex';
 
@@ -247,17 +173,10 @@ export default {
 
     data () {
         return {
+
             loading: false,
             // overview
             dialog: false,
-            // back to top button is appear
-            show: true,
-            // bookmarks (v-model)
-            markMovie: "",
-            markShow: "",
-            // item data for firebase
-            movieData: {},
-            showData: {},
         }
     },
 
@@ -265,9 +184,7 @@ export default {
         // render actor data
         this.getActorData()
          // back to seasons button
-        window.addEventListener("scroll", this.scrollButton)
-        // get data from firebase
-        this.getFirebaseData()
+        window.addEventListener("scroll", this.backToTopBtn)
     },
 
     computed: {
@@ -280,6 +197,7 @@ export default {
             'is', 
             'user', 
             'alert',
+            'show',
         ]),  
     },
 
@@ -300,6 +218,7 @@ export default {
                 return result * sortOrder;
             }
         },
+
         // scroll up and show overview
         showViewOnTop(){
             this.scrollToTop(300)
@@ -310,251 +229,21 @@ export default {
         scrollToTop(time) {
             this.$store.commit('scrollToTop', time)
         },
+
         // back to top button is appear
-        scrollButton() {
-            if (window.scrollY >= 1000) {
-                this.show = false
-            } else {
-                this.show = true
-            }
-        },
-        // FIREBASE DATA
-        // get movies data from firebase
-        getFirebaseData(){
-            // get current user from firebase if user is login
-            if(firebase.auth().currentUser) {
-                db.collection('users').where('user_id', '==', firebase.auth().currentUser.uid).get()
-                .then(snapshot => {
-                    snapshot.forEach(doc => {
-                        //user slug
-                        this.user.id = doc.id
-
-                        // read firebase database in real time
-                        db.collection('movies_marked').where('user', '==', this.user.id)
-                        .onSnapshot((snapshot) => {
-                            snapshot.docChanges().forEach(change => {
-                                // add movie to array if movie is add to database
-                                if (change.type == 'added') {
-                                    let record = change.doc.data()
-                                    record.id = change.doc.id
-                                    this.user.movies.mark.push(record)
-                                }
-                                // remove movie from array if movie is remove from database
-                                if (change.type == 'removed') {
-                                    this.user.movies.mark = this.user.movies.mark.filter(item =>{
-                                        return item.id != change.doc.id
-                                    }) 
-                                }
-                            })
-                        })
-
-                        // read firebase database in real time
-                        db.collection('shows_marked').where('user', '==', this.user.id)
-                        .onSnapshot((snapshot) => {
-                            snapshot.docChanges().forEach(change => {
-                                // add tv show to array if tv show is add to database
-                                if (change.type == 'added') {
-                                    let record = change.doc.data()
-                                    record.id = change.doc.id
-                                    this.user.shows.mark.push(record)
-                                }
-                                // remove tv show from array if tv show is remove from database
-                                if (change.type == 'removed') {
-                                    this.user.shows.mark = this.user.shows.mark.filter(item =>{
-                                        return item.id != change.doc.id
-                                    }) 
-                                }
-                            })
-                        })
-                    })
-                }) 
-            }  
+        backToTopBtn() {
+            this.$store.commit('backToTopBtn')
         },
 
-        // BOOKMARK BUTTON -- MOVIE
-        // decide if movie is already marked
-        isMarked(id, arr){
-            return arr.findIndex(el => el.iId == id) !== -1
-        },
-        // add movie to watchlist and send to firebase
-        addMarkedItemMovie(id, arr){
-
-            this.movieData = arr
-            db.collection('movies_marked').add({
-                id:     "",
-                iId:    this.movieData.id,
-                title:  this.movieData.title,
-                genres: this.movieData.genre_ids,
-                poster: this.movieData.poster_path,
-                rate:   this.movieData.vote_average,
-                year:   this.movieData.release_date,
-                user:   this.user.id
-
-            }).then(() => {
-                // alert type and settings
-                this.alert.type = "success"
-                this.infoAlert("Successfully added to watchlist")
-                
-            })
-            .catch(err => {
-                console.log(err)
-            })
-        },
-        // delete movie from firebase
-        deleteMarkedItemMovie(id){
-            // *iId (item id) is id of movie from API and id is id of item in firebase
-            db.collection('movies_marked').where('user', '==', this.user.id).where('iId', '==', id).get()
-            .then(snapshot => {
-                // id of item in firebase
-                let snapshotID = snapshot.docs[0].id
-                // delete item from firebase
-                db.collection('movies_marked').doc(snapshotID).delete().then(()=> {
-                    // delete from local array
-                    this.user.movies.mark = this.user.movies.mark.filter(item =>{
-                        return item.id != snapshotID
-                    }) 
-                }) 
-            }) 
-            // alert type and settings
-            this.alert.type = "success"
-            this.infoAlert("Successfully removed from watchlist.")   
-        },
-
-        // alert messages
-        infoAlert(alertText){
-             this.$store.commit('infoAlert', alertText)
-        },
-
-        // add or remove bookmark
-        markingButtonMovie(id, arr){
-          
-           // if user is login then:
-            if(firebase.auth().currentUser){
-                // if movie is not marked then:
-                if (this.isMarked(id, this.user.movies.mark)) {
-                    // add movie to marked
-                    this.deleteMarkedItemMovie(id)
-               
-                // if movie is marked then:
-                } else if (!this.isMarked(id, this.user.movies.mark)) {
-                    // delete movie from marked 
-                    this.addMarkedItemMovie(id, arr)
-                }
-            // if user is not login then:
-            } else {
-                // show alert 
-                this.alert.type = "error"
-                this.infoAlert("You must log in.")
-            }
-
-        },
-        // stylize marking button depending on whether the movie is mark
-        styleMarkIconMovie(id){
-            // if user is login then:
-            if(firebase.auth().currentUser){
-                // if movie is not marked then:
-                if (this.isMarked(id, this.user.movies.mark)) {
-                    // slyle icon
-                    return "bookmark"
-                } else if (!this.isMarked(id, this.user.movies.mark)) {
-                    // slyle icon
-                    return "bookmark_border"
-                }
-            // if user is not login style icon
-            } else return "bookmark_border"
-        },
-
-        // BOOKMARK BUTTON -- SHOW
-        // add show to watchlist and send to firebase
-        addMarkedItemShow(id, arr){
-
-            this.showData = arr
-            db.collection('shows_marked').add({
-                id: "",
-                iId: this.showData.id,
-                title: this.showData.original_name,
-                genres: this.showData.genre_ids,
-                poster: this.showData.poster_path,
-                rate: this.showData.vote_average,
-                year: this.showData.first_air_date,
-                user: this.user.id
-
-            }).then(() => {
-                // alert type and settings
-                this.alert.type = "success"
-                this.infoAlert("Successfully added to watchlist")
-                
-            })
-            .catch(err => {
-                console.log(err)
-            })
-        },
-        // delete show from firebase
-        deleteMarkedItemShow(id){
-            // *iId (item id) is id of show from API and id is id of item in firebase
-            db.collection('shows_marked').where('user', '==', this.user.id).where('iId', '==', id).get()
-            .then(snapshot => {
-                // id of item in firebase
-                let snapshotID = snapshot.docs[0].id
-                // delete item from firebase
-                db.collection('shows_marked').doc(snapshotID).delete().then(()=> {
-                    // delete from local array
-                    this.user.shows.mark = this.user.shows.mark.filter(item =>{
-                        return item.id != snapshotID
-                    }) 
-                }) 
-            }) 
-            // alert type and settings
-            this.alert.type = "success"
-            this.infoAlert("Successfully removed from watchlist.")    
-        },
-        
-        // add or remove bookmark
-        markingButtonShow(id, arr){
-             // if user is login then:
-            if(firebase.auth().currentUser){
-                // if tv show is not marked then:
-                if (this.isMarked(id, this.user.shows.mark)) {
-                    // add tv show to marked
-                    this.deleteMarkedItemShow(id)
-               
-                // if tv show is marked then:
-                } else if (!this.isMarked(id, this.user.shows.mark)) {
-                    // delete tv show from marked 
-                    this.addMarkedItemShow(id, arr)
-                }
-            // if user is not login then:
-            } else {
-                // show alert 
-                this.alert.type = "error"
-                this.infoAlert("You must log in.")
-            }
-        },
-        // stylize marking button depending on whether the show is mark
-        styleMarkIconShow(id){
-            // if user is login then:
-            if(firebase.auth().currentUser){
-                // if tv show is marked then: 
-                if (this.isMarked(id, this.user.shows.mark)) {
-                    // slyle icon
-                    return "bookmark"
-                } else if (!this.isMarked(id, this.user.shows.mark)) {
-                    // slyle icon
-                    return "bookmark_border"
-                }
-            // if user is not login style icon
-            } else return "bookmark_border"
-            
-        },
         // API
         // get actor data from API
         getActorData() {
             this.loading = true
             this.actor.data = ""
-            this.actor.movieKnown = ""
+
             axios.get(`${this.URL.database}person/${this.$route.params.id}${this.URL.apiKey}&append_to_response=movie_credits,tv_credits`)
             .then(res => {
-
+                const URL = "https://image.tmdb.org/t/p/w500"
                 //** ACTOR DATA **//
                 //***************//
                 this.actor.data = res.data
@@ -585,7 +274,7 @@ export default {
                 if (this.actor.movieCredits ) {
                     this.actor.movieCredits = res.data.movie_credits.cast.slice()
                 }
-                
+               
                 // show movies section if exist
                 if (this.actor.movieCredits.length > 0) {
                     this.is.movies = true
@@ -606,11 +295,18 @@ export default {
                             date.title = "????"
                         } 
                     })
+
+                    // if is no poster image replace with holder
+                    this.actor.movieCredits.forEach((poster)=>{
+                        if (poster.poster_path) {
+                            poster.poster_path = URL + poster.poster_path
+                        } else if (poster.poster_path == null) {
+                            poster.poster_path = this.holder.photo
+                        }
+                    })
+
                     // rate number formating to one decimal
                     this.actor.movieCredits.forEach((rate)=>{
-                        // if (rate.vote_average < 10) {
-                        //     rate.vote_average =  rate.vote_average.toFixed(1)
-                        // }
                         rate.vote_average =  rate.vote_average * 10
                     })
 
@@ -618,12 +314,10 @@ export default {
                     this.is.movies = false
                 }
 
-          
-
                 //** TV SHOWS CREDITS **//
                 //*********************//
                 this.actor.showCredits = res.data.tv_credits.cast
-             
+        
                 // show tv shows section if exist
                 if (this.actor.showCredits.length > 0) {
                     this.is.shows = true
@@ -645,13 +339,25 @@ export default {
                         } 
 
                     })
+
+                    // if is no poster image replace with holder
+                    this.actor.showCredits.forEach((poster)=>{
+                        if (poster.poster_path) {
+                            poster.poster_path = URL + poster.poster_path
+                        } else if (poster.poster_path == null) {
+                            poster.poster_path = this.holder.photo
+                        }
+                    })
+
                     // rate number formating to one decimal
                     this.actor.showCredits.forEach((rate)=>{
                         rate.vote_average =  rate.vote_average * 10
                     })
+
                 } else if (this.actor.showCredits.length <= 0) {
                     this.is.shows = false
                 }
+                
                 // add plural of episode if is more then 1
                 this.actor.showCredits.forEach((ep)=>{
                     if (ep.episode_count > 1) {
@@ -662,70 +368,11 @@ export default {
                 })
 
                 // show acting section if exist
-                if (this.actor.showCredits.length > 0 && this.actor.showCredits.length > 0){
+                if (this.actor.showCredits.length > 0){
                     this.is.acting = true
-                } else if (this.actor.showCredits.length <= 0 && this.actor.showCredits.length <= 0) {
+                } else if (this.actor.showCredits.length <= 0) {
                     this.is.acting = false
                 }
-                
-
-                //** KNOWN FOR - MOVIES **//
-                //*********************//
-                const URL = "https://image.tmdb.org/t/p/w500"
-
-                this.actor.movieKnown = res.data.movie_credits.cast
-                // if is no poster image replace with holder
-                this.actor.movieKnown.forEach((poster)=>{
-                    if (poster.poster_path) {
-                        poster.poster_path = URL + poster.poster_path
-                    } else if (poster.poster_path == null) {
-                        poster.poster_path = this.holder.photo
-                    }
-                })
-                // get just year from release date
-                this.actor.movieKnown.forEach((year)=>{
-                    if(year.release_date) {
-                        year.release_date = year.release_date.slice(0,4)
-                    } else {
-                         year.release_date = "????"
-                    }
-                })
-
-                // render only 6 movies
-                if (this.actor.movieKnown) {
-                    this.actor.movieKnown = this.actor.movieKnown.slice(0,6)
-                }
-                // show recomend item if exist
-                this.actor.movieKnown.length > 0 ? this.is.recomend = true : this.is.recomend = false  
-
-
-                //** KNOWN FOR - TV SHOWS **//
-                //*************************//
-
-                this.actor.TVKnown = res.data.tv_credits.cast
-                // if is no poster image replace with holder
-                this.actor.TVKnown.forEach((poster)=>{
-                    if (poster.poster_path) {
-                        poster.poster_path = URL + poster.poster_path
-                    } else if (poster.poster_path == null) {
-                        poster.poster_path = this.holder.photo
-                    }
-                })
-                // get just year from release date
-                this.actor.TVKnown.forEach((year)=>{
-                    if(year.first_air_date) {
-                        year.first_air_date = year.first_air_date.slice(0,4)
-                    } else {
-                         year.first_air_date = "????"
-                    }
-                })
-
-                // render only 6 movies
-                if (this.actor.TVKnown) {
-                    this.actor.TVKnown = this.actor.TVKnown.slice(0,6)
-                }
-                // show recomend item if exist
-                this.actor.TVKnown.length > 0 ? this.is.recomend = true : this.is.recomend = false
 
             }).then(()=> { 
                 this.loading = false
@@ -741,13 +388,4 @@ export default {
     @import '../../assets/scss/parts/_general';
     @import '../../assets/scss/parts/_itemList';
     @import '../../assets/scss/singlePage/_actor';
-    
-    .item {
-     //   width: 160px; 
-        &_wrapper {
-            flex-wrap: nowrap;
-            justify-content: flex-start;  
-        }
-    }
-
 </style>

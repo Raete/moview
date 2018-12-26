@@ -49,3 +49,16 @@
 .theme--light .v-input--selection-controls.v-input--is-disabled .v-icon {
     color: $color_text!important;
 }
+
+.v-list--three-line .v-list__tile {
+    height: 100px;
+}
+// toggle buttons
+.theme--light .v-btn-toggle {
+     background: transparent
+}
+
+.v-btn-toggle .v-btn {
+    opacity: 1;
+    border: none
+}

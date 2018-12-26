@@ -109,11 +109,29 @@ button {
 }
 
 .alert {
-        position: fixed;
-        bottom: 0;
-        right: 0;
-        margin: 0;
-        z-index: 10;
-        border: 0
-    }
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    margin: 0;
+    z-index: 10;
+    border: 0
+}
+
+.btn_mark {
+    align-self: flex-start;
+    margin-bottom: 20px;
+}
       
+.btn_animated_left {
+    margin-left: -16px;
+    &:hover {
+        margin-left: 0;
+    }
+}
+
+.btn_animated_right {
+    margin-right: -16px;
+    &:hover {
+        margin-right: 0;
+    }
+}

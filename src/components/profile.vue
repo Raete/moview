@@ -23,10 +23,15 @@
             </nav>
             <!-- watchlist -->
             <section class="watchlist" v-if="watchlist.status">
+                <nav class="profile_nav">
+                    <v-btn  class="menu_item" :color="watchMoviesColor" depressed round @click="showWatchlistMovies" >Movies ({{user.movies.mark.length }})</v-btn>
+            
+                    <v-btn  class="menu_item" :color="watchShowsColor" depressed round @click="showWatchlistShows" > TV Shows ({{user.shows.mark.length }})</v-btn>
+                </nav>
+
                 <!-- movies in watchlist -->
                 <p v-if="allMarkItem() <= 0" class="empty_list"> You haven't added any movies or TV shows to your watchlist. </p>
-                <section class="item_container" >
-                    <h3 v-if="user.movies.mark.length" class="section_title">Movies ({{user.movies.mark.length }})</h3>
+                <section class="item_container" v-if="watchlist.movies">
                     <div class="item_wrapper">
                         <div class="item" v-for="(film, index) in user.movies.mark" :key="index">
                             <!-- poster -->
@@ -60,7 +65,7 @@
                     </div> 
                 </section>
                 <!-- tv shows in watchlist -->
-                <section class="item_container" >
+                <section class="item_container" v-if="watchlist.shows" >
                     <h3 v-if="user.shows.mark.length" class="section_title">TV Shows ({{user.shows.mark.length }})</h3>
                     <div class="item_wrapper">
                         <div class="item" v-for="(film, index) in user.shows.mark" :key="index">
@@ -123,7 +128,7 @@
                             <!-- block with bookmark and delete -->
                             <div class="item_info">
                                 <!-- rating -->
-                                <div class="item_rate">{{film.user_rate}}%</div>
+                                <div class="item_rate">Your rate: {{film.user_rate}}%</div>
                                 <v-btn icon ripple>
                                     <v-icon @click.prevent="deleteMovieRate(film.id)">close</v-icon>
                                 </v-btn>
@@ -158,7 +163,7 @@
                             <!-- block with bookmark and delete -->
                             <div class="item_info">
                                 <!-- rating -->
-                                <div class="item_rate">{{film.user_rate}}%</div>
+                                <div class="item_rate">Your rate: {{film.user_rate}}%</div>
                                 <v-btn icon ripple>
                                     <v-icon @click.prevent="deleteShowRate(film.id)">close</v-icon>
                                 </v-btn>
@@ -173,6 +178,8 @@
         </main>
     </v-app>
     <app-footer></app-footer>
+    <!-- go up button -->
+     <button @click="scrollToTop(300) " class="up" :class="{ up_active: show.backToTop }"> go to top</button>
 </div></template>
 
 <script>
@@ -216,7 +223,7 @@ export default {
                     rate: [],
                 },
             },
-         
+
             ratings: {
                 status: false,
                 color: "background",
@@ -224,8 +231,14 @@ export default {
 
             watchlist: {
                 status: true,
-                color: "backLight"
+                color: "backLight",
+                movies: true,
+                shows: false,
             },
+
+            watchMoviesColor: "backLight",
+            watchShowsColor: "background",
+
         }
     },
     created(){
@@ -234,6 +247,13 @@ export default {
         this.getCurrentUser()
         // get user data from firebase
         this.getUserData()
+        // back to seasons button
+        window.addEventListener("scroll", this.backToTopBtn)
+
+        
+
+
+
     },
     computed: {
         //get data from store
@@ -241,6 +261,7 @@ export default {
             'URL',
             'holder',
             'detail',
+            'show',
         ]),
     },
 
@@ -257,15 +278,44 @@ export default {
         showWatchlist(){
             this.watchlist.status = true,
             this.watchlist.color = "backLight"
+            this.watchlist.movies = true,
+            this.watchlist.shows = false,
             this.ratings.status = false
-            this.ratings.color = "background"
+            this.ratings.color = "background",
+
+            this.watchMoviesColor = "backLight",
+            this.watchShowsColor = "background"
         },
+
+        showWatchlistMovies(){
+            this.watchMoviesColor = "backLight"
+            this.watchShowsColor = "background"
+            this.watchlist.movies = true,
+            this.watchlist.shows = false
+        },
+
+        showWatchlistShows(){
+            this.watchShowsColor = "backLight"
+            this.watchMoviesColor = "background"
+            this.watchlist.movies = false,
+            this.watchlist.shows = true
+        },
+
         // show rating list
         showRatings(){
             this.watchlist.status = false,
             this.watchlist.color = "background"
             this.ratings.status = true,
             this.ratings.color = "backLight"
+        },
+
+        // scroll to top
+        scrollToTop(time) {
+            this.$store.commit('scrollToTop', time)
+        },
+        // back to top button is appear
+        backToTopBtn() {
+            this.$store.commit('backToTopBtn')
         },
  
         // FIREBASE 
@@ -281,6 +331,7 @@ export default {
         },
         // get user data from firebase
         getUserData(){
+            this.loading = true
             db.collection('users').where('user_id', '==', firebase.auth().currentUser.uid).get()
             .then(snapshot => {
                 snapshot.forEach(doc => {
@@ -301,8 +352,11 @@ export default {
                             let record = doc.data()
                             record.id = doc.id
                             this.user.movies.mark.push(record)
+                            
                         })
-                    })  
+                    
+                    }) 
+                    
 
                     //get marked shows of current user from database 
                     db.collection('shows_marked').orderBy('rate', 'desc').where('user', '==', this.user.id).get()
@@ -389,6 +443,7 @@ export default {
 @import '../assets/scss/_variables';
 @import '../assets/scss/parts/_general';
 @import '../assets/scss/parts/_itemList';
+@import '../assets/scss/parts/_pagination';
 
 .container {
     max-width: $width;
@@ -404,7 +459,11 @@ export default {
     }
     &_nav {
         margin-bottom: 20px;
-        text-align: center
+        text-align: center;
+        @media screen and (min-width: 400px) {
+            text-align: left
+            
+        }
     }
 }
 
@@ -413,15 +472,21 @@ export default {
 }
 
 .item {
-   // width: 160px; 
-    &_wrapper {
-      
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        justify-content: flex-start;  
-    }
+     width: 194px; 
     &_info {
         padding: 5px 0 5px 9px
+    }
+}
+
+.pages_wrapper {
+    position: relative;
+    .btn_page:first-child {
+        position: absolute;
+        left: 0;
+    }
+    .btn_page:last-child {
+        position: absolute;
+        right: 0;
     }
 }
 
