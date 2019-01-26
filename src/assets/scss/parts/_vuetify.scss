@@ -1,7 +1,8 @@
 // vuetify settings
 // background app
 .application.theme--light {
-    background: $color-bg
+    background: $color_back_2;
+    color: $color_primary
 }
 // cast and crew without border
 .theme--light .v-expansion-panel .v-expansion-panel__container {
@@ -30,7 +31,7 @@
 }
 // background
 .dialog_video .v-card__actions {
-    background: $color_main;
+    background: $color_secondary;
 }
 
 .fav_list_item .v-list__tile {
@@ -43,9 +44,22 @@
 // favorite checkbox label
 .v-input--selection-controls.v-input .v-label {
     font-size: 90%;
-    color: $color_text
+    color: $color_primary
 }
 // favorite checkbox disable icon
 .theme--light .v-input--selection-controls.v-input--is-disabled .v-icon {
-    color: $color_text!important;
+    color: $color_primary!important;
+}
+
+.v-list--three-line .v-list__tile {
+    height: 100px;
+}
+// toggle buttons
+.theme--light .v-btn-toggle {
+     background: transparent
+}
+
+.v-btn-toggle .v-btn {
+    opacity: 1;
+    border: none
 }

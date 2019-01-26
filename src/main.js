@@ -13,12 +13,18 @@ import firebase from 'firebase/app'
     Vue.use(_);
     Vue.use(Vuetify, {
         theme: {
-        primary: '#111A21',
-        secondary: '#ffbd08',
+        primary: '#263238',
+        secondary: '#FFAB00',
+        back_1: '#FFFFFF',
+        back_2: '#F5F5F5',
+        back_3: '#E0E0E0',
+        back_4: '#BDBDBD',
+    
         back: '#9b9b9b',
         backLight: '#dbdcde',
         background: '#F0F0F0',
-
+        background_2: '#e6e6e6',
+        background_3: '#cccccc'
         },
     }),
 

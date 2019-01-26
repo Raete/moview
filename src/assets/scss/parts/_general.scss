@@ -18,7 +18,7 @@ html,
 body {
     font-family: $main_font;
     height: 100vh;
-    background: $color-bg
+    background: $color_back_2
 }
 
 p, ul, body, h1, h2 {
@@ -42,7 +42,7 @@ button {
 .page_title {
     text-align: center;
     text-transform: uppercase;
-   font-weight: 900;
+    font-weight: 900;
 }
 
 ///*** RECOMEND ITEMS ***///
@@ -60,8 +60,8 @@ button {
     justify-content: center;
     align-items: center;
     position: absolute;
-    background: $color-bg;
-    color: $color_text;
+    background: $color_back_2;
+    color: $color_primary;
     height: 100vh;
     width: 100%;
     text-align: center;
@@ -71,6 +71,7 @@ button {
         width: auto
     }
 }
+
 // text in more overview box
 .pre_text {
     white-space: pre-wrap; 
@@ -90,16 +91,17 @@ button {
     to { opacity: 1 }
 }
   
-// to button
+// go to top button
 .up {
     position: fixed;
     right: 0;
     bottom: 5%;
     border-radius: $radius 0 0 $radius;
-    background: $color_main;
+    background: $color_secondary;
     padding: 10px ;
     transition: all .3s;
     opacity: 0.8;
+    z-index: 100;
     &:hover {
         opacity: 1;
     }
@@ -109,11 +111,29 @@ button {
 }
 
 .alert {
-        position: fixed;
-        bottom: 0;
-        right: 0;
-        margin: 0;
-        z-index: 10;
-        border: 0
-    }
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    margin: 0;
+    z-index: 10;
+    border: 0
+}
+
+.btn_mark {
+    align-self: flex-start;
+    margin-bottom: 20px;
+}
       
+.btn_animated_left {
+    margin-left: -16px;
+    &:hover {
+        margin-left: 0;
+    }
+}
+
+.btn_animated_right {
+    margin-right: -16px;
+    &:hover {
+        margin-right: 0;
+    }
+}

@@ -1,8 +1,4 @@
-
-
-
 .menu {
-    
     &_wrapper {
         display: flex;
         flex-direction: column;
@@ -10,12 +6,22 @@
         align-items: center;
         max-width: $width;
         margin: 0 auto;
-        padding: 20px;
-        
+        padding-top: 20px;
+
+        @media screen and (min-width: 650px) {
+            padding: 20px;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center
+        } 
     }
     &_logo {
         margin-bottom: 20px;
         position: relative;
+
+        @media screen and (min-width: 650px) {
+            margin: 0
+        }
     }
     &_controls {
         display: flex;
@@ -24,29 +30,13 @@
         flex-wrap: wrap;
         overflow-x: hidden;
         justify-content: center;  
-        text-align: left
-       
-     
+        text-align: left;
+        
+        @media screen and (min-width: 650px) {
+            margin: 0;
+        }
     }
     &_item {
         flex: 0 0 auto;
-    }
-}
-
-
-
-@media screen and (min-width: 650px) {
-    .menu {
-        &_wrapper {
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center
-        }
-        &_controls {
-            margin: 0;
-        }
-        &_logo {
-            margin: 0
-        }
     }
 }
