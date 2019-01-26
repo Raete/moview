@@ -45,7 +45,8 @@ export const store = new Vuex.Store({
                 cast: [],
                 crew: [],
             },
-            recomend: [],
+            recommend: [],
+            similar: [],
             video: [],
             episodes: [],
             seriesNum: [],
@@ -59,9 +60,18 @@ export const store = new Vuex.Store({
             video: false,
             rate: false,
         },
+        // show elements
+        show: {
+            recommend: false,
+            similar: true,
+            seasons: true,
+            backToTop: true,
+        },
         // if item exist
         is: {
-            recomend: false,
+            recommend: false,
+            similar: true,
+            seasons: true,
             video: true,
             long: true,
             cast: true,
@@ -81,7 +91,6 @@ export const store = new Vuex.Store({
             img: "",
             movieCredits: [],
             showCredits: [],
-            movieKnown: [],
         },
         // alert messages
         alert: {
@@ -146,6 +155,14 @@ export const store = new Vuex.Store({
                 }
                 else clearInterval(scrollInterval); 
             },15)
+        },
+        // show back to top button
+        backToTopBtn(state) {
+            if (window.scrollY >= 1000) {
+                state.show.backToTop = false
+            } else {
+                state.show.backToTop = true
+            }
         },
 
         topBackground(state){

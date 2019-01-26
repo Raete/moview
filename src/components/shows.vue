@@ -22,6 +22,7 @@
                         solo
                         prepend-inner-icon="search"
                         label="Search TV Shows"
+                        @change="searchItems()"
                     ></v-autocomplete>
                 </div>
                 <!-- year filter -->
@@ -97,17 +98,20 @@
                         <!-- rate -->
                         <div class="item_rate"> {{film.vote_average}}% </div>
                         <!-- bookmark -->
-                        <v-tooltip left color="primary">
+                        <v-tooltip class="item_delete" left color="primary">
                             <v-btn v-model="mark" slot="activator" small fab depressed icon @click="markingButton(film.id, film)">
                                 <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
                             </v-btn>  
                             <span>Bookmark</span>
                         </v-tooltip>
+                        <!-- title-->
+                        <router-link class="item_title_box" :to="{ name: 'singleShow', params: { id: film.id } }">
+                            <h1 class="item_name"> {{film.original_name}} </h1>
+                            <span class="item_year">{{film.first_air_date}}</span>
+                        </router-link>
             
                     </div>
-                    <!-- title-->
-                    <h1 class="item_name"> {{film.original_name}} </h1>
-                    <span class="item_year">{{film.first_air_date}}</span>
+                    
                 
                 </div>
             </div> 
@@ -153,17 +157,21 @@
                         <!-- rate -->
                         <div class="item_rate"> {{film.vote_average}}% </div>
                         <!-- bookmark -->
-                        <v-tooltip left color="primary">
+                        <v-tooltip class="item_delete" left color="primary">
                             <v-btn v-model="mark" slot="activator" small fab depressed icon @click="markingButton(film.id, film)">
                                 <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
                             </v-btn>  
                             <span>Bookmark</span>
                         </v-tooltip>
+
+                        <!-- title-->
+                        <router-link class="item_title_box" :to="{ name: 'singleShow', params: { id: film.id } }">
+                            <h1 class="item_name"> {{film.original_name}} </h1>
+                            <span class="item_year">{{film.first_air_date}}</span>
+                        </router-link>
                         
                     </div>
-                    <!-- title-->
-                    <h1 class="item_name"> {{film.original_name}} </h1>
-                    <span class="item_year">{{film.first_air_date}}</span>
+                    
                 
                 </div>
             </div>
@@ -254,7 +262,6 @@ export default {
         // watching changes in search input
         search(val) {
             val && val !== this.searchInput.select && this.titleList(val)
-            this.searchItems()
         },
         // watching changes in genres input
         selectGenres(val) {

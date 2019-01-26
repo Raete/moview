@@ -1,7 +1,7 @@
 ///*** CAST ***///
 .cast {
     padding: 30px;
-    background: $color-bg--light;
+    background: $color_back_1;
     text-align: center;
     &_title {
         grid-area: cast;
@@ -30,11 +30,11 @@
             width: 10px;
             height: 10px;
             border-radius: 50px;
-            background: $color-bg;
+            background: $color_back_2;
         }
         &::-webkit-scrollbar-thumb {
             border-radius: 5px;
-            background: $color_text;
+            background: $color_primary;
             height: 3px;
         }
     }
@@ -63,7 +63,7 @@
             right: 0;
             border-radius: 100px;
             opacity: 0;
-            background: rgba($color_main, .5);
+            background: rgba($color_secondary, .5);
             transition-duration: 0.3s;
             transition-property: opacity;
             &:hover, &:focus, &:active, &:visited  {
@@ -79,8 +79,3 @@
         text-align: center
     }
 }
-
-
-
-
-   

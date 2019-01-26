@@ -75,25 +75,33 @@
             <img class="poster" :src="detail.data.poster_path" alt="">
             <!-- info section -->
             <section class="main_container" >
+                
                 <!-- header -->
                 <header class="main_container_header">
                     <!-- back button -->
-                    <v-btn flat round :to="{ name: 'movies' }" >
-                        <v-icon color="primary"> keyboard_backspace </v-icon>
+                    <v-btn class="btn_animated_left" color="primary" flat round :to="{ name: 'movies' }" exact>
+                        <v-icon color="primary"> keyboard_arrow_left </v-icon>
                         homepage
                     </v-btn>
-                    <!-- bookmark button -->
-                    <div>
-                        <v-btn flat round @click="markingButtonDetail()" >
-                            <v-icon size="25px" color="primary"> {{styleMarkIcon($route.params.id)}} </v-icon>
-                            {{this.styleMarkText($route.params.id)}}
-                        </v-btn>
-                    </div>
+                    
+                    <!-- profile button -->
+                    <v-btn v-if="user" class=" btn_animated_right font-weight-bold" color="primary" flat round  :to="{ name: 'profile' }" exact>
+                        Profile
+                        <v-icon color="primary"> keyboard_arrow_right </v-icon>
+                    </v-btn>
+                
                 </header>
+                <!-- bookmark button -->
+                <v-btn class="btn_mark btn_animated_left" color="primary" flat round @click="markingButtonDetail()" >
+                    <v-icon size="25px" color="primary"> {{styleMarkIcon($route.params.id)}} </v-icon>
+                    {{this.styleMarkText($route.params.id)}}
+                </v-btn>
+
                 <!-- movie detail info -->
                 <section  class="info_wrapper">
                     <div class="info_rate_wrapper">
                         <p class="info_rate">  {{detail.data.vote_average}}%</p>
+                        <!-- rate movie button -->
                         <v-btn outline round color="primary"  @click.stop="showRateOnTop()" >{{this.styleRateText($route.params.id)}}</v-btn>
                     </div>
                    
@@ -135,9 +143,9 @@
         <!-- cast and crew section -->
         <section v-if="is.credits" class="cast animated">
             <div class="cast_wrapper" v-if="!loading">
-                <v-expansion-panel>
+                <v-expansion-panel :value="panel">
                     <!-- cast panel -->
-                    <v-expansion-panel-content :value="panel" class="credits" v-if="is.cast">
+                    <v-expansion-panel-content  class="credits" v-if="is.cast">
                         <h1 slot="header" class="credits_title">Cast</h1>
                         <div class="cast_person_wrapper">
                             <div v-for="(actor, index) in detail.credits.cast" :key="index" class="cast_person">
@@ -179,11 +187,28 @@
                 </v-expansion-panel>
             </div> 
         </section>
+        <!-- menu -->
+        <v-toolbar flat v-if="is.similar || is.recommend">
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+
+                <v-btn-toggle v-model="menuItem" mandatory>
+                    <v-btn v-if="is.similar" flat @click="showSimilar">
+                        Similar movies
+                    </v-btn>
+                    <v-btn v-if="is.recommend" flat @click="showRecommend">
+                        Recommendations
+                    </v-btn>
+                </v-btn-toggle>
+
+            </v-toolbar-items>
+            <v-spacer></v-spacer>
+        </v-toolbar>
+
         <!-- movies recommendations -->
-        <section class="animated" v-if="is.recomend"> 
+        <section class="animated" v-if="is.recommend && show.recommend"> 
             <div class="item_container">
-                <h1 class="recommend">Similar movies</h1> 
-            
+        
                 <div class="item_wrapper">
                     <div class="item" v-for="(film, index) in detail.recommend" :key="index">
                         <!-- poster -->
@@ -209,17 +234,69 @@
                             <!-- rate -->
                             <div class="item_rate"> {{film.vote_average}}% </div>
                             <!-- bookmark -->
-                            <v-tooltip left color="primary">
+                            <v-tooltip class="item_delete" left color="primary">
                                 <v-btn v-model="mark" slot="activator" small fab depressed icon @click="markingButton(film.id, film)">
                                     <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
                                 </v-btn> 
                                 <span>Bookmark</span>
                             </v-tooltip>
+                            <!-- title -->
+                            <router-link class="item_title_box" :to="{ name: 'singleMovie', params: { id: film.id } }"> 
+                                <h1 class="item_name"> {{film.title}} </h1>
+                                <span class="item_year">{{film.release_date}}</span>
+                            </router-link>
+                        </div>
+                        
+                    
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- movies similar -->
+        <section v-if="is.similar && show.similar"> 
+            <div class="item_container">
+            
+                <div class="item_wrapper">
+                    <div class="item" v-for="(film, index) in detail.similar" :key="index">
+                        <!-- poster -->
+                        <div class="poster_wrapper">
+                            <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
+
+                                <figure class="item_content animated" >
+                                    <img class="item_img" v-bind:src="film.poster_path" alt="">
+                                    <figcaption class="item_hover">
+                                        <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
+                                    </figcaption>           
+                                </figure>
+
+                            </router-link>
+                            <div class="poster_shadow--colored" v-bind:style="{ 
+                                backgroundImage: 'url(' + film.poster_path + ')',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                            }"></div>
+                        </div>
+                        <!-- block with bookmark and rate -->
+                        <div class="item_info">
+                            <!-- rate -->
+                            <div class="item_rate"> {{film.vote_average}}% </div>
+                            <!-- bookmark -->
+                            <v-tooltip class="item_delete" left color="primary">
+                                <v-btn v-model="mark" slot="activator" small fab depressed icon @click="markingButton(film.id, film)">
+                                    <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
+                                </v-btn> 
+                                <span>Bookmark</span>
+                            </v-tooltip>
+
+                            <!-- title -->
+                            <router-link class="item_title_box" :to="{ name: 'singleMovie', params: { id: film.id } }"> 
+                                <h1 class="item_name"> {{film.title}} </h1>
+                                <span class="item_year">{{film.release_date}}</span>
+                            </router-link>
                             
                         </div>
-                        <!-- title -->
-                        <h1 class="item_name"> {{film.title}} </h1>
-                        <span class="item_year">{{film.release_date}}</span>
+                        
                     
                     </div>
                 </div>
@@ -237,6 +314,8 @@
         </v-alert>
     </v-app>
     <app-footer></app-footer>
+    <!-- go up button -->
+    <button @click="scrollToTop(300) " class="up" :class="{ up_active: show.backToTop }"> go to top</button>
 
 </div></template>
 
@@ -262,11 +341,13 @@ export default {
             rate: "",
             loading: false,
             // cast and crew expansion panel
-            panel: true,   
+            panel: 0,   
             // bookmark movies in recommend
             mark: "",
             movieData: {},
-            
+
+            menuItem: 0
+
         }
     },
 
@@ -297,6 +378,7 @@ export default {
             'btn',
             'user',
             'rating',
+            'show',
         ]),
     },
 
@@ -305,12 +387,19 @@ export default {
         //start setting - reset data
         init(){
             this.loading = true
+            // movie details
             this.detail.data = ""
             this.detail.credits.cast = ""
             this.detail.recommend = ""
+            this.detail.similar = ""
             this.detail.video = ""
+            // dialog boxes
             this.box.video = false
-            this.box.overview = false                      
+            this.box.overview = false   
+            // show section
+            this.show.recommend = false
+            this.show.similar = true
+
         },
         // format budget and revenue currancy 
         formatNub(num){ 
@@ -320,6 +409,10 @@ export default {
                 maximumFractionDigits: 2
             })
             return num
+        },
+        // scroll to top
+        scrollToTop(time) {
+            this.$store.commit('scrollToTop', time)
         },
         // scroll up and show video
         showVideoOnTop(){
@@ -341,25 +434,25 @@ export default {
                 this.infoAlert("You must log in.")
             }
         },
-        // scroll to top
-        scrollToTop(time) {
-            this.$store.commit('scrollToTop', time)
-        },
         // format run time
         timeConvert(data) {
             let minutes = data % 60
             let hours = (data - minutes) / 60
             return  `${hours}h ${minutes}m`
         },
+        // show similar or recommend section
+        showSimilar(){
+            this.show.similar = true,
+            this.show.recommend = false
+        },
+        showRecommend(){
+            this.show.recommend = true,
+            this.show.similar = false
+        },
         // get data from firebase
         getFirebaseData(){
             // get current user from firebase if user is login
             if(firebase.auth().currentUser) {
-
-             
-                     
-
-
 
                 db.collection('users').where('user_id', '==', firebase.auth().currentUser.uid).get()
                 .then(snapshot => {
@@ -374,7 +467,6 @@ export default {
                                 this.user.movies.curRate = snapshot.docs[0].data().user_rate
                             }   
                                 
-                            
                         }) 
 
                         // read firebase database in real time
@@ -705,7 +797,7 @@ export default {
                 //*****************//
                 const URLposter = "https://image.tmdb.org/t/p/original"
                 this.detail.data = res.data
-       
+
                 // if is no poster image replace with holder
                 if (this.detail.data.poster_path) {
                     this.detail.data.poster_path = URLposter + this.detail.data.poster_path
@@ -770,7 +862,6 @@ export default {
                 // show cast section only if cast exist if not crew panel is expand
                 if (!cast.length) {
                     this.is.cast = false
-                    this.panel.crew = true
                 } else {
                     this.is.cast = true
                 }
@@ -783,7 +874,7 @@ export default {
                 //** RECOMMENDATIONS **//
                 //********************//
                 const URLrecom = "https://image.tmdb.org/t/p/w500"
-                this.detail.recommend = res.data.similar.results
+                this.detail.recommend = res.data.recommendations.results
                 // if is no poster image replace with holder
                 this.detail.recommend.forEach((poster)=>{
                     if (poster.poster_path) {
@@ -814,7 +905,52 @@ export default {
 
 
                 // show recomend item if exist
-                this.detail.recommend.length > 0 ? this.is.recomend = true : this.is.recomend = false  
+                this.detail.recommend.length > 0 ? this.is.recommend = true : this.is.recommend = false  
+
+                //** SIMILAR **//
+                //************//
+                this.detail.similar = res.data.similar.results
+                // if is no poster image replace with holder
+                this.detail.similar.forEach((poster)=>{
+                    if (poster.poster_path) {
+                        poster.poster_path = URLrecom + poster.poster_path
+                    } else if (poster.poster_path == null) {
+                        poster.poster_path = this.holder.photo
+                    }
+                })
+                // get just year from release date
+                this.detail.similar.forEach((year)=>{
+                    if(year.release_date) {
+                        year.release_date = year.release_date.slice(0,4)
+                    } else {
+                         year.release_date = "????"
+                    }
+                })
+
+                // rate number formating to one decimal
+                this.detail.similar.forEach((rate)=>{
+                    if (rate.vote_average < 10) {
+                        rate.vote_average =  rate.vote_average.toFixed(1)
+                    }
+
+                    if (rate.vote_average) {
+                        rate.vote_average =  rate.vote_average * 10
+                    }
+                })
+
+                // show similar item if exist
+                this.detail.similar.length > 0 ? this.is.similar = true : this.is.similar = false
+
+                // show recommend movies or similar 
+                if (this.is.similar && !this.is.recommend) {
+                    this.show.recommend = false
+                    this.show.similar = true
+        
+                }
+                if (this.is.recommend && !this.is.similar) {
+                    this.show.recommend = true
+                    this.show.similar = false
+                } 
 
                 //** TRAILER **//
                 //************//
@@ -852,21 +988,15 @@ export default {
 <style lang='scss' scoped>
     @import '../../assets/scss/_variables';
     @import '../../assets/scss/parts/_general';
-    @import '../../assets/scss/singlePage/_movies';
+    @import '../../assets/scss/pages/_movies';
     @import '../../assets/scss/parts/_cast';
     @import '../../assets/scss/parts/_itemList';
-
-    .item {
-      //  width: 160px;
-        &_wrapper {
-            flex-wrap: nowrap;
-            justify-content: flex-start;  
-            text-align: left
-        }
-    }
 
     .rating_wrapper {
         padding: 30px
     }
+
+
+    
 
 </style>

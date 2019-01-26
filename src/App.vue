@@ -44,7 +44,7 @@ html,
 body {
     font-family: $main_font;
     height: 100vh;
-    background: $color-bg
+    background: $color_back_2
 }
 
 
