@@ -79,7 +79,7 @@
                 <!-- header -->
                 <header class="main_container_header">
                     <!-- back button -->
-                    <v-btn class="btn_animated_left" flat round :to="{ name: 'movies' }" exact>
+                    <v-btn class="btn_animated_left" color="primary" flat round :to="{ name: 'movies' }" exact>
                         <v-icon color="primary"> keyboard_arrow_left </v-icon>
                         homepage
                     </v-btn>
@@ -92,7 +92,7 @@
                 
                 </header>
                 <!-- bookmark button -->
-                <v-btn class="btn_mark btn_animated_left" flat round @click="markingButtonDetail()" >
+                <v-btn class="btn_mark btn_animated_left" color="primary" flat round @click="markingButtonDetail()" >
                     <v-icon size="25px" color="primary"> {{styleMarkIcon($route.params.id)}} </v-icon>
                     {{this.styleMarkText($route.params.id)}}
                 </v-btn>
@@ -234,17 +234,19 @@
                             <!-- rate -->
                             <div class="item_rate"> {{film.vote_average}}% </div>
                             <!-- bookmark -->
-                            <v-tooltip left color="primary">
+                            <v-tooltip class="item_delete" left color="primary">
                                 <v-btn v-model="mark" slot="activator" small fab depressed icon @click="markingButton(film.id, film)">
                                     <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
                                 </v-btn> 
                                 <span>Bookmark</span>
                             </v-tooltip>
-                            
+                            <!-- title -->
+                            <router-link class="item_title_box" :to="{ name: 'singleMovie', params: { id: film.id } }"> 
+                                <h1 class="item_name"> {{film.title}} </h1>
+                                <span class="item_year">{{film.release_date}}</span>
+                            </router-link>
                         </div>
-                        <!-- title -->
-                        <h1 class="item_name"> {{film.title}} </h1>
-                        <span class="item_year">{{film.release_date}}</span>
+                        
                     
                     </div>
                 </div>
@@ -280,17 +282,21 @@
                             <!-- rate -->
                             <div class="item_rate"> {{film.vote_average}}% </div>
                             <!-- bookmark -->
-                            <v-tooltip left color="primary">
+                            <v-tooltip class="item_delete" left color="primary">
                                 <v-btn v-model="mark" slot="activator" small fab depressed icon @click="markingButton(film.id, film)">
                                     <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
                                 </v-btn> 
                                 <span>Bookmark</span>
                             </v-tooltip>
+
+                            <!-- title -->
+                            <router-link class="item_title_box" :to="{ name: 'singleMovie', params: { id: film.id } }"> 
+                                <h1 class="item_name"> {{film.title}} </h1>
+                                <span class="item_year">{{film.release_date}}</span>
+                            </router-link>
                             
                         </div>
-                        <!-- title -->
-                        <h1 class="item_name"> {{film.title}} </h1>
-                        <span class="item_year">{{film.release_date}}</span>
+                        
                     
                     </div>
                 </div>
@@ -308,6 +314,8 @@
         </v-alert>
     </v-app>
     <app-footer></app-footer>
+    <!-- go up button -->
+    <button @click="scrollToTop(300) " class="up" :class="{ up_active: show.backToTop }"> go to top</button>
 
 </div></template>
 
@@ -980,7 +988,7 @@ export default {
 <style lang='scss' scoped>
     @import '../../assets/scss/_variables';
     @import '../../assets/scss/parts/_general';
-    @import '../../assets/scss/singlePage/_movies';
+    @import '../../assets/scss/pages/_movies';
     @import '../../assets/scss/parts/_cast';
     @import '../../assets/scss/parts/_itemList';
 

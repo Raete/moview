@@ -1,0 +1,12 @@
+///*** FOOTER ***///
+.app_footer {
+    background: $color_back_3;
+    &_wrapper {
+        display: flex;
+        justify-content: space-between;
+        max-width: $width; 
+        margin: 0 auto;
+        padding: 20px;
+        text-align: center;
+    }
+}

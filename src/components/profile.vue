@@ -7,28 +7,60 @@
        
         <main class="container">
             <!-- profile header -->
-            <header class="profile_header">
+            <header class="profile">
+                    <!-- log out button -->
+                <v-btn class="profile_logout" color="primary" flat round @click="logout" exact>
+                    Log out  
+                    <v-icon>exit_to_app</v-icon>
+                </v-btn>
                 <!-- user name -->
+                <img class="profile_photo" v-bind:src="user.photo" alt="profil picture" >
+               
                 <div class="profile_name">
                     <h1 class="user_name">{{user.name }}</h1>
                     <p class="user_date">Member since {{user.date}}</p>
                 </div>
-                    <!-- log out button -->
-                <v-btn class=" font-weight-bold" color="primary" flat round @click="logout" exact>Log out</v-btn>
+                
             </header>
             <!-- menu - watchlist, rating  -->
-            <nav class="profile_nav">
-                <v-btn  class="menu_item" :color="watchlist.color" depressed round @click="showWatchlist"> Watchlist ({{allMarkItem()}})</v-btn>
-                <v-btn  class="menu_item" :color="ratings.color" depressed round @click="showRatings" > Ratings ({{allRateItem()}})</v-btn>
-            </nav>
+            <v-toolbar flat color="white">
+                
+                <v-toolbar-items>
+
+                    <v-btn-toggle v-model="menuItemActive" mandatory>
+                        <v-btn  flat active-class='active_item active_item--dark' @click="showWatchlist">
+                            Watchlist ({{allMarkItem()}})
+                        </v-btn>
+                        <v-btn  flat active-class='active_item active_item--dark' @click="showRatings">
+                            Ratings ({{allRateItem()}})
+                        </v-btn>
+                    </v-btn-toggle>
+
+                </v-toolbar-items>
+                <v-spacer></v-spacer>
+            </v-toolbar>
+
+            
             <!-- watchlist -->
             <section class="watchlist" v-if="watchlist.status">
-                <nav class="profile_nav">
-                    <v-btn  class="menu_item" :color="watchMoviesColor" depressed round @click="showWatchlistMovies" >Movies ({{user.movies.mark.length }})</v-btn>
-            
-                    <v-btn  class="menu_item" :color="watchShowsColor" depressed round @click="showWatchlistShows" > TV Shows ({{user.shows.mark.length }})</v-btn>
-                </nav>
+                <h1 class="list_heading">My watchlist</h1>
+                 <!-- menu -->
+                <v-toolbar flat dense color="back_3">
+                    <v-spacer></v-spacer>
+                    <v-toolbar-items>
 
+                        <v-btn-toggle v-model="watchItemActive" mandatory >
+                            <v-btn flat active-class='active_item active_item--light' @click="showWatchlistMovies" >
+                                Movies ({{user.movies.mark.length }})
+                            </v-btn>
+                            <v-btn  flat active-class='active_item active_item--light' @click="showWatchlistShows">
+                                TV Shows ({{user.shows.mark.length }})
+                            </v-btn>
+                        </v-btn-toggle>
+
+                    </v-toolbar-items>
+                    <v-spacer></v-spacer>
+                </v-toolbar>
                 <!-- movies in watchlist -->
                 <p v-if="allMarkItem() <= 0" class="empty_list"> You haven't added any movies or TV shows to your watchlist. </p>
                 <section class="item_container" v-if="watchlist.movies">
@@ -50,23 +82,31 @@
                                     backgroundPosition: 'center',
                                 }"></div>
                             </div>
-                            <!-- block with bookmark and delete -->
+                            <!-- box with bookmark and delete -->
                             <div class="item_info">
                                 <!-- rating -->
                                 <div class="item_rate">{{film.rate}}%</div>
-                                <v-btn icon ripple>
+                                <v-btn icon ripple class="item_delete">
                                     <v-icon @click.prevent="deleteMovie(film.id)">close</v-icon>
                                 </v-btn>
+                                <!-- title -->
+                                <router-link class="item_title_box" :to="{ name: 'singleMovie', params: { id: film.iId } }">  
+                                    <h1 class="item_name"> {{film.title}} </h1>
+                                    <span class="item_year"> {{film.year}} </span>
+                                </router-link>
+                               
+                                
+                                
                             </div>
-                            <!-- title -->
-                            <h1 class="item_name"> {{film.title}} </h1>
-                            <span class="item_year">{{film.year}}</span>
+                            
+                            
                         </div>
                     </div> 
                 </section>
                 <!-- tv shows in watchlist -->
                 <section class="item_container" v-if="watchlist.shows" >
-                    <h3 v-if="user.shows.mark.length" class="section_title">TV Shows ({{user.shows.mark.length }})</h3>
+
+                
                     <div class="item_wrapper">
                         <div class="item" v-for="(film, index) in user.shows.mark" :key="index">
                             <!-- poster -->
@@ -89,13 +129,16 @@
                             <div class="item_info">
                                 <!-- rating -->
                                 <div class="item_rate">{{film.rate}}%</div>
-                                <v-btn icon ripple>
+                                <v-btn icon ripple class="item_delete">
                                     <v-icon @click.prevent="deleteShow(film.id)">close</v-icon>
                                 </v-btn>
+                                <!-- title -->
+                                <router-link class="item_title_box" :to="{ name: 'singleShow', params: { id: film.iId } }"> 
+                                    <h1 class="item_name"> {{film.title}} </h1>
+                                    <span class="item_year">{{film.year}}</span>
+                                </router-link>
                             </div>
-                            <!-- title -->
-                            <h1 class="item_name"> {{film.title}} </h1>
-                            <span class="item_year">{{film.year}}</span>
+                            
                         </div>
                     </div> 
                 </section>
@@ -103,10 +146,28 @@
 
             <!-- ratings -->
             <section class="ratings" v-if="ratings.status">
+                <h1 class="list_heading">My ratings</h1>
+
+                 <!-- menu -->
+            <v-toolbar flat dense color="back_3">
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+
+                    <v-btn-toggle v-model="rateItemActive" mandatory>
+                        <v-btn  flat active-class='active_item active_item--light' @click="showRatingsMovies">
+                            Movies ({{user.movies.rate.length }})
+                        </v-btn>
+                        <v-btn  flat active-class='active_item active_item--light' @click="showRatingsShows">
+                            TV Shows ({{user.shows.rate.length }})
+                        </v-btn>
+                    </v-btn-toggle>
+
+                </v-toolbar-items>
+                <v-spacer></v-spacer>
+            </v-toolbar>
                 <!-- rated movies -->
                 <p v-if="allRateItem() <= 0" class="empty_list"> You haven't rated any movies or TV shows. </p>
-                <section class="item_container" >
-                    <h3 v-if="user.movies.rate.length" class="section_title">Movies ({{user.movies.rate.length }})</h3>
+                <section class="item_container" v-if="ratings.movies">
                     <div class="item_wrapper">
                         <div class="item" v-for="(film, index) in user.movies.rate" :key="index">
                             <!-- poster -->
@@ -129,19 +190,20 @@
                             <div class="item_info">
                                 <!-- rating -->
                                 <div class="item_rate">Your rate: {{film.user_rate}}%</div>
-                                <v-btn icon ripple>
+                                <v-btn icon ripple class="item_delete">
                                     <v-icon @click.prevent="deleteMovieRate(film.id)">close</v-icon>
                                 </v-btn>
+                                <!-- title -->
+                                <router-link class="item_tile_box" :to="{ name: 'singleMovie', params: { id: film.iId } }">
+                                	<h1 class="item_name"> {{film.title}} </h1>
+                                    <span class="item_year">{{film.year}}</span>
+                                </router-link>
                             </div>
-                            <!-- title -->
-                            <h1 class="item_name"> {{film.title}} </h1>
-                            <span class="item_year">{{film.year}}</span>
                         </div>
                     </div> 
                 </section>
                 <!-- tv shows movies -->
-                <section class="item_container" >
-                    <h3 v-if="user.shows.rate.length" class="section_title">TV Shows ({{user.shows.rate.length }})</h3>
+                <section class="item_container" v-if="ratings.shows">
                     <div class="item_wrapper">
                         <div class="item" v-for="(film, index) in user.shows.rate" :key="index">
                             <!-- poster -->
@@ -164,13 +226,15 @@
                             <div class="item_info">
                                 <!-- rating -->
                                 <div class="item_rate">Your rate: {{film.user_rate}}%</div>
-                                <v-btn icon ripple>
+                                <v-btn icon ripple class="item_delete">
                                     <v-icon @click.prevent="deleteShowRate(film.id)">close</v-icon>
                                 </v-btn>
+                                <!-- title -->
+                                <router-link class="item_title_box" :to="{ name: 'singleShow', params: { id: film.iId } }">
+                                    <h1 class="item_name"> {{film.title}} </h1>
+                                    <span class="item_year">{{film.year}}</span>
+                                </router-link>
                             </div>
-                            <!-- title -->
-                            <h1 class="item_name"> {{film.title}} </h1>
-                            <span class="item_year">{{film.year}}</span>
                         </div>
                     </div> 
                 </section>
@@ -214,6 +278,7 @@ export default {
                 id: null,
                 name: "",
                 date: "",
+                photo: "",
                 movies: {
                     mark: [],
                     rate: [],
@@ -224,20 +289,28 @@ export default {
                 },
             },
 
+           
+
             ratings: {
                 status: false,
-                color: "background",
+                movies: true,
+                shows: false,
+       
             },
 
             watchlist: {
                 status: true,
-                color: "backLight",
+            
                 movies: true,
                 shows: false,
             },
 
             watchMoviesColor: "backLight",
             watchShowsColor: "background",
+
+            menuItemActive: 0,
+            watchItemActive: 0,
+            rateItemActive: 0,
 
         }
     },
@@ -277,26 +350,15 @@ export default {
         // show watchlist
         showWatchlist(){
             this.watchlist.status = true,
-            this.watchlist.color = "backLight"
-            this.watchlist.movies = true,
-            this.watchlist.shows = false,
             this.ratings.status = false
-            this.ratings.color = "background",
-
-            this.watchMoviesColor = "backLight",
-            this.watchShowsColor = "background"
         },
 
         showWatchlistMovies(){
-            this.watchMoviesColor = "backLight"
-            this.watchShowsColor = "background"
             this.watchlist.movies = true,
             this.watchlist.shows = false
         },
 
         showWatchlistShows(){
-            this.watchShowsColor = "backLight"
-            this.watchMoviesColor = "background"
             this.watchlist.movies = false,
             this.watchlist.shows = true
         },
@@ -304,9 +366,17 @@ export default {
         // show rating list
         showRatings(){
             this.watchlist.status = false,
-            this.watchlist.color = "background"
-            this.ratings.status = true,
-            this.ratings.color = "backLight"
+            this.ratings.status = true
+        },
+
+        showRatingsMovies(){
+            this.ratings.movies = true,
+            this.ratings.shows = false
+        },
+
+        showRatingsShows(){
+            this.ratings.movies = false,
+            this.ratings.shows = true
         },
 
         // scroll to top
@@ -341,7 +411,15 @@ export default {
                     // get username from database
                     db.collection('users').doc(this.user.id).get()
                         .then(user => {
-                            this.user.name = user.data().alias  
+
+                            if (user.data().photo) {
+                                this.user.photo = user.data().photo
+                            } else {
+                                this.user.photo = this.holder.person
+                            }
+                          
+                            
+                            this.user.name = user.data().alias 
                             this.user.date = moment(user.data().date).format('LL')
                         }) 
                 
@@ -440,61 +518,59 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-@import '../assets/scss/_variables';
-@import '../assets/scss/parts/_general';
-@import '../assets/scss/parts/_itemList';
-@import '../assets/scss/parts/_pagination';
+    @import '../assets/scss/_variables';
+    @import '../assets/scss/parts/_general';
+    @import '../assets/scss/parts/_itemList';
+    @import '../assets/scss/parts/_pagination';
 
-.container {
-    max-width: $width;
-}
-
-.profile {
-    &_header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 10px;
-        margin-bottom: 50px;
+    .container {
+        max-width: $width;
     }
-    &_nav {
-        margin-bottom: 20px;
+
+    .profile {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         text-align: center;
-        @media screen and (min-width: 400px) {
-            text-align: left
-            
+        background: $color_back_1;
+        border-bottom: 1px solid $color_back_3;
+        border-radius: 5px 5px 0 0;
+        &_photo {
+            width: 80px;
+            border-radius: 100%;
+        }
+        &_name {
+            margin: 20px 0 40px 0;
+        }
+        &_logout {
+            font-weight: 700;
+            align-self: flex-end
         }
     }
-}
 
-.section_title {
-    text-align: center
-}
-
-.item {
-     width: 194px; 
-    &_info {
-        padding: 5px 0 5px 9px
+    .empty_list {
+        padding-top: 50px;
+        text-align: center
     }
-}
 
-.pages_wrapper {
-    position: relative;
-    .btn_page:first-child {
-        position: absolute;
-        left: 0;
+    // section headings
+    .list_heading {
+        padding:  16px;
+        text-align: center;
+        background: $color_back_3
     }
-    .btn_page:last-child {
-        position: absolute;
-        right: 0;
+
+    // active item in menu
+    .active_item {
+        font-weight: 700;
+        &--light {
+            background: $color_back_2 !important
+        }
+        &--dark {
+            background: $color_back_3 !important
+        }
     }
-}
-
-.empty_list {
-    text-align: center
-}
-
-
 
 
 </style>

@@ -10,7 +10,7 @@
             <div class="menu_controls">
                 <v-btn class="menu_item" flat round :to="{ name: 'movies' }" exact > Movies </v-btn>
                 <v-btn class="menu_item" flat round  :to="{ name: 'shows' }" exact> TV Shows </v-btn>
-                <!-- <v-btn class="menu_item" flat round  :to="{ name: 'celebrities' }" > Celebrities </v-btn> -->
+                
                 <!-- login/profile button -->
                 <v-btn  v-if="!user" class=" menu_item font-weight-bold" color="primary" round  :to="{ name: 'login' }" exact>Login</v-btn>
                 <v-btn v-if="user" class=" menu_item font-weight-bold" color="primary" flat round  :to="{ name: 'profile' }" exact>Profile</v-btn>

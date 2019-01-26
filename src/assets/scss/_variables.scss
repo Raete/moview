@@ -1,19 +1,22 @@
 //
 //	VARIABLES
 // ------------------------------------------------------
-@import url( 'https://fonts.googleapis.com/css?family=Open+Sans:400,600,700' );
+
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
 
 //font
-$main_font: 'Open Sans', sans-serif;
+$main_font: 'Roboto', sans-serif;
 
 // color
-$color_text: #111A21;
+$color_primary:  #263238; //blue-grey darken-4
+$color_secondary: #FFAB00;  //amber accent-4
+$color_warring: #D50000; //red accent-4
 
-$color_main: #ffbd08;
-
-$color-bg: #F0F0F0;
-$color-bg--light: white;
-$color_bg--darken: darken( $color-bg--light, 10% );
+$color_back_1: #FFFFFF; //white
+$color_back_2: #F5F5F5; //grey lighten-4
+$color_back_3: #E0E0E0; //grey lighten-2
+$color_back_4: #BDBDBD; //grey lighten-1
+$color_back_5: #757575; //grey darken-1
 
 // container
 $width: 1140px;

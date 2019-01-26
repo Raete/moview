@@ -387,5 +387,5 @@ export default {
     @import '../../assets/scss/_variables';
     @import '../../assets/scss/parts/_general';
     @import '../../assets/scss/parts/_itemList';
-    @import '../../assets/scss/singlePage/_actor';
+    @import '../../assets/scss/pages/_actor';
 </style>

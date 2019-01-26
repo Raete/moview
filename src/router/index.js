@@ -15,7 +15,7 @@ import SingleActor from '@/components/singlePages/singleActor'
 Vue.use(Router)
 
 const router = new Router({
-    mode: 'history',
+   // mode: 'history',
     routes: [
         {
             path: '/login',

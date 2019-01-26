@@ -6,7 +6,7 @@
 }
 .episode {
     display: flex;
-    border-bottom: 1px dashed $color_text;
+    border-bottom: 1px dashed $color_primary;
     padding: 20px;
     &:last-child {
         border-bottom: 0;
@@ -26,18 +26,10 @@
         height: 100%;
         margin-right: 20px;
         border-radius: $radius;
-        box-shadow: 2px 2px 18px darken( $color-bg--light, 40% );
+        box-shadow: 2px 2px 18px darken( $color_back_1, 40% );
+
+        @media screen and (min-width: 600px) {
+            display: block;
+        }
     }
 }
-
-//--desktop--
-@media screen and (min-width: 600px) {
-    .episode_img {
-        display: block;
-    }
-}
-
-
-
-
-

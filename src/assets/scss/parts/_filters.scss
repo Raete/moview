@@ -1,6 +1,5 @@
 ///*** FILTERS ***///
 .filters {
-    background: $color-bg;
     &_wrapper {
         display: grid;
         grid-template-columns: auto;
@@ -14,6 +13,14 @@
         margin: 0 auto;
         padding: 30px 20px 20px 20px;
         position: relative;
+
+        @media screen and (min-width: 800px) {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            grid-template-areas: "search search"
+            "year genre";
+            gap: 50px 20px;
+        }
     }
     &_item {
         height: 50px;
@@ -30,16 +37,5 @@
     }
     &_genres {
         grid-area: genre;
-    }
-}
-
-//--desktop--
-@media screen and (min-width: 800px) {
-    .filters_wrapper {
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto auto;
-        grid-template-areas: "search search"
-        "year genre";
-        gap: 50px 20px;
     }
 }
