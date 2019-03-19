@@ -85,6 +85,14 @@
                         <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
 
                             <figure class="item_content animated" >
+
+                                <v-tooltip class="eye" v-if="isItem(film.id, user.movies.seen)" left color="primary">
+                                    <v-icon slot="activator" size="25px" color="secondary">
+                                        visibility
+                                    </v-icon>
+                                    <span>You've already seen this movie</span>
+                                </v-tooltip>
+
                                 <img class="item_img" v-bind:src="film.poster_path" alt="">
                                 <figcaption class="item_hover">
                                     <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
@@ -105,8 +113,8 @@
                         <div class="item_rate"> {{film.vote_average}}% </div>
                         <!-- bookmark -->
                         <v-tooltip class="item_delete" vleft color="primary">
-                            <v-btn v-model="mark" slot="activator" small fab depressed icon @click="markingButton(film.id, film)">
-                                <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
+                            <v-btn v-model="mark" slot="activator" small fab depressed icon @click="bookmarkButton(film.id, film)">
+                                <v-icon size="25px">{{styleIcon(film.id, user.movies.mark, 'bookmark_border', 'bookmark')}}</v-icon>
                             </v-btn>
                             <span>Bookmark</span>
                         </v-tooltip>  
@@ -142,8 +150,16 @@
                     <!-- poster -->
                     <div class="poster_wrapper">
                         <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
-
+                             
                             <figure class="item_content animated" >
+
+                                <v-tooltip class="eye" v-if="isItem(film.id, user.movies.seen)" left color="primary">
+                                    <v-icon slot="activator" size="25px" color="secondary">
+                                        visibility
+                                    </v-icon>
+                                    <span>You've already seen this movie</span>
+                                </v-tooltip>
+                              
                                 <img class="item_img" v-bind:src="film.poster_path" alt="">
                                 <figcaption class="item_hover">
                                     <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
@@ -151,6 +167,7 @@
                             </figure>
 
                         </router-link>
+
                         <div class="poster_shadow--colored" v-bind:style="{ 
                             backgroundImage: 'url(' + film.poster_path + ')',
                             backgroundSize: 'cover',
@@ -163,8 +180,8 @@
                         <div class="item_rate"> {{film.vote_average}}% </div>
                         <!-- bookmark -->
                         <v-tooltip class="item_delete" left color="primary">
-                            <v-btn v-model="mark" slot="activator" small fab depressed icon @click="markingButton(film.id, film)">
-                                <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
+                            <v-btn v-model="mark" slot="activator" small fab depressed icon @click="bookmarkButton(film.id, film)">
+                                <v-icon size="25px">{{styleIcon(film.id, user.movies.mark, 'bookmark_border', 'bookmark')}}</v-icon>
                             </v-btn>
                             <span>Bookmark</span>
                         </v-tooltip>
@@ -343,6 +360,32 @@ export default {
                 this.searchInput.loading = false
             }) 
         },
+        // decide if item is in array
+        isItem(id, arr){
+            return arr.findIndex(el => el.iId == id) !== -1
+        },
+
+        getDbData(userId, movieList, dbName){
+
+            db.collection(dbName).where('user', '==', userId)
+            .onSnapshot((snapshot) => {
+                snapshot.docChanges().forEach(change => {
+                    // add movie to array if movie is add to database
+                    if (change.type == 'added') {
+                        let record = change.doc.data()
+                        record.id = change.doc.id
+                        movieList.push(record)
+                    }
+                    // remove movie from array if movie is remove from database
+                    if (change.type == 'removed') {
+                        movieList = movieList.filter(item =>{
+                            return item.id != change.doc.id
+                        }) 
+                    }
+                })
+            })
+
+        },
         // get data from firebase
         getFirebaseData(){
             // get current user from firebase if user is login
@@ -354,37 +397,23 @@ export default {
                         this.user.id = doc.id
 
                         // read firebase database in real time
-                        db.collection('movies_marked').where('user', '==', this.user.id)
-                        .onSnapshot((snapshot) => {
-                            snapshot.docChanges().forEach(change => {
-                                // add movie to array if movie is add to database
-                                if (change.type == 'added') {
-                                    let record = change.doc.data()
-                                    record.id = change.doc.id
-                                    this.user.movies.mark.push(record)
-                                }
-                                // remove movie from array if movie is remove from database
-                                if (change.type == 'removed') {
-                                    this.user.movies.mark = this.user.movies.mark.filter(item =>{
-                                        return item.id != change.doc.id
-                                    }) 
-                                }
-                            })
-                        })
+                        // movies in watchlist
+                        this.getDbData(this.user.id, this.user.movies.mark, 'watchlist')
+                        // seen movies
+                        this.getDbData(this.user.id, this.user.movies.seen, 'seen')
+
+                        
+
                     })
                 }) 
             }  
         },
         // BOOKMARK BUTTON
-        // decide if movie is already marked
-        isMarked(id){
-            return this.user.movies.mark.findIndex(el => el.iId == id) !== -1
-        },
         // add movie to watchlist and send to firebase
-        addMarkedItem(id, arr){
+        addMarkedItem(id, obj){
 
-            this.movieData = arr
-            db.collection('movies_marked').add({
+            this.movieData = obj
+            db.collection('watchlist').add({
                 id:     "",
                 iId:    this.movieData.id,
                 title:  this.movieData.title,
@@ -392,7 +421,9 @@ export default {
                 poster: this.movieData.poster_path,
                 rate:   this.movieData.vote_average,
                 year:   this.movieData.release_date,
-                user:   this.user.id
+                user:   this.user.id,
+                type: "movie",
+                href: "singleMovie"
 
             }).then(() => {
                 // alert type and settings
@@ -407,12 +438,12 @@ export default {
         // delete movie from firebase
         deleteMarkedItem(id){
             // *iId (item id) is id of movie from API and id is id of item in firebase
-            db.collection('movies_marked').where('user', '==', this.user.id).where('iId', '==', id).get()
+            db.collection('watchlist').where('user', '==', this.user.id).where('iId', '==', id).get()
             .then(snapshot => {
                 // id of item in firebase
                 let snapshotID = snapshot.docs[0].id
                 // delete item from firebase
-                db.collection('movies_marked').doc(snapshotID).delete().then(()=> {
+                db.collection('watchlist').doc(snapshotID).delete().then(()=> {
                     // delete from local array
                     this.user.movies.mark = this.user.movies.mark.filter(item =>{
                         return item.id != snapshotID
@@ -430,19 +461,19 @@ export default {
         },
 
         // add or remove bookmark
-        markingButton(id, arr){
+        bookmarkButton(id, obj){
           
            // if user is login then:
             if(firebase.auth().currentUser){
                 // if movie is not mark then:
-                if (this.isMarked(id)) {
+                if (this.isItem(id, this.user.movies.mark)) {
                     // add movie to mark
                     this.deleteMarkedItem(id)
                
                 // if movie is mark then:
-                } else if (!this.isMarked(id)) {
+                } else if (!this.isItem(id, this.user.movies.mark)) {
                     // delete movie from mark 
-                    this.addMarkedItem(id, arr)
+                    this.addMarkedItem(id, obj)
                 }
             // if user is not login then:
             } else {
@@ -452,23 +483,30 @@ export default {
             }
 
         },
-        // stylize marking button depending on whether the movie is mark
-        styleMarkIcon(id){
+
+        // stylize button 
+        // id = film.id, arr = film array, before = icon name, after = icon name
+        styleIcon(id, arr, before, after){
             // if user is login then:
             if(firebase.auth().currentUser){
-                // if movie is marked then:    
-                if (this.isMarked(id)) {
+                // if movie is seen then:    
+                if (this.isItem(id, arr)) {
                     // slyle icon
-                    return "bookmark"
+                    return after
                     // if not:
-                } else if (!this.isMarked(id)) {
+                } else if (!this.isItem(id, arr)) {
                     // style icon
-                    return "bookmark_border"
+                    return before
                 }
             // if user is not login style icon
-            } else return "bookmark_border"
+            } else return before
             
         },
+
+
+
+
+
         // API DATABASE
         // get data from database with query
         searchItems() {

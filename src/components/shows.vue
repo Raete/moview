@@ -352,7 +352,7 @@ export default {
                         this.user.id = doc.id
 
                         // read firebase database in real time
-                        db.collection('shows_marked').where('user', '==', this.user.id)
+                        db.collection('watchlist').where('user', '==', this.user.id)
                         .onSnapshot((snapshot) => {
                             snapshot.docChanges().forEach(change => {
                                 // add tv show to array if tv show is add to database
@@ -382,7 +382,7 @@ export default {
         addMarkedItem(id, arr){
 
             this.showData = arr
-            db.collection('shows_marked').add({
+            db.collection('watchlist').add({
                 id: "",
                 iId: this.showData.id,
                 title: this.showData.original_name,
@@ -390,7 +390,9 @@ export default {
                 poster: this.showData.poster_path,
                 rate: this.showData.vote_average,
                 year: this.showData.first_air_date,
-                user: this.user.id
+                user: this.user.id,
+                type: "show",
+                href: "singleShow"
 
             }).then(() => {
                 // alert type and settings
@@ -406,12 +408,12 @@ export default {
         // delete tv show from firebase
         deleteMarkedItem(id){
             // *iId (item id) is id of tv show from API and id is id of item in firebase
-            db.collection('shows_marked').where('user', '==', this.user.id).where('iId', '==', id).get()
+            db.collection('watchlist').where('user', '==', this.user.id).where('iId', '==', id).get()
             .then(snapshot => {
                 // id of item in firebase
                 let snapshotID = snapshot.docs[0].id
                 // delete item from firebase
-                db.collection('shows_marked').doc(snapshotID).delete().then(()=> {
+                db.collection('watchlist').doc(snapshotID).delete().then(()=> {
                     // delete from local array
                     this.user.shows.mark = this.user.shows.mark.filter(item =>{
                         return item.id != snapshotID

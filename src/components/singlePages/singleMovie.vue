@@ -34,8 +34,16 @@
                 </v-card-text>
                 <v-card-actions> 
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" round flat @click.native="ratingButton()">{{styleSaveRateBtn($route.params.id)}}</v-btn>
-                    <v-btn v-if="isRated($route.params.id)" color="primary" round flat @click.native="deleteRateItem($route.params.id)">Delete rating</v-btn>
+                    <!-- save rating -->
+                    <v-btn color="primary" round flat @click.native="ratingButton()">
+                        {{styleText($route.params.id, user.movies.rate, 'Save rating', 'Update rating')}}
+                  
+                    </v-btn>
+                     <!-- delete rating -->
+                    <v-btn v-if="isItem($route.params.id, user.movies.rate)" color="primary" round flat @click.native="deleteItemFromDB($route.params.id, user.movies.rate, 'rated')">
+                        Delete rating
+                    </v-btn>
+
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -91,11 +99,24 @@
                     </v-btn>
                 
                 </header>
-                <!-- bookmark button -->
-                <v-btn class="btn_mark btn_animated_left" color="primary" flat round @click="markingButtonDetail()" >
-                    <v-icon size="25px" color="primary"> {{styleMarkIcon($route.params.id)}} </v-icon>
-                    {{this.styleMarkText($route.params.id)}}
-                </v-btn>
+                
+                <div class="info_rate_wrapper">
+                    <!-- bookmark button -->
+                    <v-btn class="btn_mark btn_animated_left" color="primary" flat round @click="toggleItemInDB($route.params.id, user.movies.mark, 'watchlist')" >
+                        <v-icon size="25px" color="primary"> 
+                            {{styleIcon($route.params.id, user.movies.mark, 'bookmark_border', 'bookmark')}} 
+                        </v-icon>
+                        {{styleText($route.params.id, user.movies.mark, 'Add to watchlist', 'Remove from watchlist')}}
+                    </v-btn>
+
+                    <!-- seen button -->
+                    <v-btn class="btn_mark btn_animated_right" color="primary" flat round @click="toggleItemInDB($route.params.id, user.movies.seen, 'seen')">
+                        <v-icon size="25px" color="primary"> 
+                            {{styleIcon($route.params.id, user.movies.seen, 'visibility', 'visibility_off')}} 
+                        </v-icon>
+                        {{styleText($route.params.id, user.movies.seen, 'Add to seen', 'Remove from seen')}}
+                    </v-btn>
+                </div>
 
                 <!-- movie detail info -->
                 <section  class="info_wrapper">
@@ -236,7 +257,7 @@
                             <!-- bookmark -->
                             <v-tooltip class="item_delete" left color="primary">
                                 <v-btn v-model="mark" slot="activator" small fab depressed icon @click="markingButton(film.id, film)">
-                                    <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
+                                    <v-icon size="25px">{{styleIcon(film.id, user.movies.mark, 'bookmark_border', 'bookmark')}}</v-icon>
                                 </v-btn> 
                                 <span>Bookmark</span>
                             </v-tooltip>
@@ -284,7 +305,7 @@
                             <!-- bookmark -->
                             <v-tooltip class="item_delete" left color="primary">
                                 <v-btn v-model="mark" slot="activator" small fab depressed icon @click="markingButton(film.id, film)">
-                                    <v-icon size="25px">{{styleMarkIcon(film.id)}}</v-icon>
+                                    <v-icon size="25px">{{styleIcon(film.id, user.movies.mark, 'bookmark_border', 'bookmark')}}</v-icon>
                                 </v-btn> 
                                 <span>Bookmark</span>
                             </v-tooltip>
@@ -449,6 +470,34 @@ export default {
             this.show.recommend = true,
             this.show.similar = false
         },
+
+        getDbData(userId, movieList, dbName){
+            // read firebase database in real time
+            db.collection(dbName).where('user', '==', userId)
+            .onSnapshot((snapshot) => {
+                snapshot.docChanges().forEach(change => {
+                    // if marked movie is add to the database then:
+                    if (change.type == 'added') {
+                        // read record and save to array
+                        let record = change.doc.data()
+                        record.id = change.doc.id
+
+                        if (record.type == "movie") {
+                            movieList.push(record)
+                        }                                  
+                    }
+                    // if marked movie is remove to the database then:
+                    if (change.type == 'removed') {
+                        // remove movie from array
+                        movieList = movieList.filter(item =>{
+                            return item.id != change.doc.id
+                        }) 
+                    }    
+                })
+            })
+
+        },
+
         // get data from firebase
         getFirebaseData(){
             // get current user from firebase if user is login
@@ -460,7 +509,7 @@ export default {
                         //user slug
                         this.user.id = doc.id
                         // get user rate from database
-                        db.collection('movies_rated').where('user', '==', this.user.id).where('iId', '==', this.$route.params.id).get()
+                        db.collection('rated').where('user', '==', this.user.id).where('iId', '==', this.$route.params.id).get()
                         .then(snapshot => {    
                              
                             if (snapshot.docs[0]) {
@@ -468,30 +517,13 @@ export default {
                             }   
                                 
                         }) 
+                        // get movies in watchlist
+                        this.getDbData(this.user.id, this.user.movies.mark, 'watchlist')
+                        // get seen movies
+                        this.getDbData(this.user.id, this.user.movies.seen, 'seen')
 
                         // read firebase database in real time
-                        db.collection('movies_marked').where('user', '==', this.user.id)
-                        .onSnapshot((snapshot) => {
-                            snapshot.docChanges().forEach(change => {
-                                // if marked movie is add to the database then:
-                                if (change.type == 'added') {
-                                    // read record and save to array
-                                    let record = change.doc.data()
-                                    record.id = change.doc.id
-                                    this.user.movies.mark.push(record)
-                                }
-                                // if marked movie is remove to the database then:
-                                if (change.type == 'removed') {
-                                    // remove movie from array
-                                    this.user.movies.mark = this.user.movies.mark.filter(item =>{
-                                        return item.id != change.doc.id
-                                    }) 
-                                }    
-                            })
-                        })
-
-                        // read firebase database in real time
-                        db.collection('movies_rated').where('user', '==', this.user.id)
+                        db.collection('rated').where('user', '==', this.user.id)
                         .where('iId', '==', this.$route.params.id)
                         .onSnapshot((snapshot) => {
                             snapshot.docChanges().forEach(change => {
@@ -503,7 +535,11 @@ export default {
                                     // read record and save to array
                                     let record = change.doc.data()
                                     record.id = change.doc.id
-                                    this.user.movies.rate.push(record)
+
+                                    if(record.type == "movie") {
+                                        this.user.movies.rate.push(record)
+                                    }
+                                  
                                 }
                                 // if marked movie is remove to the database then:
                                 if (change.type == 'removed') {
@@ -514,49 +550,28 @@ export default {
                                 } 
                             })  
                         })
+                    
                     })
                 })
             }
         },
-        // RATE BUTTON 
-        // decide if movie is already rated
-        isRated(id){
-            return this.user.movies.rate.findIndex(el => el.iId == id) !== -1
+    
+        // decide if item is in array
+        isItem(id, arr){
+            return arr.findIndex(el => el.iId == id) !== -1
         },
 
         rateLabel(val) {
             return this.rating[val]
         },
-        // add movie to wishlist
-        addRateItem(){
-            // create new marked object with id, title and poster path... in firebase
-            db.collection('movies_rated').add({
-                id: "", // id in firebase - autogenerated by firebase
-                iId: this.$route.params.id, // item id from API
-                title: this.detail.data.title,
-                poster: this.detail.data.poster_path,
-                year: this.detail.data.release_date,
-                rate: this.detail.data.vote_average,
-                genres: this.detail.data.genres,
-                user: this.user.id,
-                user_rate: this.user.movies.curRate
-
-            }).then(() => {
-                // alert type and settings
-                this.alert.type = "success"
-                this.infoAlert("Successfully rated")
-
-            }).catch(err => {
-                console.log(err)
-            })
-        },
+        
         // add movie to wishlist
         updateRateItem(id){
              // *iId (item id) is id of movie from API and id is id of item in firebase
-            db.collection('movies_rated').where('user', '==', this.user.id).where('iId', '==', id).get()
+            db.collection('rated').where('user', '==', this.user.id).where('iId', '==', id).get()
             .then(snapshot => {
                 snapshot.forEach(doc => {
-                    db.collection('movies_rated').doc(doc.id).update({
+                    db.collection('rated').doc(doc.id).update({
                         user_rate: this.user.movies.curRate
 
                     }).then(() => {
@@ -570,39 +585,23 @@ export default {
                 })
             })
         },
-        // delete movie from 
-        deleteRateItem(id){
-            // *iId (item id) is id of movie from API and id is id of item in firebase
-            db.collection('movies_rated').where('user', '==', this.user.id).where('iId', '==', id).get()
-            .then(snapshot => {
-                snapshot.forEach(doc => {
-                    db.collection('movies_rated').doc(doc.id).delete().then(()=> {
-                        this.user.movies.rate = this.user.movies.rate.filter(item =>{
-                            return item.id != doc.id
-                        })
-                    })  
-                })
-            })
-            // alert type and settings
-            this.alert.type = "success"
-            this.infoAlert("Successfully removed rate.")     
-            this.box.rate = false
-        },
+        
 
         // add or remove button
         ratingButton(){
             // if user is login then:
             if(firebase.auth().currentUser){
                 // if movie is not marked then:
-                if (this.isRated(this.$route.params.id)) {
-                    // add movie to marked
+                if (this.isItem(this.$route.params.id, this.user.movies.rate)) {
+            
                     this.updateRateItem(this.$route.params.id)
-                   // this.deleteRateItem(this.$route.params.id)
+            
 
                 // if movie is marked then:
-                } else if (!this.isRated(this.$route.params.id)) {
-                    // delete movie from marked 
-                    this.addRateItem()
+                } else if (!this.isItem(this.$route.params.id, this.user.movies.rate)) {
+               
+                  
+                    this.addItemToDB('rated')
                 }
             // if user is not login then:
             } else {
@@ -619,33 +618,20 @@ export default {
             // if user is login then:
             if(firebase.auth().currentUser){
 
-                if (this.isRated(id)) {
+                if (this.isItem(this.$route.params.id, this.user.movies.rate)) {
                     return `Your rate is: ${this.user.movies.curRate}%`
-                } else if (!this.isRated(id)) {
+                } else if (!this.isItem(this.$route.params.id, this.user.movies.rate)) {
                     return "Rate movie"
                 }
             } else return "Rate movie"
         },
-        // text button
-        styleSaveRateBtn(id){
-         
-            if (this.isRated(id)) {
-                return "Update rating"
-            } else if (!this.isRated(id)) {
-                return "Save rating"
-            }
-         
-        },
-
-        // BOOKMARK BUTTON in movie detail
-        // decide if movie is already marked
-        isMarked(id){
-            return this.user.movies.mark.findIndex(el => el.iId == id) !== -1
-        },
-        // add movie to wishlist
-        addMarkedItemDetail(){
+        
+ 
+ 
+        addItemToDB(dbName){
+            
             // create new marked object with id, title and poster path... in firebase
-            db.collection('movies_marked').add({
+            db.collection(dbName).add({
                 id: "", // id in firebase - autogenerated by firebase
                 iId: this.$route.params.id, // item id from API
                 title: this.detail.data.title,
@@ -654,25 +640,29 @@ export default {
                 rate: this.detail.data.vote_average,
                 genres: this.detail.data.genres,
                 user: this.user.id,
-                user_rate: this.user.movies.curRate
+                user_rate: this.user.movies.curRate,
+                type: "movie",
+                href: "singleMovie"
 
             }).then(() => {
                 // alert type and settings
                 this.alert.type = "success"
-                this.infoAlert("Successfully added to watchlist")
+
+                this.infoAlert(`Successfully added to ${dbName}.`)
 
             }).catch(err => {
                 console.log(err)
             })
         },
-        // delete movie from wishlist
-        deleteMarkedItem(id){
+
+    
+        deleteItemFromDB(itemID, movieList, dbName){
             // *iId (item id) is id of movie from API and id is id of item in firebase
-            db.collection('movies_marked').where('user', '==', this.user.id).where('iId', '==', id).get()
+            db.collection(dbName).where('user', '==', this.user.id).where('iId', '==', itemID).get()
             .then(snapshot => {
                 snapshot.forEach(doc => {
-                    db.collection('movies_marked').doc(doc.id).delete().then(()=> {
-                        this.user.movies.mark = this.user.movies.mark.filter(item =>{
+                    db.collection(dbName).doc(doc.id).delete().then(()=> {
+                        movieList = movieList.filter(item =>{
                             return item.id != doc.id
                         })
                     })  
@@ -680,26 +670,25 @@ export default {
             })
             // alert type and settings
             this.alert.type = "success"
-            this.infoAlert("Successfully removed from watchlist.")     
-        },
+            this.infoAlert(`Successfully removed from ${dbName}.`)     
 
-        // alert messages
-        infoAlert(alertText){
-            this.$store.commit('infoAlert', alertText)
+            this.box.rate = false
         },
         
-        // add or remove button
-        markingButtonDetail(){
+        // add item do database or remove item from database 
+        // itemID = movie id, movieList = movie array, dbName = name of firebase database
+        toggleItemInDB(itemID, movieList, dbName ){
+   
             // if user is login then:
             if(firebase.auth().currentUser){
                 // if movie is not marked then:
-                if (this.isMarked(this.$route.params.id)) {
+                if (this.isItem(itemID, movieList)) {
                     // add movie to marked
-                    this.deleteMarkedItem(this.$route.params.id)
+                    this.deleteItemFromDB(itemID, movieList, dbName)
                 // if movie is marked then:
-                } else if (!this.isMarked(this.$route.params.id)) {
+                } else if (!this.isItem(itemID, movieList)) {
                     // delete movie from marked 
-                    this.addMarkedItemDetail()
+                    this.addItemToDB(dbName)
                 }
             // if user is not login then:
             } else {
@@ -708,13 +697,63 @@ export default {
                 this.infoAlert("You must log in.")
             }
         },
-       
+
+ 
+        
+
+        // stylize button 
+        // id = film.id, arr = film array, before = icon name, after = icon name
+        styleIcon(id, arr, before, after){
+            // if user is login then:
+            if(firebase.auth().currentUser){
+                // if movie is seen then:    
+                if (this.isItem(id, arr)) {
+                    // slyle icon
+                    return after
+                    // if not:
+                } else if (!this.isItem(id, arr)) {
+                    // style icon
+                    return before
+                }
+            // if user is not login style icon
+            } else return before
+            
+        },
+
+        // id = film.id, arr = film array, before = text, after = text
+        styleText(id, arr, before, after){
+            // if user is login then:
+            if(firebase.auth().currentUser){
+                // if movie is seen then:    
+                if (this.isItem(id, arr)) {
+                    // slyle text
+                    return after
+                    // if not:
+                } else if (!this.isItem(id, arr)) {
+                    // style text
+                    return before
+                }
+            // if user is not login style text
+            } else return before
+            
+        },
+
+        // alert messages
+        infoAlert(alertText){
+            this.$store.commit('infoAlert', alertText)
+        },
+
+
+
+
+
+
         // BOOKMARK BUTTON in recommend movies
         // add movie to watchlist and send to firebase*
-        addMarkedItem(id, arr){
+        addMarkedItem(id, obj){
 
-            this.movieData = arr
-            db.collection('movies_marked').add({
+            this.movieData = obj
+            db.collection('watchlist').add({
                 id: "",
                 iId: this.movieData.id,
                 title: this.movieData.title,
@@ -722,7 +761,9 @@ export default {
                 poster: this.movieData.poster_path,
                 rate: this.movieData.vote_average,
                 year: this.movieData.release_date,
-                user: this.user.id
+                user: this.user.id,
+                type: "movie",
+                href: "singleMovie"
 
             }).then(() => {
                 // alert type and settings
@@ -735,18 +776,19 @@ export default {
             })
         },
         // add or remove bookmark
-        markingButton(id, arr){
+        markingButton(id, obj){
             // if user is login then:
             if(firebase.auth().currentUser){
                 // if movie is not marked then:
-                if (this.isMarked(id)) {
-                    // add movie to wishlist
-                    this.deleteMarkedItem(id)
+                if (this.isItem(id, this.user.movies.mark)) {
+                  
+               
+                    this.deleteItemFromDB(id, this.user.movies.mark, 'watchlist')
                
                 // if movie is marked then:
-                } else if (!this.isMarked(id)) {
-                    // delete movie from wishlist 
-                    this.addMarkedItem(id, arr)
+                } else if (!this.isItem(id, this.user.movies.mark)) {
+                 
+                    this.addMarkedItem(id, obj)
                 }
             // if user is not login then:
             } else {
@@ -756,32 +798,16 @@ export default {
             }
         },
 
-        // stylize marking button depending on whether the movie is mark
-        // icon button
-        styleMarkIcon(id){
-            // if user is login then:
-            if(firebase.auth().currentUser){
-       
-                if (this.isMarked(id)) {
-                    return "bookmark"
-                } else if (!this.isMarked(id)) {
-                    return "bookmark_border"
-                }
-            } else return "bookmark_border"
-            
-        },
-        // text button
-        styleMarkText(id){
-            // if user is login then:
-            if(firebase.auth().currentUser){
 
-                if (this.isMarked(id)) {
-                    return "Remove from watchlist"
-                } else if (!this.isMarked(id)) {
-                    return "Add to watchlist"
-                }
-            } else return "Add to watchlist"
-        },
+
+
+
+
+
+
+
+
+
 
         // API DATABASE
         // get movie data from API database
@@ -994,6 +1020,11 @@ export default {
 
     .rating_wrapper {
         padding: 30px
+    }
+
+    .flex {
+        display: flex;
+        align-items: flex-start
     }
 
 
