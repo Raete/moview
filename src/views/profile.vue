@@ -55,7 +55,7 @@
 
             
             <!-- watchlist -->
-            <v-tab-item id="watchlist">
+            <v-tab-item value="watchlist">
             
                 <h1 class="list_heading">My watchlist</h1>
                  <!-- menu -->
@@ -115,7 +115,7 @@
             
         
 
-            <v-tab-item id="rating">
+            <v-tab-item value="rating">
              
                 
                 <!-- ratings -->
@@ -174,7 +174,7 @@
                   
             </v-tab-item>
 
-            <v-tab-item id="seen">
+            <v-tab-item value="seen">
             
                 <h1 class="list_heading">My seen</h1>
                  <!-- menu -->
@@ -591,7 +591,7 @@ export default {
                             record.id = doc.id
 
                             this.user.seen.all.push(record)
-                            console.log(this.user.seen.all)
+                            
 
                             if(record.type == "show") {
                                 this.user.seen.shows.push(record)
