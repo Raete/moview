@@ -36,7 +36,6 @@
                             ></v-text-field>
                             <v-btn round large block class="claim_btn" color="primary" @click.prevent="login" exact> Login </v-btn>
                             <p class="info_text">New to Moview? <span v-on:click="showSignUp">Sign up now</span></p>
-                            <p class="info_text info_text--pass">Lost your password?<br> Bad, I don't have it.</p>
                             <p v-if="feedback" class="feedback">{{ feedback }}</p>
                         </v-form>
                         <!-- google login --> 
@@ -242,15 +241,15 @@ export default {
             // ...
             })
             .catch(function(error) {
-            // Handle Errors here.
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            // The email of the user's account used.
-            var email = error.email;
-            // The firebase.auth.AuthCredential type that was used.
-            var credential = error.credential;
-            // ...
-});
+                // Handle Errors here.
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                // The email of the user's account used.
+                var email = error.email;
+                // The firebase.auth.AuthCredential type that was used.
+                var credential = error.credential;
+                // ...
+            });
         }
     }
 }

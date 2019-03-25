@@ -2,14 +2,14 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import firebase from 'firebase'
 
-import Login from '@/components/login'
-import Movies from '@/components/movies'
-import Shows from '@/components/shows'
-import Profile from '@/components/profile'
+import Login from '@/views/login'
+import Movies from '@/views/movies'
+import Shows from '@/views/shows'
+import Profile from '@/views/profile'
 
-import SingleMovie from '@/components/singlePages/singleMovie'
-import SingleShow from '@/components/singlePages/singleShow'
-import SingleActor from '@/components/singlePages/singleActor'
+import SingleMovie from '@/views/singlePages/singleMovie'
+import SingleShow from '@/views/singlePages/singleShow'
+import SingleActor from '@/views/singlePages/singleActor'
 
 
 Vue.use(Router)
