@@ -1,5 +1,10 @@
 import firebase from 'firebase/app'
+
+import 'firebase/firestore'
+import 'firebase/auth'
+import 'firebase/storage'
 import 'firebase/database'
+
 //import firestore from 'firebase/firestore'
 
 // Initialize Firebase
@@ -12,7 +17,7 @@ var config = {
     storageBucket: "",
     messagingSenderId: ""
   };
-const firebaseApp = firebase.initializeApp(config);
-firebaseApp.firestore().settings({ timestampsInSnapshots: true });
-
-export default firebaseApp.firestore()
+  const firebaseApp = firebase.initializeApp(config);
+  // firebaseApp.firestore().settings({ timestampsInSnapshots: true });
+  
+  export default firebaseApp.firestore()

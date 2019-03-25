@@ -3,7 +3,7 @@ import Vuex from 'vuex';
 
 Vue.use(Vuex);
 
-export const store = new Vuex.Store({
+export default new Vuex.Store({
     state: {
         // base url 
         URL: { 
@@ -15,10 +15,10 @@ export const store = new Vuex.Store({
         },
         // img holders
         holder: {
-            photo: require('../assets/img/holders/photo.svg'),
-            person: require('../assets/img/holders/person.svg'),
-            episode: require('../assets/img/holders/episode.svg'),
-            detail: require('../assets/img/holders/detail.svg'),
+            photo: require('./assets/img/holders/photo.svg'),
+            person: require('./assets/img/holders/person.svg'),
+            episode: require('./assets/img/holders/episode.svg'),
+            detail: require('./assets/img/holders/detail.svg'),
         },
 
         items: {
@@ -104,13 +104,13 @@ export const store = new Vuex.Store({
             movies: {
                 mark: [],
                 rate: [],
+                seen: [],
                 curRate: "",
-                userRate: null
-                
             },
             shows: {
                 mark: [],
                 rate: [],
+                seen: [],
                 curRate: ""
             },
         },
