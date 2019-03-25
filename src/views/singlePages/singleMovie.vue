@@ -3,7 +3,7 @@
         <div class="loading" v-if="loading">
             <img src="@/assets/img/svg/loader.svg" alt="loading..." >
         </div>
-        <!-- opened rating slider-->
+        <!-- opened RATING SLIDER -->
         <v-dialog v-model="box.rate" width="700">
             <v-card> 
                 <v-card-actions>
@@ -37,7 +37,6 @@
                     <!-- save rating -->
                     <v-btn color="primary" round flat @click.native="ratingButton()">
                         {{styleText($route.params.id, user.movies.rate, 'Save rating', 'Update rating')}}
-                  
                     </v-btn>
                      <!-- delete rating -->
                     <v-btn v-if="isItem($route.params.id, user.movies.rate)" color="primary" round flat @click.native="deleteItemFromDB($route.params.id, user.movies.rate, 'rated')">
@@ -47,7 +46,8 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <!-- opened video trailer -->
+
+        <!-- opened VIDEO TRAILER -->
         <v-dialog v-model="box.video" width="700" >
             <v-card class="dialog_video"> 
                 <v-card-actions>
@@ -61,7 +61,8 @@
                 </v-card-text>
             </v-card>
         </v-dialog>
-        <!-- opened full overview -->
+
+        <!-- opened FULL OVERVIEW -->
         <v-dialog v-model="box.overview" width="600px" >
             <v-card class="overview_more">
                 <v-card-actions>
@@ -73,7 +74,8 @@
                 <v-card-text >{{detail.data.overview}}</v-card-text>
             </v-card>
         </v-dialog>
-        <!-- main container -->
+
+        <!-- main container  POSTER AND MOVIE INFO -->
         <main v-if="!loading" class="main animated" v-bind:style="{ 
             backgroundImage: 'url(' + detail.data.backdrop_path + ')',
             backgroundSize: 'cover',
@@ -134,6 +136,7 @@
                             </span>   
                         </h1>
                     </div>
+
                     <!-- movie tags -->
                     <ul class="info_tags">
                         <li v-for="(tag, index) in detail.data.genres" :key="index" class="info_tag">{{tag.name}}</li>
@@ -161,7 +164,8 @@
                 </section>
             </section>
         </main>
-        <!-- cast and crew section -->
+
+        <!-- CAST AND CREW section -->
         <section v-if="is.credits" class="cast animated">
             <div class="cast_wrapper" v-if="!loading">
                 <v-expansion-panel :value="panel">
@@ -208,24 +212,21 @@
                 </v-expansion-panel>
             </div> 
         </section>
-        <!-- menu -->
+
+        <!-- menu recommend and similar movies -->
         <v-toolbar flat v-if="is.similar || is.recommend">
             <v-spacer></v-spacer>
-            <v-toolbar-items>
-
-                <v-btn-toggle v-model="menuItem" mandatory>
-                    <v-btn v-if="is.similar" flat @click="showSimilar">
+                <v-btn-toggle max v-model="menuItem" mandatory>
+                    <v-btn class="mr-2" v-if="is.similar" flat @click="showSimilar">
                         Similar movies
                     </v-btn>
                     <v-btn v-if="is.recommend" flat @click="showRecommend">
                         Recommendations
                     </v-btn>
                 </v-btn-toggle>
-
-            </v-toolbar-items>
             <v-spacer></v-spacer>
         </v-toolbar>
-
+        
         <!-- movies recommendations -->
         <section class="animated" v-if="is.recommend && show.recommend"> 
             <div class="item_container">
@@ -237,6 +238,14 @@
                             <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
 
                                 <figure class="item_content animated" >
+                                    <!-- seen icon --> 
+                                    <v-tooltip class="eye" v-if="isItem(film.id, user.movies.seen)" left color="primary">
+                                        <v-icon slot="activator" size="25px" color="secondary">
+                                            visibility
+                                        </v-icon>
+                                        <span>You've already seen this movie</span>
+                                    </v-tooltip>
+
                                     <img class="item_img" v-bind:src="film.poster_path" alt="">
                                     <figcaption class="item_hover">
                                         <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
@@ -244,6 +253,7 @@
                                 </figure>
 
                             </router-link>
+                            <!-- shadow -->
                             <div class="poster_shadow--colored" v-bind:style="{ 
                                 backgroundImage: 'url(' + film.poster_path + ')',
                                 backgroundSize: 'cover',
@@ -267,8 +277,6 @@
                                 <span class="item_year">{{film.release_date}}</span>
                             </router-link>
                         </div>
-                        
-                    
                     </div>
                 </div>
             </div>
@@ -285,6 +293,13 @@
                             <router-link :to="{ name: 'singleMovie', params: { id: film.id } }"> 
 
                                 <figure class="item_content animated" >
+                                    <!-- seen icon --> 
+                                    <v-tooltip class="eye" v-if="isItem(film.id, user.movies.seen)" left color="primary">
+                                        <v-icon slot="activator" size="25px" color="secondary">
+                                            visibility
+                                        </v-icon>
+                                        <span>You've already seen this movie</span>
+                                    </v-tooltip>
                                     <img class="item_img" v-bind:src="film.poster_path" alt="">
                                     <figcaption class="item_hover">
                                         <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
@@ -292,6 +307,7 @@
                                 </figure>
 
                             </router-link>
+                            <!-- shadow --> 
                             <div class="poster_shadow--colored" v-bind:style="{ 
                                 backgroundImage: 'url(' + film.poster_path + ')',
                                 backgroundSize: 'cover',
@@ -317,8 +333,6 @@
                             </router-link>
                             
                         </div>
-                        
-                    
                     </div>
                 </div>
             </div>
@@ -336,7 +350,12 @@
     </v-app>
     <app-footer></app-footer>
     <!-- go up button -->
-    <button @click="scrollToTop(300) " class="up" :class="{ up_active: show.backToTop }"> go to top</button>
+    <button 
+        @click="scrollToTop(300)" 
+        class="up" 
+        :class="{ up_active: show.backToTop }"> 
+        go to top
+    </button>
 
 </div></template>
 
@@ -363,16 +382,11 @@ export default {
             loading: false,
             // cast and crew expansion panel
             panel: 0,   
-            // bookmark movies in recommend
+            // bookmark movies in recommend or similar
             mark: "",
             movieData: {},
-
+            // similar and recommend menu - active item
             menuItem: 0,
-
-            
-            stars: 2,
-            
-
         }
     },
 
@@ -475,33 +489,16 @@ export default {
             this.show.similar = false
         },
 
-        getDbData(userId, movieList, dbName){
-            // read firebase database in real time
-            db.collection(dbName).where('user', '==', userId)
-            .onSnapshot((snapshot) => {
-                snapshot.docChanges().forEach(change => {
-                    // if marked movie is add to the database then:
-                    if (change.type == 'added') {
-                        // read record and save to array
-                        let record = change.doc.data()
-                        record.id = change.doc.id
-
-                        if (record.type == "movie") {
-                            movieList.push(record)
-                        }                                  
-                    }
-                    // if marked movie is remove to the database then:
-                    if (change.type == 'removed') {
-                        // remove movie from array
-                        movieList = movieList.filter(item =>{
-                            return item.id != change.doc.id
-                        }) 
-                    }    
-                })
-            })
-
+        // decide if item is in array
+        isItem(id, arr){
+            return arr.findIndex(el => el.iId == id) !== -1
         },
 
+        rateLabel(val) {
+            return this.rating[val]
+        },
+
+        // ** FIREBASE DATA ** //
         // get data from firebase
         getFirebaseData(){
             // get current user from firebase if user is login
@@ -522,7 +519,8 @@ export default {
                                 
                         }) 
 
-
+                        // read firebase database in real time
+                        // watchlist database
                         db.collection('watchlist').where('user', '==', this.user.id)
                         .onSnapshot((snapshot) => {
                             snapshot.docChanges().forEach(change => {
@@ -546,6 +544,7 @@ export default {
                             })
                         })
 
+                        // seen database
                         db.collection('seen').where('user', '==', this.user.id)
                         .onSnapshot((snapshot) => {
                             snapshot.docChanges().forEach(change => {
@@ -569,23 +568,7 @@ export default {
                             })
                         })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                        // read firebase database in real time
+                        // rated database
                         db.collection('rated').where('user', '==', this.user.id)
                         .where('iId', '==', this.$route.params.id)
                         .onSnapshot((snapshot) => {
@@ -613,84 +596,15 @@ export default {
                                 } 
                             })  
                         })
+
                     
                     })
                 })
             }
         },
-    
-        // decide if item is in array
-        isItem(id, arr){
-            return arr.findIndex(el => el.iId == id) !== -1
-        },
 
-        rateLabel(val) {
-            return this.rating[val]
-        },
-        
-        // add movie to wishlist
-        updateRateItem(id){
-             // *iId (item id) is id of movie from API and id is id of item in firebase
-            db.collection('rated').where('user', '==', this.user.id).where('iId', '==', id).get()
-            .then(snapshot => {
-                snapshot.forEach(doc => {
-                    db.collection('rated').doc(doc.id).update({
-                        user_rate: this.user.movies.curRate
-
-                    }).then(() => {
-                        // alert type and settings
-                        this.alert.type = "success"
-                        this.infoAlert("Successfully update")
-
-                    }).catch(err => {
-                        console.log(err)
-                    })
-                })
-            })
-        },
-        
-
-        // add or remove button
-        ratingButton(){
-            // if user is login then:
-            if(firebase.auth().currentUser){
-                // if movie is not marked then:
-                if (this.isItem(this.$route.params.id, this.user.movies.rate)) {
-            
-                    this.updateRateItem(this.$route.params.id)
-            
-
-                // if movie is marked then:
-                } else if (!this.isItem(this.$route.params.id, this.user.movies.rate)) {
-               
-                  
-                    this.addItemToDB('rated')
-                }
-            // if user is not login then:
-            } else {
-                // show alert 
-                this.alert.type = "error"
-                this.infoAlert("You must log in.")
-            }
-            this.box.rate = false
-        },
-
-        // stylize rating button depending on whether the movie is rated
-        // text button
-        styleRateText(id){
-            // if user is login then:
-            if(firebase.auth().currentUser){
-
-                if (this.isItem(this.$route.params.id, this.user.movies.rate)) {
-                    return `Your rate is: ${this.user.movies.curRate}%`
-                } else if (!this.isItem(this.$route.params.id, this.user.movies.rate)) {
-                    return "Rate movie"
-                }
-            } else return "Rate movie"
-        },
-        
- 
- 
+        // add item to database
+        // dbName = name of database
         addItemToDB(dbName){
             
             // create new marked object with id, title and poster path... in firebase
@@ -718,7 +632,8 @@ export default {
             })
         },
 
-    
+        // delete item from database
+        // itemID = item id, movieList = array with items, dbName = name fo database
         deleteItemFromDB(itemID, movieList, dbName){
             // *iId (item id) is id of movie from API and id is id of item in firebase
             db.collection(dbName).where('user', '==', this.user.id).where('iId', '==', itemID).get()
@@ -738,19 +653,19 @@ export default {
             this.box.rate = false
         },
         
-        // add item do database or remove item from database 
+        // add item to database or remove item from database 
         // itemID = movie id, movieList = movie array, dbName = name of firebase database
         toggleItemInDB(itemID, movieList, dbName ){
    
             // if user is login then:
             if(firebase.auth().currentUser){
-                // if movie is not marked then:
-                if (this.isItem(itemID, movieList)) {
-                    // add movie to marked
-                    this.deleteItemFromDB(itemID, movieList, dbName)
                 // if movie is marked then:
+                if (this.isItem(itemID, movieList)) {
+                    // remove movie from watchlist
+                    this.deleteItemFromDB(itemID, movieList, dbName)
+                // if movie is not marked then:
                 } else if (!this.isItem(itemID, movieList)) {
-                    // delete movie from marked 
+                    // add movie to watchlist
                     this.addItemToDB(dbName)
                 }
             // if user is not login then:
@@ -761,8 +676,49 @@ export default {
             }
         },
 
- 
+        // RATING
+        // update rating
+        updateRateItem(id){
+             // *iId (item id) is id of movie from API and id is id of item in firebase
+            db.collection('rated').where('user', '==', this.user.id).where('iId', '==', id).get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    db.collection('rated').doc(doc.id).update({
+                        user_rate: this.user.movies.curRate
+
+                    }).then(() => {
+                        // alert type and settings
+                        this.alert.type = "success"
+                        this.infoAlert("Successfully update")
+
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                })
+            })
+        },
         
+        // toggle rating button
+        ratingButton(){
+            // if user is login then:
+            if(firebase.auth().currentUser){
+                // if movie is not rated:
+                if (this.isItem(this.$route.params.id, this.user.movies.rate)) {
+                    // update rating
+                    this.updateRateItem(this.$route.params.id)
+                // if movie is not rating:
+                } else if (!this.isItem(this.$route.params.id, this.user.movies.rate)) {
+                    // rate movie
+                    this.addItemToDB('rated')
+                }
+            // if user is not login then:
+            } else {
+                // show alert 
+                this.alert.type = "error"
+                this.infoAlert("You must log in.")
+            }
+            this.box.rate = false
+        },
 
         // stylize button 
         // id = film.id, arr = film array, before = icon name, after = icon name
@@ -801,18 +757,27 @@ export default {
             
         },
 
+        // stylize rating button depending on whether the movie is rated
+        // text button
+        styleRateText(id){
+            // if user is login then:
+            if(firebase.auth().currentUser){
+
+                if (this.isItem(this.$route.params.id, this.user.movies.rate)) {
+                    return `Your rate is: ${this.user.movies.curRate}%`
+                } else if (!this.isItem(this.$route.params.id, this.user.movies.rate)) {
+                    return "Rate movie"
+                }
+            } else return "Rate movie"
+        },
+
         // alert messages
         infoAlert(alertText){
             this.$store.commit('infoAlert', alertText)
         },
 
-
-
-
-
-
         // BOOKMARK BUTTON in recommend movies
-        // add movie to watchlist and send to firebase*
+        // add movie to watchlist and send to firebase
         addMarkedItem(id, obj){
 
             this.movieData = obj
@@ -838,6 +803,7 @@ export default {
                 console.log(err)
             })
         },
+
         // add or remove bookmark
         markingButton(id, obj){
             // if user is login then:
@@ -861,23 +827,11 @@ export default {
             }
         },
 
-
-
-
-
-
-
-
-
-
-
-
-        // API DATABASE
-        // get movie data from API database
+        // API DATABASE -- movie details
         getItemData() {
             //start setting - reset data
             this.init()
-            // API database
+            // get movie data from API database
             axios.get(`${this.URL.database}movie/${this.$route.params.id}${this.URL.apiKey}&append_to_response=videos,credits,recommendations,similar`)
             .then(res => {
            
@@ -1043,18 +997,28 @@ export default {
 
                 //** TRAILER **//
                 //************//
-                const URLvideo = "https://www.youtube.com/embed/"
-                this.detail.video = res.data.videos.results   
 
-                // set video url
-                this.detail.video.forEach((video)=>{   
+                 const URLvideo = "https://www.youtube.com/embed/"
+                 this.detail.video = res.data.videos.results  
+                 
+                 
+                let trailers = []
+                this.detail.video.map((video)=>{
+                    if(video.type == "Trailer") {
+                        trailers.push(video)
+
+                    }
+                })
+                
+                // // set video url
+                trailers.forEach((video)=>{   
                     if (video.key) {
                         video.key = URLvideo + video.key + "?rel=0&amp;autoplay=1"
                     } 
                     this.detail.video = video.key 
                 })
                 //show trailer button if video exist
-                !this.detail.video.length ? this.is.video = false : this.is.video = true 
+                !trailers.length ? this.is.video = false : this.is.video = true       
 
             }).then(()=> {
                 this.loading = false

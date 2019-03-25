@@ -106,8 +106,6 @@ export default new Vuex.Store({
                 rate: [],
                 seen: [],
                 curRate: "",
-                userRate: null
-                
             },
             shows: {
                 mark: [],

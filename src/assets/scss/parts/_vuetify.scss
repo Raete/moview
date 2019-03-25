@@ -17,9 +17,16 @@
     min-height: 0
 }
 // filters border
-.theme--light .v-text-field--solo .v-input__slot {
+// .theme--light .v-text-field--solo .v-input__slot {
+//     border-radius: 50px
+// }
+
+.theme--light.v-text-field--solo > .v-input__control > .v-input__slot {
     border-radius: 50px
 }
+
+
+
 // list in actor single background
 .theme--light .v-list {
     background: transparent;

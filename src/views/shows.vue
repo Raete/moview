@@ -1,9 +1,11 @@
 <template><div>
     <v-app>
         <app-menu></app-menu>
+        <!-- loading -->
         <div class="loading" v-if="loading">
             <img src="@/assets/img/svg/loader.svg" alt="loading..." >
         </div>
+        <!-- page title -->
         <h1 class="page_title">Discover new tv shows</h1>
         <!-- filters -->
         <section class="filters">
@@ -80,13 +82,14 @@
                         <router-link :to="{ name: 'singleShow', params: { id: film.id } }"> 
 
                             <figure class="item_content animated" >
-
+                                <!-- seen icon --> 
                                 <v-tooltip class="eye" v-if="isItem(film.id, user.shows.seen)" left color="primary">
                                     <v-icon slot="activator" size="25px" color="secondary">
                                         visibility
                                     </v-icon>
                                     <span>You've already seen this show</span>
                                 </v-tooltip>
+
                                 <img class="item_img" v-bind:src="film.poster_path" alt="">
                                 <figcaption class="item_hover">
                                     <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
@@ -94,6 +97,7 @@
                             </figure>
 
                         </router-link>
+                        <!-- shadow --> 
                         <div class="poster_shadow--colored" v-bind:style="{ 
                                 backgroundImage: 'url(' + film.poster_path + ')',
                                 backgroundSize: 'cover',
@@ -106,7 +110,7 @@
                         <div class="item_rate"> {{film.vote_average}}% </div>
                         <!-- bookmark -->
                         <v-tooltip class="item_delete" left color="primary">
-                            <v-btn v-model="mark" slot="activator" small fab depressed icon @click="bookmarkButton(film.id, film)">
+                            <v-btn v-model="mark" slot="activator" small fab depressed icon @click="toggleBookmark(film.id, film)">
                                 <v-icon size="25px">{{styleIcon(film.id, user.shows.mark, 'bookmark_border', 'bookmark')}}</v-icon>
                             </v-btn>  
                             <span>Bookmark</span>
@@ -116,12 +120,10 @@
                             <h1 class="item_name"> {{film.original_name}} </h1>
                             <span class="item_year">{{film.first_air_date}}</span>
                         </router-link>
-            
                     </div>
-                    
-                
-                </div>
-            </div> 
+                </div><!-- END  of item --> 
+            </div> <!-- END of item wrapper -->
+
              <!-- pagination --> 
             <div class="pages">
                 <div class="pages_wrapper">
@@ -137,6 +139,7 @@
                 </div>
             </div>
         </section>
+
         <!-- discover films -->    
         <section class="item_container" v-if="!searchInput.select">
             <div v-if="!loading" class="item_wrapper">
@@ -146,6 +149,7 @@
                         <router-link :to="{ name: 'singleShow', params: { id: film.id } }"> 
 
                             <figure class="item_content animated" >
+                                <!-- seen icon --> 
                                 <v-tooltip class="eye" v-if="isItem(film.id, user.shows.seen)" left color="primary">
                                     <v-icon slot="activator" size="25px" color="secondary">
                                         visibility
@@ -160,6 +164,7 @@
                             </figure>
 
                         </router-link>
+                        <!-- shadow --> 
                         <div class="poster_shadow--colored" v-bind:style="{ 
                             backgroundImage: 'url(' + film.poster_path + ')',
                             backgroundSize: 'cover',
@@ -172,7 +177,7 @@
                         <div class="item_rate"> {{film.vote_average}}% </div>
                         <!-- bookmark -->
                         <v-tooltip class="item_delete" left color="primary">
-                            <v-btn v-model="mark" slot="activator" small fab depressed icon @click="bookmarkButton(film.id, film)">
+                            <v-btn v-model="mark" slot="activator" small fab depressed icon @click="toggleBookmark(film.id, film)">
                                 <v-icon size="25px">{{styleIcon(film.id, user.shows.mark, 'bookmark_border', 'bookmark')}}</v-icon>
                             </v-btn>  
                             <span>Bookmark</span>
@@ -185,10 +190,8 @@
                         </router-link>
                         
                     </div>
-                    
-                
-                </div>
-            </div>
+                </div><!-- END  of item -->
+            </div><!-- END of item wrapper -->
             <!-- pagination --> 
             <div class="pages">
                 <div class="pages_wrapper">
@@ -215,6 +218,7 @@
             {{alert.text}}
         </v-alert>
     </v-app>
+
     <app-footer></app-footer>
 
 </div></template>
@@ -314,6 +318,7 @@ export default {
             this.items.search = ""
             this.items.genres = []
         },
+
         //paginations prev button
         prev(){
             if (this.searchInput.select) {
@@ -325,6 +330,7 @@ export default {
             }
             this.scrollToTop(300)
         },
+
         //paginations next button
         next(){
             if (this.searchInput.select) {
@@ -336,10 +342,17 @@ export default {
             }
             this.scrollToTop(300)
         },
+
         // scroll to top
         scrollToTop(time) {
             this.$store.commit('scrollToTop', time)
         },
+
+        // decide if item is in array
+        isItem(id, arr){
+            return arr.findIndex(el => el.iId == id) !== -1
+        },
+
         // creating list of movie titles in autocomplete input 
         titleList(searchTerm) {
             this.searchInput.loading = true
@@ -355,32 +368,28 @@ export default {
                 this.searchInput.loading = false
             }) 
         },
-        // decide if item is in array
-        isItem(id, arr){
-            return arr.findIndex(el => el.iId == id) !== -1
+
+        // create list of years 
+        getYearsList() {
+            this.$store.commit('getYearsList')
         },
 
-        getDbData(userId, movieList, dbName){
-
-            db.collection(dbName).where('user', '==', userId)
-            .onSnapshot((snapshot) => {
-                snapshot.docChanges().forEach(change => {
-                    // add movie to array if movie is add to database
-                    if (change.type == 'added') {
-                        let record = change.doc.data()
-                        record.id = change.doc.id
-                        movieList.push(record)
-                    }
-                    // remove movie from array if movie is remove from database
-                    if (change.type == 'removed') {
-                        movieList = movieList.filter(item =>{
-                            return item.id != change.doc.id
-                        }) 
-                    }
+        // creating list of genres 
+        getGenresList(searchTerm) {
+            this.items.genres = []
+            axios.get(`${this.URL.database}genre/tv/list${this.URL.apiKey}`)
+            .then(res => {
+               // genres data
+               let genres = res.data.genres
+                // push data to array
+                genres.forEach((genre)=> {
+                    this.items.genres.push(genre) 
                 })
-            })
-
+               
+            }) 
         },
+
+        // ** FIREBASE DATA ** //
         // get data from firebase
         getFirebaseData(){
             // get current user from firebase if user is login
@@ -391,48 +400,69 @@ export default {
                         //user slug
                         this.user.id = doc.id
 
-                         this.getDbData(this.user.id, this.user.shows.mark, 'watchlist')
-                        // seen movies
-                        this.getDbData(this.user.id, this.user.shows.seen, 'seen')
-
                         // read firebase database in real time
-                        // db.collection('watchlist').where('user', '==', this.user.id)
-                        // .onSnapshot((snapshot) => {
-                        //     snapshot.docChanges().forEach(change => {
-                        //         // add tv show to array if tv show is add to database
-                        //         if (change.type == 'added') {
-                        //             let record = change.doc.data()
-                        //             record.id = change.doc.id
-                        //             this.user.shows.mark.push(record)
-                        //         }
-                        //         // remove tv show from array if tv show is remove from database 
-                        //         if (change.type == 'removed') {
-                        //             this.user.shows.mark = this.user.shows.mark.filter(item =>{
-                        //                 return item.id != change.doc.id
-                        //             }) 
-                        //         }
-                        //     })
-                        // })
+                        // watchlist database
+                        db.collection('watchlist').where('user', '==', this.user.id)
+                        .onSnapshot((snapshot) => {
+                            snapshot.docChanges().forEach(change => {
+                                // add movie to array if movie is add to database
+                                if (change.type == 'added') {
+                                    let record = change.doc.data()
+                                    record.id = change.doc.id
+                                    this.user.shows.mark.push(record)
+                                }
+                                // remove movie from array if movie is remove from database
+                                if (change.type == 'removed') {
+                                    this.user.shows.mark = this.user.shows.mark.filter(item =>{
+                                        return item.id != change.doc.id
+                                    }) 
+                                }
+                            })
+                        })
+
+                        // seen database
+                        db.collection('seen').where('user', '==', this.user.id)
+                        .onSnapshot((snapshot) => {
+                            snapshot.docChanges().forEach(change => {
+                                // add movie to array if movie is add to database
+                                if (change.type == 'added') {
+                                    let record = change.doc.data()
+                                    record.id = change.doc.id
+                                    this.user.shows.seen.push(record)
+                                }
+                                // remove movie from array if movie is remove from database
+                                if (change.type == 'removed') {
+                                    this.user.shows.seen = this.user.shows.seen.filter(item =>{
+                                        return item.id != change.doc.id
+                                    }) 
+                                }
+                            })
+                        })
+
                     })
                 }) 
+            } else {
+                this.user.shows.mark = []
+                this.user.shows.seen = []
             } 
         },
 
-
+        // BOOKMARK BUTTON
+        // add tv show to watchlist and send to firebase
         addMarkedItem(id, obj){
 
             this.showData = obj
             db.collection('watchlist').add({
-                id: "",
-                iId: this.showData.id,
-                title: this.showData.original_name,
+                id:     "",
+                iId:    this.showData.id,
+                title:  this.showData.original_name,
                 genres: this.showData.genre_ids,
                 poster: this.showData.poster_path,
-                rate: this.showData.vote_average,
-                year: this.showData.first_air_date,
-                user: this.user.id,
-                type: "show",
-                href: "singleShow"
+                rate:   this.showData.vote_average,
+                year:   this.showData.first_air_date,
+                user:   this.user.id,
+                type:   "show",
+                href:   "singleShow"
 
             }).then(() => {
                 // alert type and settings
@@ -444,9 +474,10 @@ export default {
                 console.log(err)
             })
         },
-        // delete movie from firebase
+
+        // delete tv show from firebase
         deleteMarkedItem(id){
-            // *iId (item id) is id of movie from API and id is id of item in firebase
+            // *iId (item id) is id of tv show from API and id is id of item in firebase
             db.collection('watchlist').where('user', '==', this.user.id).where('iId', '==', id).get()
             .then(snapshot => {
                 // id of item in firebase
@@ -470,18 +501,18 @@ export default {
         },
 
         // add or remove bookmark
-        bookmarkButton(id, obj){
+        toggleBookmark(id, obj){
           
            // if user is login then:
             if(firebase.auth().currentUser){
-                // if movie is not mark then:
+                // if show is marked then:
                 if (this.isItem(id, this.user.shows.mark)) {
-                    // add movie to mark
+                    // delete show form watchlist
                     this.deleteMarkedItem(id)
                
-                // if movie is mark then:
+                // if show is marked then:
                 } else if (!this.isItem(id, this.user.shows.mark)) {
-                    // delete movie from mark 
+                    // add show to watchlist 
                     this.addMarkedItem(id, obj)
                 }
             // if user is not login then:
@@ -509,135 +540,14 @@ export default {
                 }
             // if user is not login style icon
             } else return before
-            
         },
 
-
-
-
-
-
-
-
-        // BOOKMARK BUTTON
-        // decide if tv show is already marked
-        // isMarked(id){
-        //     return this.user.shows.mark.findIndex(el => el.iId == id) !== -1
-        // },
-        // // add tv show to watchlist and send to firebase
-        // addMarkedItem(id, arr){
-
-        //     this.showData = arr
-        //     db.collection('watchlist').add({
-        //         id: "",
-        //         iId: this.showData.id,
-        //         title: this.showData.original_name,
-        //         genres: this.showData.genre_ids,
-        //         poster: this.showData.poster_path,
-        //         rate: this.showData.vote_average,
-        //         year: this.showData.first_air_date,
-        //         user: this.user.id,
-        //         type: "show",
-        //         href: "singleShow"
-
-        //     }).then(() => {
-        //         // alert type and settings
-        //         this.alert.type = "success"
-        //         this.infoAlert("Successfully added to watchlist")
-                
-        //     })
-        //     .catch(err => {
-        //         console.log(err)
-        //     })
-        // },
-
-        // // delete tv show from firebase
-        // deleteMarkedItem(id){
-        //     // *iId (item id) is id of tv show from API and id is id of item in firebase
-        //     db.collection('watchlist').where('user', '==', this.user.id).where('iId', '==', id).get()
-        //     .then(snapshot => {
-        //         // id of item in firebase
-        //         let snapshotID = snapshot.docs[0].id
-        //         // delete item from firebase
-        //         db.collection('watchlist').doc(snapshotID).delete().then(()=> {
-        //             // delete from local array
-        //             this.user.shows.mark = this.user.shows.mark.filter(item =>{
-        //                 return item.id != snapshotID
-        //             }) 
-        //         }) 
-        //     }) 
-        //     // alert type and settings
-        //     this.alert.type = "success"
-        //     this.infoAlert("Successfully removed from watchlist.")    
-        // },
-
-        // // alert messages
-        // infoAlert(alertText){
-        //     this.$store.commit('infoAlert', alertText)
-        // },
-
-        // // add or remove bookmark
-        // markingButton(id, arr){
-        //      // if user is login then:
-        //     if(firebase.auth().currentUser){
-        //         // if tv show is not mark then:
-        //         if (this.isMarked(id)) {
-        //             // add tv show to mark
-        //             this.deleteMarkedItem(id)
-               
-        //         // if tv show is mark then:
-        //         } else if (!this.isMarked(id)) {
-        //             // delete tv show from mark 
-        //             this.addMarkedItem(id, arr)
-        //         }
-        //     // if user is not login then:
-        //     } else {
-        //         // show alert 
-        //         this.alert.type = "error"
-        //         this.infoAlert("You must log in.")
-        //     }
-        // },
-        // // stylize marking button depending on whether the tv show is mark
-        // styleMarkIcon(id){
-        //     // if user is login then:
-        //     if(firebase.auth().currentUser){
-        //         // if tv show is marked then: 
-        //         if (this.isMarked(id)) {
-        //             // slyle icon
-        //             return "bookmark"
-        //             // if not:
-        //         } else if (!this.isMarked(id)) {
-        //             // style icon
-        //             return "bookmark_border"
-        //         }
-        //     // if user is not login style icon
-        //     } else return "bookmark_border"  
-        // },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // API DATABASE
-        // get data from database with query
+        // ** API DATABASE (tmdb) ** //
+        // API DATABASE -- search/tv
         searchItems() {
             this.items.search = ""
             this.loading = true
+            // get data from database with query
             axios.get(`${this.URL.database}search/tv${this.URL.apiKey}&page=${this.page.curSearch}&query=${this.searchInput.select}`)
             .then(res => {
              
@@ -679,10 +589,12 @@ export default {
                
             })     
         },
-        // get data from discover database 
+
+        // API DATABASE -- discover/tv
         discoverItems() {
             this.items.discover = ""
             this.loading = true
+            // get data from discover database 
             axios.get(`${this.URL.database}discover/tv${this.URL.apiKey}&page=${this.page.cur}&first_air_date_year=${this.selectYear}&with_genres=${this.selectGenres}`)
             .then(res => {
                 
@@ -722,28 +634,10 @@ export default {
   
                 })
             }).then(()=> { 
-                this.loading = false
-               
+                this.loading = false             
             })     
         },
-        // create list of years 
-        getYearsList() {
-            this.$store.commit('getYearsList')
-        },
-        // creating list of genres 
-        getGenresList(searchTerm) {
-            this.items.genres = []
-            axios.get(`${this.URL.database}genre/tv/list${this.URL.apiKey}`)
-            .then(res => {
-               // genres data
-               let genres = res.data.genres
-                // push data to array
-                genres.forEach((genre)=> {
-                    this.items.genres.push(genre) 
-                })
-               
-            }) 
-        },
+        
     }, 
 }
 </script>
