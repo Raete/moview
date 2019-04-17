@@ -7,6 +7,7 @@
         </div>
         <!-- page title -->
         <h1 class="page_title">Discover new movies</h1>
+    
         <!-- filters -->
         <section class="filters">
             <div class="filters_wrapper">
@@ -113,7 +114,15 @@
                         <div class="item_rate"> {{film.vote_average}}% </div>
                         <!-- bookmark -->
                         <v-tooltip class="item_delete" vleft color="primary">
-                            <v-btn v-model="mark" slot="activator" small fab depressed icon @click="toggleBookmark(film.id, film)">
+                            <v-btn v-model="mark" slot="activator" small fab depressed icon 
+                                @click="toggleBookmark(
+                                    film.id, 
+                                    film, 
+                                    user.movies.mark, 
+                                    'movie', 
+                                    'singleMovie'
+                                )"
+                            >
                                 <v-icon size="25px">{{styleIcon(film.id, user.movies.mark, 'bookmark_border', 'bookmark')}}</v-icon>
                             </v-btn>
                             <span>Bookmark</span>
@@ -180,7 +189,15 @@
                         <div class="item_rate"> {{film.vote_average}}% </div>
                         <!-- bookmark -->
                         <v-tooltip class="item_delete" left color="primary">
-                            <v-btn v-model="mark" slot="activator" small fab depressed icon @click="toggleBookmark(film.id, film)">
+                            <v-btn v-model="mark" slot="activator" small fab depressed icon 
+                                @click="toggleBookmark(
+                                    film.id, 
+                                    film, 
+                                    user.movies.mark, 
+                                    'movie', 
+                                    'singleMovie'
+                                )"
+                            >
                                 <v-icon size="25px">{{styleIcon(film.id, user.movies.mark, 'bookmark_border', 'bookmark')}}</v-icon>
                             </v-btn>
                             <span>Bookmark</span>
@@ -236,8 +253,24 @@ import db from '@/firebase/init'
 import firebase from 'firebase/app'
 // vuex -- store
 import { mapState } from 'vuex';
+// mixins
+import { global, initInList } from '../mixins/global'
+import { search } from '../mixins/search'
+import { buttonsInList } from '../mixins/buttons'
+import { icons } from '../mixins/styles'
+import { scroll } from '../mixins/scroll' //* add to template/
+import { pagination } from '../mixins/pagination'
 
 export default {
+    mixins: [
+        search, 
+        global, initInList,
+        buttonsInList, 
+        icons, 
+        scroll, 
+        pagination, 
+        
+    ],
     components: {
         'app-menu': menu,
         'app-footer': footer,
@@ -259,7 +292,11 @@ export default {
             },
             // bookmark movies
             mark: "",
-            movieData: {},
+
+
+            apiSearch: ""
+
+
         }
     },
 
@@ -267,7 +304,7 @@ export default {
 
         this.init()
         // creating list of genres in select input
-        this.getGenresList()
+        this.getGenresList("movie")
         // render data from API
         this.discoverItems()
         // creating list of years in select input
@@ -280,7 +317,7 @@ export default {
     watch: {
         // watching changes in search input
         search(val) {
-            val && val !== this.searchInput.select && this.titleList(val)
+            val && val !== this.searchInput.select && this.titleList(val, "movie")
         },
         // watching changes in genres input
         selectGenres(val) {
@@ -310,84 +347,9 @@ export default {
     },
 
     methods: {
-        //for start
-        init(){
-            this.page.cur = 1
-            this.page.curSearch = 1
-            !this.searchInput.select 
-            this.items.discover = ""
-        },
 
-        //paginations prev button
-        prev(){
-            if (this.searchInput.select) {
-                this.page.curSearch--
-                this.searchItems()
-            } else {
-                this.page.cur--
-                this.discoverItems()
-            }
-            this.scrollToTop(300)
-        },
-
-        //paginations next button
-        next(){
-            if (this.searchInput.select) {
-                this.page.curSearch++
-                this.searchItems()
-            } else {
-                this.page.cur++
-                this.discoverItems()
-            }
-            this.scrollToTop(300)
-        },
-
-        // scroll to top
-        scrollToTop(time) {
-            this.$store.commit('scrollToTop', time)
-        },
-
-        // decide if item is in array
-        isItem(id, arr){
-            return arr.findIndex(el => el.iId == id) !== -1
-        },
-
-        // creating list of movie titles in autocomplete input 
-        titleList(searchTerm) {
-            this.searchInput.loading = true
-            axios.get(`${this.URL.database}search/movie${this.URL.apiKey}&query=${searchTerm}`)
-            .then(res => {
-                let titles = res.data.results
-                titles.forEach((movie)=> {
-                    this.searchInput.names.push(movie.title)
-                })
-                this.searchInput.items = this.searchInput.names.filter(e => {
-                    return (e || '').toLowerCase().indexOf((searchTerm || '').toLowerCase()) > -1
-                })
-                this.searchInput.loading = false
-            }) 
-        },
-
-        // create list of years 
-        getYearsList() {
-            this.$store.commit('getYearsList')
-        },
-
-        // create list of genres 
-        getGenresList(searchTerm) {
-            axios.get(`${this.URL.database}genre/movie/list${this.URL.apiKey}`)
-            .then(res => {
-                // genres data
-                let genres = res.data.genres
-                // push data to array
-                genres.forEach((genre)=> {
-                    this.items.genres.push(genre) 
-                })
-            }) 
-        },
-
-        // ** FIREBASE DATA ** //
-        // get data from firebase
+        //** FIREBASE DATA ** //
+        //get data from firebase
         getFirebaseData(){
             // get current user from firebase if user is login
             if(firebase.auth().currentUser) {
@@ -399,6 +361,7 @@ export default {
 
                         // read firebase database in real time
                         // watchlist database
+                       
                         db.collection('watchlist').where('user', '==', this.user.id)
                         .onSnapshot((snapshot) => {
                             snapshot.docChanges().forEach(change => {
@@ -444,103 +407,10 @@ export default {
             } 
         },
 
-        // BOOKMARK BUTTON
-        // add movie to watchlist and send to firebase
-        addMarkedItem(id, obj){
-
-            this.movieData = obj
-            db.collection('watchlist').add({
-                id:     "",
-                iId:    this.movieData.id,
-                title:  this.movieData.title,
-                genres: this.movieData.genre_ids,
-                poster: this.movieData.poster_path,
-                rate:   this.movieData.vote_average,
-                year:   this.movieData.release_date,
-                user:   this.user.id,
-                type:   "movie",
-                href:   "singleMovie"
-
-            }).then(() => {
-                // alert type and settings
-                this.alert.type = "success"
-                this.infoAlert("Successfully added to watchlist")
-                
-            })
-            .catch(err => {
-                console.log(err)
-            })
-        },
-
-        // delete movie from firebase
-        deleteMarkedItem(id){
-            // *iId (item id) is id of movie from API and id is id of item in firebase
-            db.collection('watchlist').where('user', '==', this.user.id).where('iId', '==', id).get()
-            .then(snapshot => {
-                // id of item in firebase
-                let snapshotID = snapshot.docs[0].id
-                // delete item from firebase
-                db.collection('watchlist').doc(snapshotID).delete().then(()=> {
-                    // delete from local array
-                    this.user.movies.mark = this.user.movies.mark.filter(item =>{
-                        return item.id != snapshotID
-                    }) 
-                }) 
-            }) 
-            // alert type and settings
-            this.alert.type = "success"
-            this.infoAlert("Successfully removed from watchlist.")   
-        },
-
-        // add or remove bookmark -- add or remove from wachtlist database
-        toggleBookmark(id, obj){
-          
-            // if user is login then:
-            if(firebase.auth().currentUser){
-                // if movie is marked then:
-                if (this.isItem(id, this.user.movies.mark)) {
-                    // delete movie from watchlist
-                    this.deleteMarkedItem(id)
-               
-                // if movie is not marked then:
-                } else if (!this.isItem(id, this.user.movies.mark)) {
-                    // add movie to watchlist
-                    this.addMarkedItem(id, obj)
-                }
-            // if user is not login then:
-            } else {
-                // show alert 
-                this.alert.type = "error"
-                this.infoAlert("You must log in.")
-            }
-        },
-
-        // alert messages
-        infoAlert(alertText){
-            this.$store.commit('infoAlert', alertText)
-        },
-
-        // stylize icon of button 
-        // id = film.id, arr = film array, before = icon name, after = icon name
-        styleIcon(id, arr, before, after){
-            // if user is login then:
-            if(firebase.auth().currentUser){
-                // if item is in array:    
-                if (this.isItem(id, arr)) {
-                    // slyle after icon
-                    return after
-                    // if not:
-                } else if (!this.isItem(id, arr)) {
-                    // style before icon
-                    return before
-                }
-            // if user is not login style before icon
-            } else return before
-        },
-
         // ** API DATABASE (tmdb) ** //
         // API DATABASE -- search/movie
         searchItems() {
+
             this.loading = true
             // get data from api database with query
             axios.get(`${this.URL.database}search/movie${this.URL.apiKey}&include_adult=false&page=${this.page.curSearch}&query=${this.searchInput.select}`)

@@ -4,11 +4,11 @@
             <img src="@/assets/img/svg/loader.svg" alt="loading..." >
         </div>
         <!-- open full overview -->
-        <v-dialog v-model="dialog" width="600px" >
+        <v-dialog v-model="box.overview" width="600px" >
             <v-card class="overview_more">
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn icon flat @click.native="dialog = false">
+                    <v-btn icon flat @click.native="box.overview = false" >
                         <v-icon>close</v-icon>
                     </v-btn>
                 </v-card-actions>
@@ -60,7 +60,7 @@
                         TV Shows
                     </v-tab>
                     <!-- movies list -->
-                    <v-tab-item class="tab_item" id="movies">
+                    <v-tab-item class="tab_item" value="movies">
                         <v-list three-line class="list">
                             <template v-for="(film, index) in  actor.movieCredits">
                                 <v-list-tile
@@ -99,7 +99,7 @@
                         </v-list>
                     </v-tab-item>
                     <!-- shows list -->
-                    <v-tab-item class="tab_item" id="tvShows">
+                    <v-tab-item class="tab_item" value="tvShows">
                         <v-list three-line class="list">
                             <template v-for="(film, index) in  actor.showCredits">
                                 <v-list-tile
@@ -166,7 +166,11 @@ import axios from 'axios';
 import { mapState, mapMutations } from 'vuex';
 
 
+import { scroll }from '../../mixins/scroll'
+
+
 export default {
+    mixins: [scroll],
     components: {
         'app-footer': footer,
     },
@@ -175,8 +179,8 @@ export default {
         return {
 
             loading: false,
-            // overview
-            dialog: false,
+     
+         
         }
     },
 
@@ -198,10 +202,15 @@ export default {
             'user', 
             'alert',
             'show',
+            'box',
         ]),  
     },
 
     methods: {
+        ...mapMutations([
+          //  'backToTopBtn',
+          //  'scrollToTop'
+        ]),
         //go back
         goBack(){
             return window.history.back();
@@ -220,20 +229,20 @@ export default {
         },
 
         // scroll up and show overview
-        showViewOnTop(){
-            this.scrollToTop(300)
-            this.dialog = !this.dialog
-        },
+        // showViewOnTop(){
+        //     this.scrollToTop(300)
+        //     this.dialog = !this.dialog
+        // },
 
         // scroll to top
-        scrollToTop(time) {
-            this.$store.commit('scrollToTop', time)
-        },
+        // scrollToTop(time) {
+        //     this.$store.commit('scrollToTop', time)
+        // },
 
         // back to top button is appear
-        backToTopBtn() {
-            this.$store.commit('backToTopBtn')
-        },
+        // backToTopBtn() {
+        //     this.$store.commit('backToTopBtn')
+        // },
 
         // API
         // get actor data from API

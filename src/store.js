@@ -1,5 +1,10 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+// API database
+import axios from 'axios';
+// firebase
+import db from '@/firebase/init'
+import firebase from 'firebase/app'
 
 Vue.use(Vuex);
 
@@ -132,51 +137,9 @@ export default new Vuex.Store({
     },
     mutations: {
 
-        // create list of years 
-        getYearsList(state) {
-            // set year 1900
-            let first = "1900"
-            // set current year
-            let current = new Date().getFullYear() + 2
-            // push list of year to movies.years
-            for (var i = first; i <= current; i++) state.items.years.push(i);
-            // sorting years array first is "none" then current year - 1900
-            if (state.items.years) {
-                state.items.years = state.items.years.slice(0, 1)
-                .concat(state.items.years = state.items.years.slice(1, state.items.years.length).reverse())
-            }
-        },
-
-        scrollToTop(state, scrollDuration) {
-            let scrollStep = -window.scrollY / (scrollDuration / 15),
-                scrollInterval = setInterval(function(){
-                if ( window.scrollY != 0 ) {
-                    window.scrollBy( 0, scrollStep );
-                }
-                else clearInterval(scrollInterval); 
-            },15)
-        },
-        // show back to top button
-        backToTopBtn(state) {
-            if (window.scrollY >= 1000) {
-                state.show.backToTop = false
-            } else {
-                state.show.backToTop = true
-            }
-        },
-
-        topBackground(state){
-            if (window.innerWidth > 800) {
-                return state.detail.data.backdrop_path
-            } else return ""
-        },
-
-        infoAlert(state, payload){
-            state.alert.active = true
-            state.alert.text = payload
-            setTimeout(() => {
-                state.alert.active = false
-            }, 1500)
-        },
     },
+
+    actions: {
+
+    }
 })
