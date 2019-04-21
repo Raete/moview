@@ -39,7 +39,7 @@
                         @click.native="ratingButton(
                             user.shows.curRate, 
                             user.shows.rate,
-                            'show',
+                            'tv',
                             'singleShow'
 
                         )"
@@ -116,7 +116,7 @@
                             $route.params.id, 
                             user.shows.mark, 
                             'watchlist',
-                            'show',
+                            'tv',
                             'singleShow'
                         )" 
                     >
@@ -132,7 +132,7 @@
                             $route.params.id, 
                             user.shows.seen, 
                             'seen',
-                            'show',
+                            'tv',
                             'singleShow'
                         )">
                         <v-icon size="25px" color="primary"> 
@@ -296,7 +296,7 @@
                                         film.id, 
                                         film, 
                                         user.shows.mark, 
-                                        'show', 
+                                        'tv', 
                                         'singleShow'
                                     )"
                                 > 
@@ -359,7 +359,7 @@
                                         film.id, 
                                         film, 
                                         user.shows.mark, 
-                                        'show', 
+                                        'tv', 
                                         'singleShow'
                                     )"
                                 > 
@@ -649,7 +649,7 @@ export default {
                                     let record = change.doc.data()
                                     record.id = change.doc.id
 
-                                    if(record.type == "show") {
+                                    if(record.media_type == "tv") {
                                         this.user.shows.mark.push(record)
                                     }
                                    
@@ -674,7 +674,7 @@ export default {
                                     let record = change.doc.data()
                                     record.id = change.doc.id
 
-                                    if (record.type == "movie") {
+                                    if (record.media_type == "tv") {
                                         this.user.shows.seen.push(record)
                                     }                                  
                                 }
@@ -701,7 +701,7 @@ export default {
                                     let record = change.doc.data()
                                     record.id = change.doc.id
 
-                                    if (record.type == "show") {
+                                    if (record.media_type == "tv") {
                                         this.user.shows.rate.push(record)
                                     }
                                 

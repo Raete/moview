@@ -94,8 +94,9 @@ export default new Vuex.Store({
         actor: {
             data: [],
             img: "",
-            movieCredits: [],
-            showCredits: [],
+            cast: [],
+            crew: [],
+            roles: [], 
         },
         // alert messages
         alert: {

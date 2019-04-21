@@ -190,7 +190,7 @@
                                     film.id, 
                                     film, 
                                     user.shows.mark, 
-                                    'show', 
+                                    'tv', 
                                     'singleShow'
                                 )"
                             >

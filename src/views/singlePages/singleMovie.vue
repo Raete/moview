@@ -596,7 +596,7 @@ export default {
                                     let record = change.doc.data()
                                     record.id = change.doc.id
 
-                                    if (record.type == "movie") {
+                                    if (record.media_type == "movie") {
                                         this.user.movies.mark.push(record)
                                     }                                  
                                 }
@@ -620,7 +620,7 @@ export default {
                                     let record = change.doc.data()
                                     record.id = change.doc.id
 
-                                    if (record.type == "movie") {
+                                    if (record.media_type == "movie") {
                                         this.user.movies.seen.push(record)
                                     }                                  
                                 }
@@ -648,7 +648,7 @@ export default {
                                     let record = change.doc.data()
                                     record.id = change.doc.id
 
-                                    if(record.type == "movie") {
+                                    if(record.media_type == "movie") {
                                         this.user.movies.rate.push(record)
                                     }
                                   

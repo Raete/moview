@@ -24,8 +24,9 @@ const buttonsInList = {
                 rate:   obj.vote_average,
                 year:   obj.release_date,
                 user:   this.user.id,
-                type:   type,
+                media_type: type,
                 href:   href,
+                department: 'watchlist',
                 added: Date.now()
             }).then(() => {
                 // alert type and settings
@@ -109,8 +110,9 @@ const buttonsInDetail = {
                 genres: this.detail.data.genres,
                 user: this.user.id,
                 user_rate: curRate,
-                type: type,
-                href: href
+                media_type: type,
+                href: href,
+                department: dbName
 
             }).then(() => {
                 // alert type and settings

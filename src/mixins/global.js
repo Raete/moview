@@ -57,9 +57,36 @@ const initInSingle = {
     }
 }
 
+const unique = {
+    methods: {
+        getUnique(arr, key) {
+
+            const unique = arr
+                .map(e => e[key])
+                // store the keys of the unique objects
+                .map((e, i, final) => final.indexOf(e) === i && i)
+                // eliminate the dead keys & store unique objects
+                .filter(e => arr[e]).map(e => arr[e]);
+        
+            return unique;
+        }
+    }
+}
+
+const setHref = {
+    methods: {
+        // set correct path in list
+        setHref(type) {
+            return type == "movie" ? "singleMovie" : "singleShow"
+        },
+    }
+}
+
 export {
     global,
     initInList,
-    initInSingle
+    initInSingle,
+    unique,
+    setHref
 }
 
