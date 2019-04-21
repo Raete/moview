@@ -42,6 +42,7 @@
                 </v-tab>
 
                 <!-- watchlist section -->
+                
                 <v-tab-item value="watchlist">
                 
                     <h1 class="list_heading">My watchlist</h1>
@@ -57,12 +58,42 @@
                                 {{item.name}} ({{itemCounter(item.type, user.watchlist.all, 'watchlist')}})
                             </v-btn>
                         </v-btn-toggle>
+                        <v-spacer></v-spacer>
+                        <v-menu v-if="user.watchlist.all.length">
+                            <v-btn
+                                slot="activator"
+                                flat
+                                depressed
+                            >
+                            <v-icon>swap_vert</v-icon>
+                                Sort by
+                            </v-btn>
+                            <!-- list of sort option -->
+                            <v-list class="white">
+                                <v-list-tile @click="sortBy(user.watchlist.all, 'rate', reverse = !reverse)">
+                                    <v-list-tile-title>Rating</v-list-tile-title>
+                                </v-list-tile>
+                                <v-list-tile @click="sortBy(user.watchlist.all, 'title', reverse = !reverse)">
+                                    <v-list-tile-title >Title</v-list-tile-title>
+                                </v-list-tile>
+                                <v-list-tile @click="sortBy(user.watchlist.all, 'year', reverse = !reverse)">
+                                    <v-list-tile-title >Year</v-list-tile-title>
+                                </v-list-tile>
+                                <v-list-tile @click="sortBy(user.watchlist.all, 'added', reverse = !reverse)">
+                                    <v-list-tile-title >Added</v-list-tile-title>
+                                </v-list-tile>
+                               
+                            </v-list>
+                        </v-menu>
+                        <p>{{sorting.text}} ({{sortStatus()}})</p>
                     </v-toolbar>
 
                     <!-- movies and tv shows in watchlist -->
+                   
                     <section class="item_container">
-                        <div class="item_wrapper">
-                            <div class="item" v-for="(film, index) in renderWatchlistItems" :key="index">
+                        
+                        <transition-group name="animation" tag="div" class="item_wrapper">
+                            <div class="item" v-for="film in renderWatchlistItems" :key="film.id">
                                 <!-- poster -->
                                 <div class="poster_wrapper">
                                     <router-link :to="{ name: film.href, params: { id: film.iId } }">     
@@ -93,12 +124,13 @@
                                     </router-link>
                                 </div>
                             </div>
-                        </div> 
+                        </transition-group> 
                         <p class="text-xs-center"> 
                         {{feedback(renderWatchlistItems, activeRender, "watchlist")}}
                         </p> 
                     </section>
                 </v-tab-item>
+                
 
                 <!-- rating section -->
                 <v-tab-item value="rating">
@@ -116,12 +148,40 @@
                                 {{item.name}} ({{itemCounter(item.type, user.rated.all, 'rating')}})
                             </v-btn>
                         </v-btn-toggle>
+                        <v-spacer></v-spacer>
+                        <v-menu v-if="user.rated.all.length">
+                            <v-btn
+                                slot="activator"
+                                flat
+                                depressed
+                            >
+                            <v-icon>swap_vert</v-icon>
+                                Sort by
+                            </v-btn>
+                            <!-- list of sort option -->
+                            <v-list class="white">
+                               <v-list-tile @click="sortBy(user.rated.all, 'user_rate', reverse = !reverse)">
+                                    <v-list-tile-title>Rating</v-list-tile-title>
+                                </v-list-tile>
+                                <v-list-tile @click="sortBy(user.rated.all, 'title', reverse = !reverse)">
+                                    <v-list-tile-title >Title</v-list-tile-title>
+                                </v-list-tile>
+                                <v-list-tile @click="sortBy(user.rated.all, 'year', reverse = !reverse)">
+                                    <v-list-tile-title >Year</v-list-tile-title>
+                                </v-list-tile>
+                                <v-list-tile @click="sortBy(user.rated.all, 'added', reverse = !reverse)">
+                                    <v-list-tile-title >Added</v-list-tile-title>
+                                </v-list-tile>
+                            </v-list>
+                        </v-menu>
+                        <p>{{sorting.text}} ({{sortStatus()}})</p>                     
                     </v-toolbar>
 
                     <!-- rated movies and tv shows -->
                     <section class="item_container">
-                        <div class="item_wrapper">
-                            <div class="item" v-for="(film, index) in renderRatedItems" :key="index">
+                        
+                        <transition-group name="animation" tag="div" class="item_wrapper">
+                            <div class="item" v-for="film in renderRatedItems" :key="film.id">
                                 <!-- poster -->
                                 <div class="poster_wrapper">
                                     <router-link :to="{ name: film.href, params: { id: film.iId } }"> 
@@ -152,7 +212,7 @@
                                     </router-link>
                                 </div>
                             </div>
-                        </div> 
+                        </transition-group> 
                         <p class="text-xs-center"> 
                         {{feedback(renderRatedItems, activeRender, "rating")}}
                         </p> 
@@ -176,12 +236,39 @@
                                 {{item.name}} ({{itemCounter(item.type, user.seen.all, 'seen')}})
                             </v-btn>
                         </v-btn-toggle>
+                        <v-spacer></v-spacer>
+                        <v-menu v-if="user.seen.all.length">
+                            <v-btn
+                                slot="activator"
+                                flat
+                                depressed
+                            >
+                            <v-icon>swap_vert</v-icon>
+                                Sort by
+                            </v-btn>
+                            <!-- list of sort option -->
+                            <v-list class="white">
+                               <v-list-tile @click="sortBy(user.seen.all, 'rate', reverse = !reverse)">
+                                    <v-list-tile-title>Rating</v-list-tile-title>
+                                </v-list-tile>
+                                <v-list-tile @click="sortBy(user.seen.all, 'title', reverse = !reverse)">
+                                    <v-list-tile-title >Title</v-list-tile-title>
+                                </v-list-tile>
+                                <v-list-tile @click="sortBy(user.seen.all, 'year', reverse = !reverse)">
+                                    <v-list-tile-title >Year</v-list-tile-title>
+                                </v-list-tile>
+                                <v-list-tile @click="sortBy(user.seen.all, 'added', reverse = !reverse)">
+                                    <v-list-tile-title >Added</v-list-tile-title>
+                                </v-list-tile>
+                            </v-list>
+                        </v-menu>
+                        <p>{{sorting.text}} ({{sortStatus()}})</p>
                     </v-toolbar>
 
                     <!-- movies and tv shows in seen -->
                     <section class="item_container">
-                        <div class="item_wrapper">
-                            <div class="item" v-for="(film, index) in renderSeenItems" :key="index">
+                        <transition-group name="animation" tag="div" class="item_wrapper">
+                            <div class="item" v-for="film in renderSeenItems" :key="film.id">
                                 <!-- poster -->
                                 <div class="poster_wrapper">
                                     <router-link :to="{ name: film.href, params: { id: film.iId } }">     
@@ -212,7 +299,7 @@
                                     </router-link>
                                 </div>
                             </div>
-                        </div> 
+                        </transition-group> 
                         <p class="text-xs-center"> 
                             {{feedback(renderSeenItems, activeRender, "seen")}}
                         </p>
@@ -238,7 +325,7 @@ import axios from 'axios';
 import db from '@/firebase/init'
 import firebase from 'firebase/app'
 // vuex -- store
-import { mapState } from 'vuex';
+import { mapState, mapMutations, mapActions } from 'vuex';
 // moment
 import moment from 'moment'
 
@@ -292,7 +379,15 @@ export default {
             ],
 
             menuItemActive: "watchlist",
-            activeRender: "all"
+            activeRender: "all",
+
+            reverse: true,
+
+            sorting: {
+                text: "rating",
+            }
+                
+            
 
         }
     },
@@ -329,6 +424,14 @@ export default {
     },
 
     methods: {
+        ...mapMutations([
+           // 'scrollToTop',
+          //  'backToTopBtn',
+        ]),
+        ...mapActions([
+          //  'infoAlert',
+
+        ]),
 
         // show item
         renderItems(arr){
@@ -396,14 +499,60 @@ export default {
             }  
         },
 
+        sortBy(array, param, reverse) {
+            let _this = this
+			let filterA, filterB;
+			return array.sort(function (a, b) {
+				switch (param) {
+					case 'title':
+						filterA = b.title;
+                        filterB = a.title;
+                        _this.sorting.text = "title"
+                        break;
+                    case 'rate':
+						filterA = b.rate;
+                        filterB = a.rate;
+                        _this.sorting.text = "rating"
+                        break;
+                    case 'year':
+						filterA = b.year;
+                        filterB = a.year;
+                        _this.sorting.text = "year"
+                        break;
+                    case 'user_rate':
+						filterA = b.user_rate;
+                        filterB = a.user_rate;
+                        _this.sorting.text = "your rate"
+                        break;
+                    case 'added':
+						filterA = b.added;
+                        filterB = a.added;
+                        _this.sorting.text = "added"
+						break;
+				}
+				if (reverse) {
+                    return (filterA > filterB) ? 1 : -1;
+				} else {
+                    return (filterA < filterB) ? 1 : -1;
+				}
+            });
+
+        },
+        
+        sortStatus(){
+            if (this.reverse) {
+                return `des`
+            } else return `asc`
+        },
+
         // scroll to top
-        scrollToTop(time) {
-            this.$store.commit('scrollToTop', time)
-        },
+        // scrollToTop(time) {
+        //     this.$store.commit('scrollToTop', time)
+        // },
         // back to top button is appear
-        backToTopBtn() {
-            this.$store.commit('backToTopBtn')
-        },
+        // backToTopBtn() {
+        //     this.$store.commit('backToTopBtn')
+        // },
  
         // FIREBASE 
         // get current user from firebase
@@ -595,16 +744,22 @@ export default {
        // background: $color_back_3
     }
 
-    // active item in menu
-    .active_item {
-        font-weight: 700;
-        &--light {
-            background: $color_back_2 !important
-        }
-        &--dark {
-            background: $color_back_3 !important
-        }
+    .item {
+        transition: all .6s;
+        width: 190px;
     }
+
+    .animation-enter, .animation-leave-to {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .animation-leave-active {
+        position: absolute;
+    }
+
+
+
 
 
 </style>

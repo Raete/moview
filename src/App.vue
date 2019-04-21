@@ -1,7 +1,8 @@
 <template>
   <div id="app">
-      
+      <!-- reload page if route.params.id is changed -->
     <router-view :key="$route.name + ($route.params.id || '')"></router-view>
+    
 
   </div>
 </template>
