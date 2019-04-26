@@ -23,8 +23,8 @@
                         ticks="always"
                     >
                         <template
-                        slot="thumb-label"
-                        slot-scope="props"
+                            slot="thumb-label"
+                            slot-scope="props"
                         >
                             <span>
                                 {{ rateLabel(props.value) }}
@@ -43,13 +43,23 @@
                             'singleMovie'
                         )"
                     >
-                        {{styleText($route.params.id, user.movies.rate, 'Save rating', 'Update rating')}}
+                        {{styleText(
+                            $route.params.id, 
+                            user.movies.rate, 
+                            'Save rating', 
+                            'Update rating')
+                        }}
                     </v-btn>
-                     <!-- delete rating -->
-                    <v-btn v-if="isItem($route.params.id, user.movies.rate)" color="primary" round flat @click.native="deleteItemFromDB($route.params.id, user.movies.rate, 'rated')">
+                    <!-- delete rating -->
+                    <v-btn 
+                        v-if="isItem($route.params.id, user.movies.rate)" 
+                        color="primary" 
+                        round 
+                        flat 
+                        @click.native="deleteItemFromDB($route.params.id, user.movies.rate, 'rating')"
+                    >
                         Delete rating
                     </v-btn>
-
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -120,10 +130,23 @@
                             'singleMovie',
                         )"
                     >
+                        <!-- button icon -->
                         <v-icon size="25px" color="primary"> 
-                            {{styleIcon($route.params.id, user.movies.mark, 'bookmark_border', 'bookmark')}} 
+                            {{styleIcon(
+                                $route.params.id, 
+                                user.movies.mark, 
+                                'bookmark_border', 
+                                'bookmark')
+                            }} 
                         </v-icon>
-                        {{styleText($route.params.id, user.movies.mark, 'Add to watchlist', 'Remove from watchlist')}}
+
+                        <!-- button text -->
+                        {{styleText(
+                            $route.params.id, 
+                            user.movies.mark, 
+                            'Add to watchlist', 
+                            'Remove from watchlist')
+                        }}
                     </v-btn>
 
                     <!-- seen button -->
@@ -136,19 +159,39 @@
                             'singleMovie'
                         )"
                     >
+                        <!-- button icon -->
                         <v-icon size="25px" color="primary"> 
-                            {{styleIcon($route.params.id, user.movies.seen, 'visibility', 'visibility_off')}} 
+                            {{styleIcon(
+                                $route.params.id, 
+                                user.movies.seen, 
+                                'visibility', 
+                                'visibility_off')
+                            }} 
                         </v-icon>
-                        {{styleText($route.params.id, user.movies.seen, 'Add to seen', 'Remove from seen')}}
+
+                        <!-- button text -->
+                        {{styleText(
+                            $route.params.id, 
+                            user.movies.seen, 
+                            'Add to seen', 
+                            'Remove from seen')
+                        }}
                     </v-btn>
                 </div>
 
                 <!-- movie detail info -->
                 <section  class="info_wrapper">
                     <div class="info_rate_wrapper">
-                        <p class="info_rate">  {{detail.data.vote_average}}%</p>
+                        <p class="info_rate"> {{detail.data.vote_average}}%</p>
+
                         <!-- rate movie button -->
-                        <v-btn outline round color="primary"  @click.stop="showRateOnTop()" >{{this.styleRateText(user.movies.rate, user.movies.curRate)}}
+                        <v-btn 
+                            outline 
+                            round 
+                            color="primary"  
+                            @click.stop="showRateOnTop()" 
+                        >
+                            {{this.styleRateText(user.movies.rate, user.movies.curRate)}}
                         </v-btn>
                     </div>
                    
@@ -165,28 +208,55 @@
                     <ul class="info_tags">
                         <li v-for="(tag, index) in detail.data.genres" :key="index" class="info_tag">{{tag.name}}</li>
                     </ul>
+
                     <!-- movie run time-->
                     <p v-if="detail.data.runtime" class="info_time">Run time:
                         <span> {{detail.data.runtime}}</span>
                     </p>
-                    <!-- movie budget and revenuw -->
+
+                    <p v-if="directors.length" class="info_time">Director:
+                        <span class="btn_director"  v-for="(director, index) in directors" :key="index">
+                            
+                            <router-link :to="{ name: 'singleActor', params: { id: director.id } }">
+                                {{director.name}}
+                            </router-link> 
+
+                        </span>
+                    </p>
+
+                    <!-- movie budget and revenue -->
                     <p v-if="detail.data.budget" class="info_money">Budget:
                         <span> ${{formatNub(detail.data.budget)}} </span>
                     </p>
                     <p v-if="detail.data.revenue" class="info_money">Revenue:
                         <span> ${{formatNub(detail.data.revenue)}} </span>
                     </p>
+
                     <!-- movie overview -->
                     <div v-if="detail.data.overview" class="info_overview_wrapper">
                         <h1 class="info_overview_title">Overview</h1>
                         <p class="info_overview_text">{{detail.data.short}}</p>
                         <!-- more overview button - open dialog -->
-                        <button v-if="is.long" @click.stop="showViewOnTop()" class="btn_overview" slot="activator" color="primary" dark>all overview</button>                     
+                        <button 
+                            v-if="is.long" 
+                            @click.stop="showViewOnTop()" 
+                            class="btn_overview" 
+                            slot="activator" 
+                            color="primary" 
+                            dark
+                        >all overview</button>                     
                     </div>
+
                     <!-- movie trailer button - open video dialog -->
-                    <button slot="activator" v-if="is.video" @click.stop="showVideoOnTop()" class="btn_video">view trailer</button>
-                </section>
-            </section>
+                    <button 
+                        slot="activator" 
+                        v-if="is.video" 
+                        @click.stop="showVideoOnTop()" 
+                        class="btn_video"
+                    >view trailer</button>
+
+                </section><!-- END info wrapper -->
+            </section> <!-- END main container -->
         </main>
 
         <!-- CAST AND CREW section -->
@@ -299,7 +369,13 @@
                                         'singleMovie'
                                     )"
                                 >
-                                    <v-icon size="25px">{{styleIcon(film.id, user.movies.mark, 'bookmark_border', 'bookmark')}}</v-icon>
+                                    <v-icon size="25px">
+                                        {{styleIcon(
+                                            film.id, 
+                                            user.movies.mark, 
+                                            'bookmark_border', 
+                                            'bookmark')
+                                        }}</v-icon>
                                 </v-btn> 
                                 <span>Bookmark</span>
                             </v-tooltip>
@@ -361,7 +437,13 @@
                                         'singleMovie'
                                     )"
                                 >
-                                    <v-icon size="25px">{{styleIcon(film.id, user.movies.mark, 'bookmark_border', 'bookmark')}}</v-icon>
+                                    <v-icon size="25px">
+                                        {{styleIcon(
+                                            film.id, 
+                                            user.movies.mark, 
+                                            'bookmark_border', 
+                                            'bookmark')
+                                        }}</v-icon>
                                 </v-btn> 
                                 <span>Bookmark</span>
                             </v-tooltip>
@@ -393,9 +475,8 @@
     <button 
         @click="scrollToTop(300)" 
         class="up" 
-        :class="{ up_active: show.backToTop }"> 
-        go to top
-    </button>
+        :class="{ up_active: show.backToTop }"
+    > go to top </button>
 
 </div></template>
 
@@ -408,15 +489,15 @@ import axios from 'axios';
 import db from '@/firebase/init'
 import firebase from 'firebase/app'
 // vuex -- store
-import { mapState, mapMutations, mapActions } from 'vuex';
-
+import { mapState } from 'vuex';
+// mixins
 import { global, initInSingle } from '../../mixins/global'
-// import { watchlist }from '../mixins/watchlist'
-import { icons, text }from '../../mixins/styles'
-import { scroll }from '../../mixins/scroll'
-import { formating }from '../../mixins/formating'
-import { recommend }from '../../mixins/showBoxes'
-import { buttonsInList, buttonsInDetail }from '../../mixins/buttons'
+import { icons, text } from '../../mixins/styles'
+import { scroll } from '../../mixins/scroll'
+import { formating } from '../../mixins/formating'
+import { recommend } from '../../mixins/showBoxes'
+import { buttonsInList, buttonsInDetail } from '../../mixins/buttons'
+import { moviesData  } from '../../mixins/apiData'
 
 export default {
     mixins: [
@@ -425,7 +506,8 @@ export default {
         scroll, 
         formating, 
         recommend, 
-        buttonsInList, buttonsInDetail
+        buttonsInList, buttonsInDetail,
+        moviesData 
     ],
     components: {
         'app-footer': footer,
@@ -439,9 +521,11 @@ export default {
             panel: 0,   
             // bookmark movies in recommend or similar
             mark: "",
-            movieData: {},
             // similar and recommend menu - active item
             menuItem: 0,
+
+            trailers: [],
+            directors: [],
         }
     },
 
@@ -454,9 +538,12 @@ export default {
         this.getFirebaseData()
         // back to top button
         window.addEventListener("scroll", this.backToTopBtn)
+        // similar movies box is active
+        this.show.similar = true
     },
 
     watch: {
+        // currant rating
         rate(val) {
             this.user.movies.curRate = val * 10
         },
@@ -479,91 +566,6 @@ export default {
     },
 
     methods: {
-        ...mapMutations([
-           // 'getYearsList',
-           // 'scrollToTop',
-           // 'backToTopBtn',
-        ]),
-        ...mapActions([
-           // 'infoAlert',
-
-        ]),
-
-        //start setting - reset data
-        init(){
-            this.loading = true
-            // movie details
-            this.detail.data = ""
-            this.detail.credits.cast = ""
-            this.detail.recommend = ""
-            this.detail.similar = ""
-            this.detail.video = ""
-            // dialog boxes
-            this.box.video = false
-            this.box.overview = false   
-            // show section
-            this.show.recommend = false
-            this.show.similar = true
-
-        },
-        // format budget and revenue currancy 
-        // formatNub(num){ 
-        //     num = Math.abs(num);
-        //     num = num.toLocaleString(undefined, {
-        //         minimumFractionDigits: 2,
-        //         maximumFractionDigits: 2
-        //     })
-        //     return num
-        // },
-        // scroll to top
-        // scrollToTop(time) {
-        //     this.$store.commit('scrollToTop', time)
-        // },
-        // scroll up and show video
-        // showVideoOnTop(){
-        //     this.scrollToTop(200)
-        //     this.box.video = !this.box.video
-        // },
-        // // scroll up and show overview
-        // showViewOnTop(){
-        //     this.scrollToTop(200)
-        //     this.box.overview = !this.box.overview
-        // },
-        // showRateOnTop(){
-        //     if(firebase.auth().currentUser){
-        //         this.scrollToTop(200)
-        //         this.box.rate = !this.box.rate
-        //     } else {
-        //         // show alert 
-        //         this.alert.type = "error"
-        //         this.infoAlert("You must log in.")
-        //     }
-        // },
-        // format run time
-        // timeConvert(data) {
-        //     let minutes = data % 60
-        //     let hours = (data - minutes) / 60
-        //     return  `${hours}h ${minutes}m`
-        // },
-        // show similar or recommend section
-        // showSimilar(){
-        //     this.show.similar = true,
-        //     this.show.recommend = false
-        // },
-        // showRecommend(){
-        //     this.show.recommend = true,
-        //     this.show.similar = false
-        // },
-
-        // decide if item is in array
-        // isItem(id, arr){
-        //     return arr.findIndex(el => el.iId == id) !== -1
-        // },
-
-        // rateLabel(val) {
-        //     return this.rating[val]
-        // },
-
         // ** FIREBASE DATA ** //
         // get data from firebase
         getFirebaseData(){
@@ -576,7 +578,7 @@ export default {
                         //user slug
                         this.user.id = doc.id
                         // get user rate from database
-                        db.collection('rated').where('user', '==', this.user.id).where('iId', '==', this.$route.params.id).get()
+                        db.collection('rating').where('user', '==', this.user.id).where('iId', '==', this.$route.params.id).get()
                         .then(snapshot => {    
                              
                             if (snapshot.docs[0]) {
@@ -635,7 +637,7 @@ export default {
                         })
 
                         // rated database
-                        db.collection('rated').where('user', '==', this.user.id)
+                        db.collection('rating').where('user', '==', this.user.id)
                         .where('iId', '==', this.$route.params.id)
                         .onSnapshot((snapshot) => {
                             snapshot.docChanges().forEach(change => {
@@ -662,237 +664,15 @@ export default {
                                 } 
                             })  
                         })
-
-                    
                     })
                 })
             }
         },
 
-        // add item to database
-        // dbName = name of database
-        // addItemToDB(dbName){
-            
-        //     // create new marked object with id, title and poster path... in firebase
-        //     db.collection(dbName).add({
-        //         id: "", // id in firebase - autogenerated by firebase
-        //         iId: this.$route.params.id, // item id from API
-        //         title: this.detail.data.title,
-        //         poster: this.detail.data.poster_path,
-        //         year: this.detail.data.release_date,
-        //         rate: this.detail.data.vote_average,
-        //         genres: this.detail.data.genres,
-        //         user: this.user.id,
-        //         user_rate: this.user.movies.curRate,
-        //         type: "movie",
-        //         href: "singleMovie",
-        //         added: Date.now()
+        getDirectors(){
 
-        //     }).then(() => {
-        //         // alert type and settings
-        //         this.alert.type = "success"
+        },
 
-        //         this.infoAlert(`Successfully added to ${dbName}.`)
-
-        //     }).catch(err => {
-        //         console.log(err)
-        //     })
-        // },
-
-        // // delete item from database
-        // // itemID = item id, movieList = array with items, dbName = name fo database
-        // deleteItemFromDB(itemID, movieList, dbName){
-        //     // *iId (item id) is id of movie from API and id is id of item in firebase
-        //     db.collection(dbName).where('user', '==', this.user.id).where('iId', '==', itemID).get()
-        //     .then(snapshot => {
-        //         snapshot.forEach(doc => {
-        //             db.collection(dbName).doc(doc.id).delete().then(()=> {
-        //                 movieList = movieList.filter(item =>{
-        //                     return item.id != doc.id
-        //                 })
-        //             })  
-        //         })
-        //     })
-        //     // alert type and settings
-        //     this.alert.type = "success"
-        //     this.infoAlert(`Successfully removed from ${dbName}.`)     
-
-        //     this.box.rate = false
-        // },
-        
-        // // add item to database or remove item from database 
-        // // itemID = movie id, movieList = movie array, dbName = name of firebase database
-        // toggleItemInDB(itemID, movieList, dbName ){
-   
-        //     // if user is login then:
-        //     if(firebase.auth().currentUser){
-        //         // if movie is marked then:
-        //         if (this.isItem(itemID, movieList)) {
-        //             // remove movie from watchlist
-        //             this.deleteItemFromDB(itemID, movieList, dbName)
-        //         // if movie is not marked then:
-        //         } else if (!this.isItem(itemID, movieList)) {
-        //             // add movie to watchlist
-        //             this.addItemToDB(dbName)
-        //         }
-        //     // if user is not login then:
-        //     } else {
-        //         // show alert 
-        //         this.alert.type = "error"
-        //         this.infoAlert("You must log in.")
-        //     }
-        // },
-
-        // // RATING
-        // // update rating
-        // updateRateItem(id){
-        //      // *iId (item id) is id of movie from API and id is id of item in firebase
-        //     db.collection('rated').where('user', '==', this.user.id).where('iId', '==', id).get()
-        //     .then(snapshot => {
-        //         snapshot.forEach(doc => {
-        //             db.collection('rated').doc(doc.id).update({
-        //                 user_rate: this.user.movies.curRate
-
-        //             }).then(() => {
-        //                 // alert type and settings
-        //                 this.alert.type = "success"
-        //                 this.infoAlert("Successfully update")
-
-        //             }).catch(err => {
-        //                 console.log(err)
-        //             })
-        //         })
-        //     })
-        // },
-        
-        // // toggle rating button
-        // ratingButton(){
-        //     // if user is login then:
-        //     if(firebase.auth().currentUser){
-        //         // if movie is not rated:
-        //         if (this.isItem(this.$route.params.id, this.user.movies.rate)) {
-        //             // update rating
-        //             this.updateRateItem(this.$route.params.id)
-        //         // if movie is not rating:
-        //         } else if (!this.isItem(this.$route.params.id, this.user.movies.rate)) {
-        //             // rate movie
-        //             this.addItemToDB('rated')
-        //         }
-        //     // if user is not login then:
-        //     } else {
-        //         // show alert 
-        //         this.alert.type = "error"
-        //         this.infoAlert("You must log in.")
-        //     }
-        //     this.box.rate = false
-        // },
-
-        // stylize button 
-        // id = film.id, arr = film array, before = icon name, after = icon name
-        // styleIcon(id, arr, before, after){
-        //     // if user is login then:
-        //     if(firebase.auth().currentUser){
-        //         // if movie is seen then:    
-        //         if (this.isItem(id, arr)) {
-        //             // slyle icon
-        //             return after
-        //             // if not:
-        //         } else if (!this.isItem(id, arr)) {
-        //             // style icon
-        //             return before
-        //         }
-        //     // if user is not login style icon
-        //     } else return before
-            
-        // },
-
-        // id = film.id, arr = film array, before = text, after = text
-        // styleText(id, arr, before, after){
-        //     // if user is login then:
-        //     if(firebase.auth().currentUser){
-        //         // if movie is seen then:    
-        //         if (this.isItem(id, arr)) {
-        //             // slyle text
-        //             return after
-        //             // if not:
-        //         } else if (!this.isItem(id, arr)) {
-        //             // style text
-        //             return before
-        //         }
-        //     // if user is not login style text
-        //     } else return before
-            
-        // },
-
-        // stylize rating button depending on whether the movie is rated
-        // text button
-        // styleRateText(id){
-        //     // if user is login then:
-        //     if(firebase.auth().currentUser){
-
-        //         if (this.isItem(this.$route.params.id, this.user.movies.rate)) {
-        //             return `Your rate is: ${this.user.movies.curRate}%`
-        //         } else if (!this.isItem(this.$route.params.id, this.user.movies.rate)) {
-        //             return "Rate movie"
-        //         }
-        //     } else return "Rate movie"
-        // },
-
-        // alert messages
-        // infoAlert(alertText){
-        //     this.$store.commit('infoAlert', alertText)
-        // },
-
-        // BOOKMARK BUTTON in recommend movies
-        // add movie to watchlist and send to firebase
-        // addMarkedItem(id, obj){
-
-        //     this.movieData = obj
-        //     db.collection('watchlist').add({
-        //         id: "",
-        //         iId: this.movieData.id,
-        //         title: this.movieData.title,
-        //         genres: this.movieData.genre_ids,
-        //         poster: this.movieData.poster_path,
-        //         rate: this.movieData.vote_average,
-        //         year: this.movieData.release_date,
-        //         user: this.user.id,
-        //         type: "movie",
-        //         href: "singleMovie"
-
-        //     }).then(() => {
-        //         // alert type and settings
-        //         this.alert.type = "success"
-        //         this.infoAlert("Successfully added to watchlist")
-                
-        //     })
-        //     .catch(err => {
-        //         console.log(err)
-        //     })
-        // },
-
-        // // add or remove bookmark
-        // markingButton(id, obj){
-        //     // if user is login then:
-        //     if(firebase.auth().currentUser){
-        //         // if movie is not marked then:
-        //         if (this.isItem(id, this.user.movies.mark)) {
-                  
-               
-        //             this.deleteItemFromDB(id, this.user.movies.mark, 'watchlist')
-               
-        //         // if movie is marked then:
-        //         } else if (!this.isItem(id, this.user.movies.mark)) {
-                 
-        //             this.addMarkedItem(id, obj)
-        //         }
-        //     // if user is not login then:
-        //     } else {
-        //         // show alert 
-        //         this.alert.type = "error"
-        //         this.infoAlert("You must log in.")
-        //     }
-        // },
 
         // API DATABASE -- movie details
         getItemData() {
@@ -902,151 +682,84 @@ export default {
             axios.get(`${this.URL.database}movie/${this.$route.params.id}${this.URL.apiKey}&append_to_response=videos,credits,recommendations,similar`)
             .then(res => {
            
-             
                 //** MOVIE DETAIL **//
                 //*****************//
-                const URLposter = "https://image.tmdb.org/t/p/original"
                 this.detail.data = res.data
 
                 // if is no poster image replace with holder
-                if (this.detail.data.poster_path) {
-                    this.detail.data.poster_path = URLposter + this.detail.data.poster_path
-                } else if (this.detail.data.poster_path == null) {
-                    this.detail.data.poster_path = this.holder.detail
-                }
+                this.poster()
 
                 // slice overview -- show all overview button
-                if (this.detail.data.overview.length > 350) {
-                    this.is.long = true
-                    this.detail.data.short = this.detail.data.overview.slice(0,300) + "..."
-                } else { 
-                    this.detail.data.short = this.detail.data.overview
-                    this.is.long = false
-                }
+                this.overview()
+
                 // set backdrop url
-                this.detail.data.backdrop_path = URLposter + this.detail.data.backdrop_path
+                this.detail.data.backdrop_path = this.URL.poster + this.detail.data.backdrop_path
+
                 // get just year from release date
-                if(this.detail.data.release_date ) {
-                   this.detail.data.release_date = this.detail.data.release_date.slice(0,4)
-                }
+                this.getYear()
+
                 // format run time 
                 if (this.detail.data.runtime) {
                     this.detail.data.runtime = this.timeConvert(this.detail.data.runtime)
                 } 
-                // rate number formating to one decimal
-                if (this.detail.data.vote_average < 10) {
-                    this.detail.data.vote_average = this.detail.data.vote_average.toFixed(1)
-                } 
 
-                if (this.detail.data.vote_average) {
-                    this.detail.data.vote_average = this.detail.data.vote_average * 10
-                } 
+                // rate number formating to one decimal
+                this.getRate()
            
                 //** CREDITS **//
                 //************//
-                const URLface = "https://image.tmdb.org/t/p/w235_and_h235_face"
                 this.detail.credits.crew = res.data.credits.crew
                 this.detail.credits.cast = res.data.credits.cast
 
                 let crew = this.detail.credits.crew
                 let cast = this.detail.credits.cast
+                
+                // get directors
+                this.getDirectors(crew)
 
                 // if is no profile image in cast replace with holder
-                cast.forEach((profile)=> {
-                    if (profile.profile_path) {
-                        profile.profile_path = URLface + profile.profile_path
-                    } else if (profile.profile_path == null) {
-                        profile.profile_path = this.holder.person
-                    }
-                })
-                // if is no profile image in crew replace with holder
-                crew.forEach((profile)=> {
-                    if (profile.profile_path) {
-                        profile.profile_path = URLface + profile.profile_path
-                    } else if (profile.profile_path == null) {
-                        profile.profile_path = this.holder.person
-                    }
-                })
+                this.actors(cast)
+                this.actors(crew)
+
                 // show crew section only if crew exist
                 !crew.length ? (this.is.crew = false) : this.is.crew = true
+
                 // show cast section only if cast exist if not crew panel is expand
-                if (!cast.length) {
-                    this.is.cast = false
-                } else {
-                    this.is.cast = true
-                }
+                this.castPanel(cast)
 
                 // if crew and cast don't exist hide all credits
-                if ( !this.is.crew && !this.is.cast ) {
-                    this.is.credits = false
-                }
+                this.noCredits()
+
 
                 //** RECOMMENDATIONS **//
                 //********************//
-                const URLrecom = "https://image.tmdb.org/t/p/w500"
                 this.detail.recommend = res.data.recommendations.results
-                // if is no poster image replace with holder
-                this.detail.recommend.forEach((poster)=>{
-                    if (poster.poster_path) {
-                        poster.poster_path = URLrecom + poster.poster_path
-                    } else if (poster.poster_path == null) {
-                        poster.poster_path = this.holder.photo
-                    }
-                })
+
+                // if is no profile image in cast replace with holder
+                this.posters(this.detail.recommend )
+
                 // get just year from release date
-                this.detail.recommend.forEach((year)=>{
-                    if(year.release_date) {
-                        year.release_date = year.release_date.slice(0,4)
-                    } else {
-                         year.release_date = "????"
-                    }
-                })
-
+                this.getYears(this.detail.recommend)
+                
                 // rate number formating to one decimal
-                this.detail.recommend.forEach((rate)=>{
-                    if (rate.vote_average < 10) {
-                        rate.vote_average =  rate.vote_average.toFixed(1)
-                    }
-
-                    if (rate.vote_average) {
-                        rate.vote_average =  rate.vote_average * 10
-                    }
-                })
-
+                this.getRates(this.detail.recommend)
 
                 // show recomend item if exist
                 this.detail.recommend.length > 0 ? this.is.recommend = true : this.is.recommend = false  
 
+
                 //** SIMILAR **//
                 //************//
                 this.detail.similar = res.data.similar.results
+
                 // if is no poster image replace with holder
-                this.detail.similar.forEach((poster)=>{
-                    if (poster.poster_path) {
-                        poster.poster_path = URLrecom + poster.poster_path
-                    } else if (poster.poster_path == null) {
-                        poster.poster_path = this.holder.photo
-                    }
-                })
+                this.posters(this.detail.similar)
+
                 // get just year from release date
-                this.detail.similar.forEach((year)=>{
-                    if(year.release_date) {
-                        year.release_date = year.release_date.slice(0,4)
-                    } else {
-                         year.release_date = "????"
-                    }
-                })
-
+                this.getYears(this.detail.similar)
+                
                 // rate number formating to one decimal
-                this.detail.similar.forEach((rate)=>{
-                    if (rate.vote_average < 10) {
-                        rate.vote_average =  rate.vote_average.toFixed(1)
-                    }
-
-                    if (rate.vote_average) {
-                        rate.vote_average =  rate.vote_average * 10
-                    }
-                })
+                this.getRates(this.detail.similar)
 
                 // show similar item if exist
                 this.detail.similar.length > 0 ? this.is.similar = true : this.is.similar = false
@@ -1062,43 +775,20 @@ export default {
                     this.show.similar = false
                 } 
 
+
                 //** TRAILER **//
                 //************//
+                this.detail.video = res.data.videos.results  
 
-                 const URLvideo = "https://www.youtube.com/embed/"
-                 this.detail.video = res.data.videos.results  
-                 
-                 
-                let trailers = []
-                this.detail.video.map((video)=>{
-                    if(video.type == "Trailer") {
-                        trailers.push(video)
+                // set video url (trailer)
+                this.getVideo(this.detail.video)
 
-                    }
-                })
-                
-                // // set video url
-                trailers.forEach((video)=>{   
-                    if (video.key) {
-                        video.key = URLvideo + video.key + "?rel=0&amp;autoplay=1"
-                    } 
-                    this.detail.video = video.key 
-                })
                 //show trailer button if video exist
-                !trailers.length ? this.is.video = false : this.is.video = true       
+                !this.trailers.length ? this.is.video = false : this.is.video = true       
 
             }).then(()=> {
                 this.loading = false
             }) 
-        },
-
-        // video trailer - active only when dialog si active
-        trailer(){        
-            if (this.box.video) {
-                return this.detail.video
-            } else if (!this.box.video) {
-                return ' '   
-            }
         },
     },
 }

@@ -16,7 +16,8 @@ export default new Vuex.Store({
             database: "https://api.themoviedb.org/3/",
             apiKey: "?api_key=0729eb044b5e37b6c0ff52a4c8617f94",
             face: "https://image.tmdb.org/t/p/w235_and_h235_face",
-            actor: "https://image.tmdb.org/t/p/original"
+            poster: "https://image.tmdb.org/t/p/original",
+            video: "https://www.youtube.com/embed/"
         },
         // img holders
         holder: {
@@ -55,8 +56,6 @@ export default new Vuex.Store({
             video: [],
             episodes: [],
             seriesNum: [],
-
-            random: [],
         },
 
         // trailer and full overview
@@ -68,7 +67,7 @@ export default new Vuex.Store({
         // show elements
         show: {
             recommend: false,
-            similar: true,
+            similar: false,
             seasons: true,
             backToTop: true,
         },
@@ -106,7 +105,27 @@ export default new Vuex.Store({
         },
         // current user data
         user: {
+            login: null,
             id: null,
+            name: "",
+            date: "",
+            photo: "",
+            items: [],
+            rated: {
+                all: [],
+                movies: [],
+                shows: [],
+            },
+            watchlist: {
+                all: [],
+                movies: [],
+                shows: [],
+            },
+            seen: {
+                all: [],
+                movies: [],
+                shows: [],
+            },
             movies: {
                 mark: [],
                 rate: [],

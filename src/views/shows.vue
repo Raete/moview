@@ -236,6 +236,12 @@
     </v-app>
 
     <app-footer></app-footer>
+    <!-- go up button -->
+    <button 
+        @click="scrollToTop(300)" 
+        class="up" 
+        :class="{ up_active: show.backToTop }"
+    > go to top </button>
 
 </div></template>
 
@@ -255,7 +261,7 @@ import { global, initInList } from '../mixins/global'
 import { search }from '../mixins/search'
 import { buttonsInList}from '../mixins/buttons'
 import { icons } from '../mixins/styles'
-import { scroll }from '../mixins/scroll' //* add to template/
+import { scroll }from '../mixins/scroll' 
 import { pagination } from '../mixins/pagination'
 
 export default {
@@ -282,7 +288,6 @@ export default {
 
             searchInput: {
                 search: "",
-                loading: false,
                 items: [],
                 select: null,
                 names: [],
@@ -336,6 +341,7 @@ export default {
             'alert',
             'btn',
             'user',
+            'show',
         ]),
     },
 

@@ -98,6 +98,23 @@
     }
 }
 
+// button director
+.btn_director {
+    font-weight: 700;
+    border-bottom: 2px dotted transparent;
+    transition: .3s;
+    position: relative;
+    &:hover {
+        border-bottom: 2px dotted $color_primary;
+    }
+    &:not(:last-child):before {
+        content: ",";
+        position: absolute;
+        right: 0;
+    }
+}
+
+
 //POSTER
 .poster {
     display: none;

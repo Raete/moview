@@ -3,12 +3,13 @@ import firebase from 'firebase/app'
 
 export const icons = {
     methods: {
-        // styling button 
+        // SET ICON IN BUTTON
+        // used in movie and tv list, movie and tv details
         // --------------
-        // id: film.id, 
-        // arr: film array, 
-        // before: icon name, 
-        // after: icon name
+        // id = film.id, 
+        // arr = film array, 
+        // before = icon name, 
+        // after = icon name
         styleIcon(id, arr, before, after){
           
             // if user is login then:
@@ -30,7 +31,13 @@ export const icons = {
 
 export const text = {
     methods: {
-        // id = film.id, arr = film array, before = text, after = text
+        // SET TEXT IN BUTTON
+        // used in movie and tv list, movie and tv details
+        // --------------
+        // id = film.id, 
+        // arr = film array, 
+        // before = text, 
+        // after = text
         styleText(id, arr, before, after){
             // if user is login then:
             if(firebase.auth().currentUser){
@@ -49,7 +56,10 @@ export const text = {
         },
 
         // stylize rating button depending on whether the movie is rated
-        // text button
+        // used in movie and tv show detail
+        // --------------------------------
+        // arr = array with items 
+        // rate = current rate
         styleRateText(arr, rate){
             // if user is login then:
             if(firebase.auth().currentUser){
@@ -67,4 +77,3 @@ export const text = {
         },
     }
 }
-
