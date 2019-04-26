@@ -1,9 +1,9 @@
-
-
 const renderItems = {
     computed: {
-
+        // show list of item based on submemu (all, movies, tv shows)
+        // used in profile, actor page
         render(){
+            // show all item 
             if(this.activeRender == "all") {
                 return this.itemsByType
 
@@ -13,21 +13,23 @@ const renderItems = {
                 movie = this.filterItem("movie", this.itemsByType)
                 return movie
                 
-
             // show only item with type show
             } else if (this.activeRender == "tv") {
                 let tv
                 tv = this.filterItem("tv", this.itemsByType)
-                return tv
-                
+                return tv 
             }
         },
-       
     }
 }
 
 const filterItem = {
     methods: {
+        // create array with items based on type (movie or tv)
+        // used in actor page and profile
+        // -------------------------------
+        // type = movie or tv
+        // arr = array with items
         filterItem(type, arr){
             let filteredItems = []
             
@@ -43,11 +45,14 @@ const filterItem = {
 
 const itemCounter = {
     methods: {
-        // type = item in menu, arr = array of items, db = name of array
-        // submenu (all, movies, shows)
+        // COUNTING ITEMS IN ARRAY
+        // used in actor page an profile
+        // ----------------------------- 
+        // type = item in submenu (all, movies, shows) 
+        // arr = array of items, 
+        // db = name of array
         itemCounter(type, arr){
            
-
             if(type == "all") {
                 return arr.length 
             }
@@ -61,14 +66,18 @@ const itemCounter = {
                 let movies = this.filterItem("tv", arr)
                 return movies.length
             }
-      
-    },
-
+        },
     }
 }
 
 const sortby = {
     methods: {
+        // SORTING ITEM IN ARRAY
+        // used in actor page an profile
+        // ----------------------------- 
+        // array = array with items,
+        // param = sorting parameter
+        // reverse = reverse item
         sortBy(array, param, reverse) {
             let _this = this
 			let filterA, filterB;
@@ -106,15 +115,16 @@ const sortby = {
                     return (filterA < filterB) ? 1 : -1;
 				}
             });
-
         },
-
     }
 }
 
 const dynamicSort = {
     methods: {
+        // SORT ITEMS IN ARRAY BASED ON PROPERTY
         // sort movies and tv shows by year
+        // used in actor page
+        // property = set property for sorting (add "-" for reverse)
         dynamicSort(property) {
             let sortOrder = 1;
             if (property[0] === "-") {
@@ -126,28 +136,28 @@ const dynamicSort = {
                 return result * sortOrder;
             }
         },
-
     }
 }
 
 const createArrByType = {
     methods: {
-        // render item by current tab 
-        createArrByType(type){
+
+        // render item by department
+        // used in actor page and profile
+        // -------------------------------
+        // department = set department for render
+        // arr = array with items 
+        createArrByType(department, arr){
             this.itemsByType = []
 
-            this.actor.roles.forEach(item =>{
-                if (item.department == type) {
-                    this.itemsByType.push(item)
-                    
+            arr.forEach(item =>{
+                if (item.department == department) {
+                    this.itemsByType.push(item) 
                 }
             })  
             // remove movies and tv shows with same id
             this.itemsByType = this.getUnique(this.itemsByType , "id")
-
-            
         },
-
     }
 }
 
@@ -159,4 +169,3 @@ export {
     dynamicSort,
     createArrByType 
 }
-

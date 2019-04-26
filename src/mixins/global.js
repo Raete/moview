@@ -1,6 +1,7 @@
 const global = {
     methods: {
         // decide if item is in array
+        // used in movies, shows, profile, movie and tv detail 
         // --------------------------
         // id: item id
         // arr: array witch items
@@ -8,6 +9,10 @@ const global = {
             return arr.findIndex(el => el.iId == id) !== -1
         },
 
+        // info alert
+        // used in movies, shows, movie and tv detail  
+        // --------------------------------------
+        // msg = alert message
         infoAlert(msg){
             this.alert.active = true
             this.alert.text = msg
@@ -15,13 +20,13 @@ const global = {
                 this.alert.active = false
             }, 1500)
         },
-
     }
 }
 
 const initInList = {
     methods: {
-
+        // RESET DATA //
+        // used in movie and tv list
         init(){
             this.page.cur = 1
             this.page.curSearch = 1
@@ -36,7 +41,8 @@ const initInList = {
 
 const initInSingle = {
     methods: {
-
+        // RESET DATA //
+        // used in movie and tv detail
         init(){
             this.loading = true
             // movie details
@@ -59,6 +65,11 @@ const initInSingle = {
 
 const unique = {
     methods: {
+        // UNIQUE ITEM IN ARRAY //
+        // used in actor, profile
+        // ----------------------
+        // arr = array with item
+        // key = key according to which the item is to be deleted
         getUnique(arr, key) {
 
             const unique = arr
@@ -76,6 +87,7 @@ const unique = {
 const setHref = {
     methods: {
         // set correct path in list
+        // used in actor
         setHref(type) {
             return type == "movie" ? "singleMovie" : "singleShow"
         },

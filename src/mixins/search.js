@@ -3,12 +3,14 @@ import axios from 'axios';
 
 export const search = {
     methods: {
+        // SEARCHING AND FILTERS
+        // used in movie and tv list
+        // -------------------------
 
         // creating list of item titles in autocomplete input 
         // --------------------------------------------------
         // searchTerm: searching term
         // type: movie or tv
-        // used in movies and shows component
         titleList(searchTerm, type) {
             this.searchInput.loading = true
             axios.get(`${this.URL.database}search/${type}${this.URL.apiKey}&query=${searchTerm}`)
@@ -17,7 +19,9 @@ export const search = {
                 titles.forEach((movie)=> {
                 
                     if(movie.name) {
+                        // if is tv show
                         this.searchInput.names.push(movie.name)
+                        // if is movie
                     } else this.searchInput.names.push(movie.title)
                     
                 })
@@ -27,6 +31,7 @@ export const search = {
                 this.searchInput.loading = false
             }) 
         },
+
         // create list of years 
         getYearsList() {
             // set year 1900
@@ -42,6 +47,7 @@ export const search = {
             }
         },
 
+        // create list of genres
         getGenresList(type) {
             axios.get(`${this.URL.database}genre/${type}/list${this.URL.apiKey}`)
             .then(res => {
