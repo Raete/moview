@@ -30,18 +30,7 @@ const moviesData = {
                 this.is.long = false
             }
         },
-
-        // get directors
-        getDirectors(arr){
-            arr.forEach(crew=>{
-                   
-                if (crew.department == "Directing") {
-                    this.directors.push(crew)
-                }
-      
-            })
-        },
-
+        
         // get just year from release date
         getYear(){
             if(this.detail.data.release_date ) {

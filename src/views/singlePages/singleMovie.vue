@@ -715,7 +715,13 @@ export default {
                 let cast = this.detail.credits.cast
                 
                 // get directors
-                this.getDirectors(crew)
+                crew.forEach(crew=>{
+                   
+                    if (crew.department == "Directing") {
+                        this.directors.push(crew)
+                    }
+      
+                })
 
                 // if is no profile image in cast replace with holder
                 this.actors(cast)

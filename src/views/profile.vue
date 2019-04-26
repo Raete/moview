@@ -215,12 +215,11 @@ export default {
             sorting: {
                 text: "rating",
             },
-                
             
-
         }
     },
     created(){
+        this.init()
         this.loading = true
         // get current user from firebase
         this.getCurrentUser()
@@ -254,6 +253,16 @@ export default {
 
 
     methods: {
+        init(){
+        
+            this.user.login = null,
+            this.user.id = null,
+            this.user.name = "",
+            this.user.date = "",
+            this.user.photo = "",
+            this.user.items = [],
+            this.itemsByType = []
+      },
 
         // FIREBASE 
         // get current user from firebase
