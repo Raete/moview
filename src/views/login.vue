@@ -17,22 +17,22 @@
                         <v-form class="log_form_wrap" @submit.prevent="login">
                             <h1 class="log_form_name">Login</h1>
                             <v-text-field
-                            v-model="email"
-                            label="Email"
-                            solo
-                            flat
-                            required
-                            background-color="back_3"
-                            :type="'email'"
+                                v-model="email"
+                                label="Email"
+                                solo
+                                flat
+                                required
+                                background-color="back_3"
+                                :type="'email'"
                             ></v-text-field>
                             <v-text-field
-                            v-model="password"
-                            :type="'password'"
-                            label="Password"
-                            solo
-                            flat
-                            required
-                            background-color="back_3"
+                                v-model="password"
+                                :type="'password'"
+                                label="Password"
+                                solo
+                                flat
+                                required
+                                background-color="back_3"
                             ></v-text-field>
                             <v-btn round large block class="claim_btn" color="primary" @click.prevent="login" exact> Login </v-btn>
                             <p class="info_text">New to Moview? <span v-on:click="showSignUp">Sign up now</span></p>
@@ -51,31 +51,31 @@
                         <v-form class="log_form_wrap" >
                             <h1 class="log_form_name">Sign up</h1>
                             <v-text-field
-                            v-model="alias"
-                            label="Username"
-                            solo
-                            flat
-                            required
-                            background-color="back_3"
+                                v-model="alias"
+                                label="Username"
+                                solo
+                                flat
+                                required
+                                background-color="back_3"
                             :type="'text'"
                             ></v-text-field>
                             <v-text-field
-                            v-model="email"
-                            label="Email"
-                            solo
-                            flat
-                            required
-                            background-color="back_3"
-                            :type="'email'"
+                                v-model="email"
+                                label="Email"
+                                solo
+                                flat
+                                required
+                                background-color="back_3"
+                                :type="'email'"
                             ></v-text-field>
                             <v-text-field
-                            v-model="password"
-                            :type="'password'"
-                            label="Password"
-                            solo
-                            flat
-                            required
-                            background-color="back_3"
+                                v-model="password"
+                                :type="'password'"
+                                label="Password"
+                                solo
+                                flat
+                                required
+                                background-color="back_3"
                             ></v-text-field>
                             <v-btn  round large block class="claim_btn" color="primary" @click.prevent="signup" exact> Sign up </v-btn>
                             <p class="info_text" >Already have an account?<span v-on:click="showLogIn">Log In</span></p>

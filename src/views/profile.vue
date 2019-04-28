@@ -18,6 +18,7 @@
                         <v-icon>exit_to_app</v-icon>
                     </v-btn>
                 </v-card-actions>
+
                 <!-- user name -->
                 <img class="profile_photo round" v-bind:src="user.photo" alt="profil picture" >
                 <h1 class="user_name ma-0">{{user.name }}</h1>
@@ -25,146 +26,34 @@
             </v-card>
 
             <v-divider></v-divider>
-            <!-- menu - watchlist, rating, seen  -->
-            <v-tabs
-                v-model="menuItemActive"
-                light 
-                slider-color="primary"    
-            >
-                <v-tab
-                    v-for="(item, index) in menu"
-                    :key="index"
-                    ripple
-                    :href="`#${item.name}`"
-                    color="primary"
-                >        
-                   {{ item.name }} ({{itemNumber(item.name)}})  
+
+            <!-- department menu -->
+            <v-tabs color="white" v-model="currentTab" centered height="80px">
+                <v-tabs-slider color="black" ></v-tabs-slider>
+
+                <v-tab 
+                    class="tab_menu_item" 
+                    color="primary" 
+                    v-for="(item, index) in menu" 
+                    :key="index" 
+                    ripple 
+                    :href="`#${item}`"
+                >
+                    {{item}} 
                 </v-tab>
+            </v-tabs>
 
-                <!-- watchlist section -->
-                <v-tab-item value="watchlist">
-                
-                    <h1 class="list_heading">My watchlist</h1>
-                    <!-- filter all item, movies, tv shows -->
-                    <v-toolbar flat >
-                        <v-btn-toggle mandatory v-model="activeRender">
-                            <v-btn
-                                v-for="(item, index) in submenu" :key="index"
-                                flat                             
-                                class="mr-2"
-                                :value="item.type"
-                            >
-                                {{item.name}} ({{itemCounter(item.type, user.watchlist.all, 'watchlist')}})
-                            </v-btn>
-                        </v-btn-toggle>
-                    </v-toolbar>
-
-                    <!-- movies and tv shows in watchlist -->
-                    <section class="item_container">
-                        <div class="item_wrapper">
-                            <div class="item" v-for="(film, index) in renderWatchlistItems" :key="index">
-                                <!-- poster -->
-                                <div class="poster_wrapper">
-                                    <router-link :to="{ name: film.href, params: { id: film.iId } }">     
-                                        <figure class="item_content animated">
-                                            <img class="item_img" v-bind:src="film.poster" alt="">
-                                            <figcaption class="item_hover">
-                                                <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
-                                            </figcaption>           
-                                        </figure>
-                                    </router-link>
-                                    <div class="poster_shadow--colored" v-bind:style="{ 
-                                        backgroundImage: 'url(' + film.poster + ')',
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center',
-                                    }"></div>
-                                </div>
-                                <!-- box with bookmark and delete -->
-                                <div class="item_info">
-                                    <!-- rating -->
-                                    <div class="item_rate">{{film.rate}}%</div>
-                                    <v-btn icon ripple class="item_delete">
-                                        <v-icon @click.prevent="deleteWatchlistItem(film.id)">close</v-icon>
-                                    </v-btn>
-                                    <!-- title -->
-                                    <router-link class="item_title_box" :to="{ name: film.href, params: { id: film.iId } }">  
-                                        <h1 class="item_name"> {{film.title}} </h1>
-                                        <span class="item_year"> {{film.year}} </span>
-                                    </router-link>
-                                </div>
-                            </div>
-                        </div> 
-                        <p class="text-xs-center"> 
-                        {{feedback(renderWatchlistItems, activeRender, "watchlist")}}
-                        </p> 
-                    </section>
-                </v-tab-item>
-
-                <!-- rating section -->
-                <v-tab-item value="rating">
-
-                    <h1 class="list_heading">My ratings</h1>
-                    <!-- filter all item, movies, tv shows -->
-                    <v-toolbar flat >
-                        <v-btn-toggle mandatory v-model="activeRender">
-                            <v-btn
-                                v-for="(item, index) in submenu" :key="index"
-                                flat                           
-                                class="mr-2"
-                                :value="item.type"
-                            >
-                                {{item.name}} ({{itemCounter(item.type, user.rated.all, 'rating')}})
-                            </v-btn>
-                        </v-btn-toggle>
-                    </v-toolbar>
-
-                    <!-- rated movies and tv shows -->
-                    <section class="item_container">
-                        <div class="item_wrapper">
-                            <div class="item" v-for="(film, index) in renderRatedItems" :key="index">
-                                <!-- poster -->
-                                <div class="poster_wrapper">
-                                    <router-link :to="{ name: film.href, params: { id: film.iId } }"> 
-                                        <figure class="item_content animated" >
-                                            <img class="item_img" v-bind:src="film.poster" alt="">
-                                            <figcaption class="item_hover">
-                                                <img class="item_hover_ico" src="@/assets/img/svg/plus.svg" alt="">
-                                            </figcaption>           
-                                        </figure>
-                                    </router-link>
-                                    <div class="poster_shadow--colored" v-bind:style="{ 
-                                        backgroundImage: 'url(' + film.poster + ')',
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center',
-                                    }"></div>
-                                </div>
-                                <!-- block with bookmark and delete -->
-                                <div class="item_info">
-                                    <!-- rating -->
-                                    <div class="item_rate">Your rate: {{film.user_rate}}%</div>
-                                    <v-btn icon ripple class="item_delete">
-                                        <v-icon @click.prevent="deleteRatedItem(film.id)">close</v-icon>
-                                    </v-btn>
-                                    <!-- title -->
-                                    <router-link class="item_tile_box" :to="{ name: film.href, params: { id: film.iId } }">
-                                        <h1 class="item_name"> {{film.title}} </h1>
-                                        <span class="item_year">{{film.year}}</span>
-                                    </router-link>
-                                </div>
-                            </div>
-                        </div> 
-                        <p class="text-xs-center"> 
-                        {{feedback(renderRatedItems, activeRender, "rating")}}
-                        </p> 
-                    </section>
-
-                </v-tab-item>
-
-                <!-- seen section -->
-                <v-tab-item value="seen">
-                
-                    <h1 class="list_heading">My seen</h1>
-                    <!-- filter all item, movies, tv shows -->
+            <v-tabs-items v-model="currentTab">
+                <v-tab-item 
+                    :transition="false" 
+                    :reverse-transition="false" 
+                    class="tab_item" 
+                    v-for="(item, index) in menu" 
+                    :key="index" 
+                    :value="`${item}`"
+                >
+                    <h1 class="list_heading">My {{item}}</h1>
+                    <!-- submenu -->
                     <v-toolbar flat >
                         <v-btn-toggle mandatory v-model="activeRender">
                             <v-btn
@@ -173,16 +62,49 @@
                                 class="mr-2"
                                 :value="item.type"
                             >
-                                {{item.name}} ({{itemCounter(item.type, user.seen.all, 'seen')}})
+                                {{item.name}} ({{itemCounter(item.name, itemsByType)}})
+                            
                             </v-btn>
                         </v-btn-toggle>
+                        <v-spacer></v-spacer>
+
+                        <!-- sorting menu -->
+                        <v-menu v-if="user.items.length">
+                            <v-btn
+                                slot="activator"
+                                flat
+                                depressed
+                            >
+                            <v-icon>swap_vert</v-icon>
+                                Sort by
+                            </v-btn>
+
+                            <!-- list of sort option -->
+                            <v-list class="white">
+                            <v-list-tile @click="sortBy(itemsByType, 'rate', reverse = !reverse)">
+                                    <v-list-tile-title>Rating</v-list-tile-title>
+                                </v-list-tile>
+                                <v-list-tile @click="sortBy(itemsByType, 'title', reverse = !reverse)">
+                                    <v-list-tile-title >Title</v-list-tile-title>
+                                </v-list-tile>
+                                <v-list-tile @click="sortBy(itemsByType, 'year', reverse = !reverse)">
+                                    <v-list-tile-title >Year</v-list-tile-title>
+                                </v-list-tile>
+                                <v-list-tile @click="sortBy(itemsByType, 'added', reverse = !reverse)">
+                                <v-list-tile-title >Added</v-list-tile-title>
+                            </v-list-tile>
+                            </v-list>
+                        </v-menu>
+                        
                     </v-toolbar>
 
-                    <!-- movies and tv shows in seen -->
+                    <!-- list of items -->
                     <section class="item_container">
-                        <div class="item_wrapper">
-                            <div class="item" v-for="(film, index) in renderSeenItems" :key="index">
-                                <!-- poster -->
+                        <p class="text-xs-center">{{feedback(render, activeRender, currentTab,)}}</p>
+            
+                        <transition-group name="animation" tag="div" class="item_wrapper">
+                            <div class="item" v-for="film in render" :key="film.id">
+                                
                                 <div class="poster_wrapper">
                                     <router-link :to="{ name: film.href, params: { id: film.iId } }">     
                                         <figure class="item_content animated">
@@ -198,32 +120,37 @@
                                         backgroundPosition: 'center',
                                     }"></div>
                                 </div>
-                                <!-- box with bookmark and delete -->
+                                
                                 <div class="item_info">
-                                    <!-- rating -->
-                                    <div class="item_rate">{{film.rate}}%</div>
+
+                                    <div v-if="currentTab == 'rating'" class="item_rate">your rate: {{film.user_rate}}%</div>
+                                    <div v-else class="item_rate">{{film.rate}}%</div>
                                     <v-btn icon ripple class="item_delete">
-                                        <v-icon @click.prevent="deleteSeenItem(film.id)">close</v-icon>
+                                        <v-icon @click.prevent="deleteItem(film.id, film.department)">close</v-icon>
                                     </v-btn>
-                                    <!-- title -->
+                                    
                                     <router-link class="item_title_box" :to="{ name: film.href, params: { id: film.iId } }">  
                                         <h1 class="item_name"> {{film.title}} </h1>
                                         <span class="item_year"> {{film.year}} </span>
                                     </router-link>
                                 </div>
                             </div>
-                        </div> 
-                        <p class="text-xs-center"> 
-                            {{feedback(renderSeenItems, activeRender, "seen")}}
-                        </p>
+                        </transition-group> 
+                  
                     </section>
+
                 </v-tab-item>
-            </v-tabs>
+            </v-tabs-items>
+
         </v-container>
     </v-app>
     <app-footer></app-footer>
     <!-- go up button -->
-    <button @click="scrollToTop(300) " class="up" :class="{ up_active: show.backToTop }"> 
+    <button 
+        @click="scrollToTop(300) " 
+        class="up" 
+        :class="{ up_active: show.backToTop }"
+    > 
         go to top
     </button>
 </div></template>
@@ -241,10 +168,19 @@ import firebase from 'firebase/app'
 import { mapState } from 'vuex';
 // moment
 import moment from 'moment'
+// mixins
+import { unique, setHref } from '../mixins/global'
+import { profileFeedback } from '../mixins/feedbacks'
+import { renderItems, filterItem, itemCounter, sortby, dynamicSort, createArrByType } from '../mixins/sorting'
 
 
 
 export default {
+    mixins: [
+        setHref, unique, 
+        profileFeedback,
+        renderItems, filterItem, itemCounter, sortby, dynamicSort, createArrByType
+    ],
     components: {
         'app-menu': menu,
         'app-footer': footer,
@@ -254,49 +190,36 @@ export default {
     data () {
         return {
             loading: false,
-            // current user data
-            user: {
-                login: null,
-                id: null,
-                name: "",
-                date: "",
-                photo: "",
-                
-                rated: {
-                    all: [],
-                    movies: [],
-                    shows: [],
-                },
-                watchlist: {
-                    all: [],
-                    movies: [],
-                    shows: [],
-                },
-                seen: {
-                    all: [],
-                    movies: [],
-                    shows: [],
-                },
-            },
 
-            menu: [
-                {name: "watchlist", icon: "bookmark"},
-                {name: "rating", icon: "star"},
-                {name: "seen", icon: "visibility"}
-            ],
+            // departments
+            menu: ["watchlist", "rating", "seen"],
 
+            // array of items by departments
+            itemsByType:[],
+
+            // current tab in menu
+            currentTab: "",
+
+            // filter menu
             submenu: [
                 {type: "all", name: "all" },
                 {type: "movie", name: "movies"},
-                {type: "show", name: "shows"},
+                {type: "tv", name: "shows"},
             ],
 
-            menuItemActive: "watchlist",
-            activeRender: "all"
-
+            // current tab in submenu
+            activeRender: "all",
+            
+            // sort by
+            reverse: true,
+            sorting: {
+                text: "rating",
+            },
+            
         }
     },
     created(){
+        this.init()
         this.loading = true
         // get current user from firebase
         this.getCurrentUser()
@@ -304,6 +227,7 @@ export default {
         this.getUserData()
         // back to seasons button
         window.addEventListener("scroll", this.backToTopBtn)
+
     },
 
     computed: {
@@ -313,98 +237,33 @@ export default {
             'holder',
             'detail',
             'show',
+            'user',
         ]),
 
-        renderWatchlistItems(){
-            return this.renderItems(this.user.watchlist.all)
-        },
-
-        renderRatedItems(){
-            return this.renderItems(this.user.rated.all)
-        },
-
-        renderSeenItems(){
-            return this.renderItems(this.user.seen.all)
-        },
     },
 
+    watch: {
+        currentTab(val){
+            // show items based on current tab
+            this.createArrByType(val, this.user.items)
+            this.activeRender =  "all"
+        },
+        
+    },
+
+
     methods: {
+        init(){
+        
+            this.user.login = null,
+            this.user.id = null,
+            this.user.name = "",
+            this.user.date = "",
+            this.user.photo = "",
+            this.user.items = [],
+            this.itemsByType = []
+      },
 
-        // show item
-        renderItems(arr){
-            // show all item in array
-            if(this.activeRender == "all") {
-                return arr
-
-            // show only item with type movie
-            } else if (this.activeRender == "movie") {
-                let movies = this.filterItem("movie", arr)
-                return movies
-
-            // show only item with type show
-            } else if (this.activeRender == "show") {
-                let shows = this.filterItem("show", arr)
-                return shows
-            }
-        },
-
-        // get item in specific array based on specific type
-        filterItem(type, arr){
-            let filteredItems = []
-            
-            filteredItems = arr.filter(item =>{
-                return item.type == type
-            })
-
-            return filteredItems
-        },
-
-        // sum rated movies and tv shows
-        // main menu (watchlist, rated, seen)
-        itemNumber(type){
-            if(type == "watchlist") {
-                return this.user.watchlist.all.length 
-            }
-
-            if(type == "rating") {
-                return this.user.rated.all.length
-            }
-
-            if(type == "seen") {
-                return this.user.seen.all.length
-            }
-        },
-
-        // type = item in menu, arr = array of items, db = name of array
-        // submenu (all, movies, shows)
-        itemCounter(type, arr, name){
-            if(this.menuItemActive == name) {
-
-                if(type == "all") {
-                    return arr.length 
-                }
-
-                if(type == "movie") {
-                    let movies = this.filterItem("movie", arr)
-                    return movies.length
-                }
-
-                if(type == "show") {
-                    let movies = this.filterItem("show", arr)
-                    return movies.length
-                }
-            }  
-        },
-
-        // scroll to top
-        scrollToTop(time) {
-            this.$store.commit('scrollToTop', time)
-        },
-        // back to top button is appear
-        backToTopBtn() {
-            this.$store.commit('backToTopBtn')
-        },
- 
         // FIREBASE 
         // get current user from firebase
         getCurrentUser(){
@@ -415,17 +274,25 @@ export default {
                     this.user.login = null
                 }
             })
+           
         },
 
         // get data from firebase from specific databese
-        getDBData(dbName, arr){
+        getDBData(dbName){
             db.collection(dbName).orderBy('rate', 'desc').where('user', '==', this.user.id).get().then(snapshot => {
                 snapshot.forEach(doc => {
                     let record = doc.data()
                     record.id = doc.id
 
-                    arr.push(record)
+                    this.user.items.push(record)
+                    
                 })
+                let departments = []
+                this.user.items.forEach(department => {
+                    departments.push(department.department)
+                })
+
+                this.currentTab = "watchlist"
             
             }) 
         },
@@ -435,11 +302,13 @@ export default {
             this.loading = true
             db.collection('users').where('user_id', '==', firebase.auth().currentUser.uid).get()
             .then(snapshot => {
+                
                 snapshot.forEach(doc => {
                     // id of current user
                     this.user.id = doc.id
-                
-                    // get username from database
+                })
+
+                // get username from database
                     db.collection('users').doc(this.user.id).get()
                     .then(user => {
 
@@ -454,15 +323,17 @@ export default {
 
                     }) 
                     // watchlist database
-                    this.getDBData('watchlist', this.user.watchlist.all)
+                    this.getDBData('watchlist')
                     // rating databbase
-                    this.getDBData('rated', this.user.rated.all)
+                    this.getDBData('rating')
                     // seen database
-                    this.getDBData('seen', this.user.seen.all)
+                    this.getDBData('seen')
 
-                })
+               
             }).then(() => {
-                    this.loading = false
+                this.loading = false
+            }).catch(error => {
+                console.log(error)
             })
             
         },
@@ -474,75 +345,19 @@ export default {
             })
         },
 
-        // delete item from database - watchlist
-        deleteWatchlistItem(id){
-            db.collection('watchlist').doc(id).delete().then(()=> {
+        // delete item from database 
+        deleteItem(id, department){
+            db.collection(department).doc(id).delete().then(()=> {
                
-                    this.user.watchlist.all = this.user.watchlist.all.filter(item =>{
-                        return item.id != id
-                    })
-                      
+                this.itemsByType = this.itemsByType.filter(item =>{
+                    return item.id != id
+                })
+
+                this.user.items = this.user.items.filter(item =>{
+                    return item.id != id
+                })     
             })
         },
-
-        // delete item from database - rated
-        deleteRatedItem(id){
-            db.collection('rated').doc(id).delete().then(()=> {
-                this.user.rated.all= this.user.rated.all.filter(item =>{
-                        return item.id != id
-                    })
-                    
-            })
-        },
-
-        // delete item from database - seen
-        deleteSeenItem(id){
-            db.collection('seen').doc(id).delete().then(()=> {
-                this.user.seen.all= this.user.seen.all.filter(item =>{
-                        return item.id != id
-                    })
-                    
-            })
-        },
-
-        // feedback
-        feedback(arr, type, menu){
-            if(!arr.length && menu == "watchlist"){
-                if(type == "all") {
-                    return `Your watchlist is empty.`
-                }
-                if(type == "movie") {
-                    return `You don't have any movies in the watchlist.`
-                }
-                if(type == "show") {
-                    return `You don't have any TV shows in the watchlist.`
-                }
-            }
-            if(!arr.length && menu == "rating"){
-                if(type == "all") {
-                    return `You have no rated movies or TV shows.`
-                }
-                if(type == "movie") {
-                    return `You have no rated movies.`
-                }
-                if(type == "show") {
-                    return `You have no rated TV shows.`
-                }
-            }
-            if(!arr.length && menu == "seen"){
-                if(type == "all") {
-                    return `No movies or TV shows marked as seen.`
-                }
-                if(type == "movie") {
-                    return `No movies marked as seen.`
-                }
-                if(type == "show") {
-                    return `No TV shows marked as seen.`
-                }
-            }
-        },
-
-        
     }
 
 
@@ -592,19 +407,24 @@ export default {
     .list_heading {
         padding:  16px;
         text-align: center;
-       // background: $color_back_3
     }
 
-    // active item in menu
-    .active_item {
-        font-weight: 700;
-        &--light {
-            background: $color_back_2 !important
-        }
-        &--dark {
-            background: $color_back_3 !important
-        }
+    .item {
+        transition: all .6s;
+        width: 190px;
     }
+
+    .animation-enter, .animation-leave-to {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .animation-leave-active {
+        position: absolute;
+    }
+
+
+
 
 
 </style>
