@@ -1,39 +1,21 @@
-<svg version="1.1" id="el_PGolrxZa4" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 99 99" enable-background="new 0 0 99.212 99.212" xml:space="preserve"><style type="text/css">@-webkit-keyframes el_5Xx1kV1wPZ_H7ThEuxOB_Animation {
-    0% {
-        -webkit-transform: rotate(0deg);
-                transform: rotate(0deg)
-    }
-    100% {
-        -webkit-transform: rotate(360deg);
-                transform: rotate(360deg)
-    }
-}
-@keyframes el_5Xx1kV1wPZ_H7ThEuxOB_Animation {
-    0% {
-        -webkit-transform: rotate(0deg);
-                transform: rotate(0deg)
-    }
-    100% {
-        -webkit-transform: rotate(360deg);
-                transform: rotate(360deg)
-    }
-}
-#el_PGolrxZa4 * {
-    -webkit-animation-duration: 3s;
-            animation-duration: 3s;
-    -webkit-animation-iteration-count: infinite;
-            animation-iteration-count: infinite;
-    -webkit-animation-timing-function: cubic-bezier(0, 0, 1, 1);
-            animation-timing-function: cubic-bezier(0, 0, 1, 1)
-}
-#el_5Xx1kV1wPZ_H7ThEuxOB {
-    -webkit-animation-name: el_5Xx1kV1wPZ_H7ThEuxOB_Animation;
-            animation-name: el_5Xx1kV1wPZ_H7ThEuxOB_Animation;
-    -webkit-transform-origin: 50% 50%;
-            transform-origin: 50% 50%;
-    transform-box: fill-box;
-    -webkit-transform: rotate(0deg);
-            transform: rotate(0deg)
-}</style><style/>
-<g id="el_5Xx1kV1wPZ_H7ThEuxOB" data-animator-group="true" data-animator-type="1"><path d="M79.756,19.456c-16.652-16.652-43.649-16.652-60.3,0c-16.652,16.652-16.652,43.649,0,60.3&#10;&#9;c16.652,16.652,43.649,16.651,60.301-0.001C96.408,63.104,96.408,36.108,79.756,19.456z M76.534,22.678&#10;&#9;c4.329,4.329,4.329,11.347,0,15.675s-11.346,4.329-15.675,0c-4.329-4.329-4.328-11.347,0-15.676S72.205,18.349,76.534,22.678z&#10;&#9; M32.318,15.678c5.453-2.778,12.126-0.61,14.904,4.843s0.61,12.125-4.843,14.904c-5.453,2.779-12.125,0.61-14.904-4.842&#10;&#9;C24.698,25.129,26.865,18.456,32.318,15.678z M24.674,64.777c-6.045,0.958-11.723-3.167-12.679-9.213&#10;&#9;c-0.958-6.046,3.166-11.723,9.212-12.682c6.045-0.956,11.724,3.168,12.681,9.215C34.845,58.142,30.72,63.82,24.674,64.777z&#10;&#9; M46.557,52.656c-1.685-1.684-1.684-4.415,0-6.099c1.684-1.685,4.415-1.685,6.099,0c1.684,1.684,1.684,4.415,0,6.099&#10;&#9;S48.241,54.34,46.557,52.656z M43.649,87.218c-6.046-0.958-10.171-6.636-9.214-12.681c0.958-6.046,6.635-10.17,12.681-9.212&#10;&#9;c6.046,0.958,10.171,6.634,9.213,12.68C55.372,84.051,49.695,88.175,43.649,87.218z M68.63,71.736&#10;&#9;c-5.452-2.778-7.621-9.451-4.842-14.904c2.778-5.454,9.451-7.621,14.904-4.843c5.454,2.779,7.623,9.452,4.843,14.905&#10;&#9;C80.756,72.346,74.083,74.514,68.63,71.736z" id="el_5Xx1kV1wPZ"/></g>
-<script>(function(){var a=document.querySelector('#el_PGolrxZa4'),b=a.querySelectorAll('style'),c=function(d){b.forEach(function(f){var g=f.textContent;g&amp;&amp;(f.textContent=g.replace(/transform-box:[^;\r\n]*/gi,'transform-box: '+d))})};c('initial'),window.requestAnimationFrame(function(){return c('fill-box')})})();</script></svg>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="el_PGolrxZa4" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+	 y="0px" width="500px" height="500px" viewBox="0 0 500 500" enable-background="new 0 0 500 500" xml:space="preserve">
+<path fill="#FFAB00" d="M280.963,158.87c31.581-16.094,44.138-54.734,28.049-86.314c-16.089-31.581-54.737-44.136-86.317-28.048
+	c-31.581,16.088-44.13,54.734-28.048,86.32C210.741,162.403,249.381,174.964,280.963,158.87z"/>
+<path fill="#FFAB00" d="M171.532,196.242c-6.158-34.907-39.438-58.212-74.342-52.059s-58.211,39.441-52.059,74.345
+	c6.152,34.904,39.44,58.205,74.348,52.06C154.379,264.429,177.689,231.15,171.532,196.242z"/>
+<path fill="#FFAB00" d="M175.276,311.818c-35.182-4.317-67.199,20.695-71.52,55.873c-4.321,35.179,20.699,67.199,55.876,71.521
+	c35.178,4.322,67.193-20.699,71.522-55.878C235.468,348.157,210.459,316.136,175.276,311.818z"/>
+<path fill="#FFAB00" d="M286.897,342.028c-14.415,32.383,0.144,70.313,32.521,84.73c32.379,14.418,70.315-0.146,84.732-32.523
+	c14.418-32.378-0.149-70.31-32.525-84.734C339.246,295.091,301.313,309.646,286.897,342.028z"/>
+<path fill="#FFAB00" d="M348.422,244.117c26.753,23.253,67.283,20.421,90.536-6.327c23.255-26.749,20.418-67.286-6.329-90.539
+	c-26.747-23.254-67.281-20.414-90.541,6.331C318.841,180.333,321.669,220.864,348.422,244.117z"/>
+<path fill="#FFAB00" d="M233.965,269.163c9.753,9.753,25.569,9.753,35.322,0c9.752-9.752,9.752-25.569,0-35.322
+	c-9.753-9.758-25.569-9.758-35.322,0C224.212,243.594,224.208,259.411,233.965,269.163z"/>
+<script>
+	(function(){var a=document.querySelector(&apos;#el_PGolrxZa4&apos;),b=a.querySelectorAll(&apos;style&apos;),c=function(d){b.forEach(function(f){var g=f.textContent;g&amp;&amp;(f.textContent=g.replace(/transform-box:[^;\r\n]*/gi,&apos;transform-box: &apos;+d))})};c(&apos;initial&apos;),window.requestAnimationFrame(function(){return c(&apos;fill-box&apos;)})})();
+	</script>
+</svg>

@@ -3,12 +3,13 @@
         <div class="loading" v-if="loading">
             <img src="@/assets/img/svg/loader.svg" alt="loading..." >
         </div>
+
         <!-- open full overview -->
-        <v-dialog v-model="dialog" width="600px" >
+        <v-dialog v-model="box.overview" width="600px" >
             <v-card class="overview_more">
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn icon flat @click.native="dialog = false">
+                    <v-btn icon flat @click.native="box.overview = false" >
                         <v-icon>close</v-icon>
                     </v-btn>
                 </v-card-actions>
@@ -44,102 +45,127 @@
                     </div>
                 </section>
             </div>
-        </main>
+        </main> 
 
+        <!-- actor's departments menu -->
+        <v-tabs color="white" v-model="currentTab" centered height="80px">
+            <v-tabs-slider color="black" ></v-tabs-slider>
+            <v-tab class="tab_menu_item" v-for="(item, index) in menu" :key="index" :href="`#${item}`">
+                {{item}}
+            </v-tab>
+        </v-tabs>
+        
+        <!-- section with actor movies or tv shows based on department -->
         <section v-if="is.acting" class="acting animated" id="acting">
-                <!-- acting list -->
-                <h1 class="acting_title">Acting</h1> 
-                <div v-if="!loading" class="acting_wrapper">
-                <v-tabs color="transparent" >
-                    <v-tabs-slider color="black" ></v-tabs-slider>
+            <div v-if="!loading" class="acting_wrapper">
+                
+                <v-tabs-items v-model="currentTab">
+                    <v-tab-item 
+                        :transition="false" 
+                        :reverse-transition="false" 
+                        class="tab_item" 
+                        v-for="(item, index) in menu" 
+                        :key="index" 
+                        :value="`${item}`"
+                    >
+                        <!-- box title -->
+                        <h1 class="list_heading">{{item}}</h1>
 
-                    <v-tab class="tab_menu_item" href="#movies" v-if="is.movies"  >
-                        Movies
-                    </v-tab>
-                    <v-tab class="tab_menu_item" href="#tvShows" v-if="is.shows">
-                        TV Shows
-                    </v-tab>
-                    <!-- movies list -->
-                    <v-tab-item class="tab_item" id="movies">
+                        <v-toolbar flat >
+                            <!-- filter all item, movies, tv shows -->
+                            <v-btn-toggle mandatory v-model="activeRender">
+                                <v-btn
+                                    v-for="(item, index) in submenu" :key="index"
+                                    flat                               
+                                    class="mr-2"
+                                    :value="item.type"
+                                >
+                                    {{item.name}} ({{itemCounter(item.name, itemsByType)}})
+                                </v-btn>
+                            </v-btn-toggle>
+
+                            <v-spacer></v-spacer>
+
+                            <!-- sorting menu -->
+                            <v-menu v-if="actor.roles.length">
+                                <v-btn
+                                    slot="activator"
+                                    flat
+                                    depressed
+                                >
+                                <v-icon>swap_vert</v-icon>
+                                    Sort by
+                                </v-btn>
+                                <!-- list of sort option -->
+                                <v-list class="white">
+                                <v-list-tile @click="sortBy(itemsByType, 'rate', reverse = !reverse)">
+                                        <v-list-tile-title>Rating</v-list-tile-title>
+                                    </v-list-tile>
+                                    <v-list-tile @click="sortBy(itemsByType, 'title', reverse = !reverse)">
+                                        <v-list-tile-title >Title</v-list-tile-title>
+                                    </v-list-tile>
+                                    <v-list-tile @click="sortBy(itemsByType, 'year', reverse = !reverse)">
+                                        <v-list-tile-title >Year</v-list-tile-title>
+                                    </v-list-tile>
+                                </v-list>
+                            </v-menu>
+                        </v-toolbar>
+
+                        <!-- list of movies and tv shows -->
                         <v-list three-line class="list">
-                            <template v-for="(film, index) in  actor.movieCredits">
+                            {{feedback(render, currentTab, activeRender)}}
+                            
+                            <transition-group name="animation" tag="div">
                                 <v-list-tile
-                                    :key="index"
+                                    v-for=" film in  render"
+                                    :key="film.id"
                                     ripple
-                                    :to="{ name: 'singleMovie', params: { id: film.id } }"
+                                    :to="{ name: setHref(film.media_type), params: { id: film.id } }"
                                     class="list_item"
                                 >
-                                    <!-- movie poster -->
+                                    <!-- item poster -->
                                     <v-list-tile-action>
                                         <img class="list_img" :src="film.poster_path" alt="">
                                     </v-list-tile-action>
-                                    <!-- date -->
+
+                                    <!-- item year -->
                                     <v-list-tile-action>
                                         <v-list-tile-action-text class="list_year">
                                             {{film.release_date}} 
                                         </v-list-tile-action-text>
                                     </v-list-tile-action>
-                                    <!-- movie title and role -->
+
+                                    <!-- item info -->
                                     <v-list-tile-content>
+                                        <!-- item title -->
                                         <v-list-tile-title class="list_name">
                                             {{film.title}}
                                         </v-list-tile-title>
+                                        <!-- item character -->
                                         <v-list-tile-sub-title class="list_role">
-                                            {{film.character}}
+                                            {{film.character}} {{film.episode_count}}
+                                        </v-list-tile-sub-title>
+                                        <!-- item job -->
+                                        <v-list-tile-sub-title class="list_role">
+                                            {{film.job}}
                                         </v-list-tile-sub-title>
                                     </v-list-tile-content>
-                                    <!-- rate -->
+                                    
+                                    <!-- item rating -->
                                     <v-list-tile-action>
                                         <v-list-tile-action-text class="list_rate">
                                             {{film.vote_average}}%                                   
                                         </v-list-tile-action-text>
                                     </v-list-tile-action>
-                                </v-list-tile>   
-                            </template>
+                                </v-list-tile>  
+                            </transition-group>   
                         </v-list>
+
                     </v-tab-item>
-                    <!-- shows list -->
-                    <v-tab-item class="tab_item" id="tvShows">
-                        <v-list three-line class="list">
-                            <template v-for="(film, index) in  actor.showCredits">
-                                <v-list-tile
-                                    :key="index"
-                                    ripple
-                                    :to="{ name: 'singleShow', params: { id: film.id } }"
-                                    class="list_item"
-                                >
-                                    <!-- tv show poster -->
-                                    <v-list-tile-action>
-                                        <img class="list_img" :src="film.poster_path" alt="">
-                                    </v-list-tile-action>
-                                    <!-- date -->
-                                    <v-list-tile-action>
-                                        <v-list-tile-action-text class="list_year">
-                                            {{film.first_air_date}} 
-                                        </v-list-tile-action-text>
-                                    </v-list-tile-action>
-                                    <!-- tv show title and role -->
-                                    <v-list-tile-content>
-                                        <v-list-tile-title class="list_name">
-                                            {{film.name}}
-                                        </v-list-tile-title>
-                                        <v-list-tile-sub-title class="list_role">
-                                            {{film.character}}, ({{film.episode_count}})
-                                        </v-list-tile-sub-title>
-                                    </v-list-tile-content>
-                                    <!-- rate-->
-                                    <v-list-tile-action>
-                                        <v-list-tile-action-text class="list_rate">
-                                            {{film.vote_average}}%
-                                        </v-list-tile-action-text>
-                                    </v-list-tile-action>
-                                </v-list-tile>
-                            </template>
-                        </v-list>
-                    </v-tab-item>
-                </v-tabs>
+                </v-tabs-items>
             </div>
         </section>
+
         <!-- alert messages -->
         <v-alert
             v-model="alert.active"
@@ -147,13 +173,18 @@
             :type="alert.type"
             class="alert"
             transition="fade-transition"
-            >
+        >
             {{alert.text}}
         </v-alert>
     </v-app>
     <app-footer></app-footer>
+
     <!-- go up button -->
-    <button @click="scrollToTop(300) " class="up" :class="{ up_active: show.backToTop }"> go to top</button>
+    <button 
+        @click="scrollToTop(300)" 
+        class="up" 
+        :class="{ up_active: show.backToTop }"
+    > go to top </button>
    
 </div></template>
 
@@ -163,10 +194,21 @@ import footer from '@/components/parts/footer.vue';
 // API database
 import axios from 'axios';
 // vuex -- store
-import { mapState, mapMutations } from 'vuex';
-
+import { mapState } from 'vuex';
+// mixins
+import { scroll } from '../../mixins/scroll'
+import { unique, setHref } from '../../mixins/global'
+import { actorFeedback } from '../../mixins/feedbacks'
+import { renderItems, filterItem, itemCounter, sortby, dynamicSort, createArrByType } from '../../mixins/sorting'
 
 export default {
+    mixins: [
+        scroll, 
+        setHref, unique, 
+        actorFeedback,
+        renderItems, filterItem, itemCounter, sortby, dynamicSort, createArrByType
+    ],
+
     components: {
         'app-footer': footer,
     },
@@ -175,16 +217,51 @@ export default {
         return {
 
             loading: false,
-            // overview
-            dialog: false,
+
+            // departments
+            menu: [],
+
+            // array of items by departments
+            itemsByType:[],
+
+            // current tab in menu
+            currentTab: "",
+
+            // filter menu
+            submenu: [
+                {type: "all", name: "all" },
+                {type: "movie", name: "movies"},
+                {type: "tv", name: "shows"},
+            ],
+
+            // current tab in submenu
+            activeRender: "all",
+            
+            // sort by
+            reverse: true,
+            sorting: {
+                text: "rating",
+            },
+
         }
     },
 
     created(){
         // render actor data
         this.getActorData()
-         // back to seasons button
+        // back to seasons button
         window.addEventListener("scroll", this.backToTopBtn)
+
+    },
+
+    watch: {
+        currentTab(val){
+            // show items based on department
+            this.createArrByType(val, this.actor.roles)
+            // set filter menu to "all"
+            this.activeRender =  "all"
+         
+        },
     },
 
     computed: {
@@ -198,52 +275,28 @@ export default {
             'user', 
             'alert',
             'show',
+            'box',
         ]),  
+
     },
 
     methods: {
+
         //go back
         goBack(){
             return window.history.back();
-        },
-        // sort movies and tv shows by year
-        dynamicSort(property) {
-            let sortOrder = 1;
-            if (property[0] === "-") {
-                sortOrder = -1;
-                property = property.substr(1);
-            }
-            return function (a,b) {
-                let result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
-                return result * sortOrder;
-            }
-        },
-
-        // scroll up and show overview
-        showViewOnTop(){
-            this.scrollToTop(300)
-            this.dialog = !this.dialog
-        },
-
-        // scroll to top
-        scrollToTop(time) {
-            this.$store.commit('scrollToTop', time)
-        },
-
-        // back to top button is appear
-        backToTopBtn() {
-            this.$store.commit('backToTopBtn')
         },
 
         // API
         // get actor data from API
         getActorData() {
             this.loading = true
-            this.actor.data = ""
+            this.actor.data = {}
 
-            axios.get(`${this.URL.database}person/${this.$route.params.id}${this.URL.apiKey}&append_to_response=movie_credits,tv_credits`)
+            axios.get(`${this.URL.database}person/${this.$route.params.id}${this.URL.apiKey}&append_to_response=combined_credits`)
             .then(res => {
                 const URL = "https://image.tmdb.org/t/p/w500"
+
                 //** ACTOR DATA **//
                 //***************//
                 this.actor.data = res.data
@@ -260,7 +313,7 @@ export default {
                     // copy profile path to profile path face
                     this.actor.data.profile_path_face = res.data.profile_path.slice()
                     // create full url of actor poster (desktop picture)
-                    this.actor.data.profile_path = this.URL.actor + this.actor.data.profile_path
+                    this.actor.data.profile_path = this.URL.poster + this.actor.data.profile_path
                     // create actor picture for mobile device (square picture)
                     this.actor.data.profile_path_face = this.URL.face + this.actor.data.profile_path_face
                     // if profile path dont exist replace image holder
@@ -268,114 +321,84 @@ export default {
                     this.actor.data.profile_path = this.holder.detail
                     this.actor.data.profile_path_face = this.holder.person
                 }
-                //** MOVIES CREDITS **//
-                //*******************//
-                // COPY data from database to actor.movieCredits 
-                if (this.actor.movieCredits ) {
-                    this.actor.movieCredits = res.data.movie_credits.cast.slice()
-                }
-               
-                // show movies section if exist
-                if (this.actor.movieCredits.length > 0) {
-                    this.is.movies = true
-                    // sort list of shows by date
-                    this.actor.movieCredits = this.actor.movieCredits.sort(this.dynamicSort("-release_date"))
-                    this.actor.movieCredits.forEach((date)=>{
-                        if (date.release_date) {
-                            date.release_date = date.release_date.slice(0,4)
-                        }
-                        // if somethig missing replace with ????
-                        if (date.release_date == "") {
-                            date.release_date = "????"
-                        } 
-                        if (date.character == "") {
-                            date.character = "????"
-                        } 
-                        if (date.title == "") {
-                            date.title = "????"
-                        } 
-                    })
 
-                    // if is no poster image replace with holder
-                    this.actor.movieCredits.forEach((poster)=>{
-                        if (poster.poster_path) {
-                            poster.poster_path = URL + poster.poster_path
-                        } else if (poster.poster_path == null) {
-                            poster.poster_path = this.holder.photo
-                        }
-                    })
+                // set item in department menu to actor known department
+                this.currentTab = this.actor.data.known_for_department
+            
+                //** MOVIES AND TV SHOWS CREDITS **//
+                //********************************//
+                // COPY data from database to local arrays
+                this.actor.cast = res.data.combined_credits.cast.slice()
+                this.actor.crew = res.data.combined_credits.crew.slice()
 
-                    // rate number formating to one decimal
-                    this.actor.movieCredits.forEach((rate)=>{
-                        rate.vote_average =  rate.vote_average * 10
-                    })
+                // add department to movie in cast
+                this.actor.cast.forEach(item=>{
+                    item.department = "Acting"
+                })
 
-                } else if (this.actor.movieCredits.length <= 0) {
-                    this.is.movies = false
-                }
-
-                //** TV SHOWS CREDITS **//
-                //*********************//
-                this.actor.showCredits = res.data.tv_credits.cast
-        
-                // show tv shows section if exist
-                if (this.actor.showCredits.length > 0) {
-                    this.is.shows = true
-                    // sort list of shows by date
-                    this.actor.showCredits = this.actor.showCredits.sort(this.dynamicSort("-first_air_date"))
-                    this.actor.showCredits.forEach((date)=>{
-                        if (date.first_air_date) {
-                            date.first_air_date = date.first_air_date.slice(0,4)
-                        }
-                        // if somethig missing replace with ????
-                        if (date.first_air_date == "") {
-                            date.first_air_date = "????"
-                        } 
-                        if (date.character == "") {
-                            date.character = "????"
-                        } 
-                        if (date.title == "") {
-                            date.title = "????"
-                        } 
-
-                    })
-
-                    // if is no poster image replace with holder
-                    this.actor.showCredits.forEach((poster)=>{
-                        if (poster.poster_path) {
-                            poster.poster_path = URL + poster.poster_path
-                        } else if (poster.poster_path == null) {
-                            poster.poster_path = this.holder.photo
-                        }
-                    })
-
-                    // rate number formating to one decimal
-                    this.actor.showCredits.forEach((rate)=>{
-                        rate.vote_average =  rate.vote_average * 10
-                    })
-
-                } else if (this.actor.showCredits.length <= 0) {
-                    this.is.shows = false
-                }
+                // merge cast array and crew array together
+                this.actor.roles = this.actor.cast.concat(this.actor.crew)
                 
-                // add plural of episode if is more then 1
-                this.actor.showCredits.forEach((ep)=>{
-                    if (ep.episode_count > 1) {
-                        ep.episode_count = ep.episode_count + " episodes"
-                    } else if (ep.episode_count == 1) {
-                        ep.episode_count = ep.episode_count + " episode"
+                this.actor.roles.forEach(item=>{
+                    // rename item (because in database is diferent keys for tv and movie)
+                    if(item.media_type == "tv") {
+                        item.title = item.name
+                        item.release_date = item.first_air_date
+                    }
+                    // episode counter    
+                    if (item.episode_count > 1) {
+                        item.episode_count = `(${ item.episode_count} episodes)` 
+                    } else if (item.episode_count == 1) {
+                        item.episode_count = `(${ item.episode_count} episode)` 
                     }
                 })
 
-                // show acting section if exist
-                if (this.actor.showCredits.length > 0){
-                    this.is.acting = true
-                } else if (this.actor.showCredits.length <= 0) {
-                    this.is.acting = false
-                }
+                // create departments menu
+                let departments = []
+                this.actor.roles.forEach(department => {
+                    departments.push(department.department)
+                })
+
+                // remove same department
+                this.menu = [...new Set(departments)]
+                
+                // sort list by date
+                this.actor.roles = this.actor.roles.sort(this.dynamicSort("-release_date"))
+
+                this.actor.roles.forEach((movie)=>{
+                    // get only year form release date
+                    if (movie.release_date) {
+                        movie.release_date = movie.release_date.slice(0,4)
+                    }
+                    // if somethig missing replace with ????
+                    if (movie.release_date == "") {
+                        movie.release_date = "????"
+                    } 
+                    if (movie.character == "") {
+                        movie.character = "????"
+                    } 
+                    if (movie.title == "") {
+                        movie.title = "????"
+                    } 
+                })
+
+                // if is no poster image replace with holder
+                this.actor.roles.forEach((poster)=>{
+                    if (poster.poster_path) {
+                        poster.poster_path = URL + poster.poster_path
+                    } else if (poster.poster_path == null) {
+                        poster.poster_path = this.holder.photo
+                    }
+                })
+
+                // rate number formating to one decimal
+                this.actor.roles.forEach((rate)=>{
+                    rate.vote_average =  rate.vote_average * 10
+                })
 
             }).then(()=> { 
                 this.loading = false
+          
             })  
         },
     },
@@ -388,4 +411,20 @@ export default {
     @import '../../assets/scss/parts/_general';
     @import '../../assets/scss/parts/_itemList';
     @import '../../assets/scss/pages/_actor';
+
+    // animation in list items
+    .list_item {
+        transition: all .6s;
+        height: 100px;
+    }
+
+    .animation-enter, .animation-leave-to {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .animation-leave-active {
+        position: absolute;
+    }
+
 </style>

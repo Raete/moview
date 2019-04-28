@@ -110,7 +110,15 @@
                         <div class="item_rate"> {{film.vote_average}}% </div>
                         <!-- bookmark -->
                         <v-tooltip class="item_delete" left color="primary">
-                            <v-btn v-model="mark" slot="activator" small fab depressed icon @click="toggleBookmark(film.id, film)">
+                            <v-btn v-model="mark" slot="activator" small fab depressed icon 
+                                @click="toggleBookmark(
+                                    film.id, 
+                                    film, 
+                                    user.shows.mark, 
+                                    'show', 
+                                    'singleShow'
+                                )"
+                            >
                                 <v-icon size="25px">{{styleIcon(film.id, user.shows.mark, 'bookmark_border', 'bookmark')}}</v-icon>
                             </v-btn>  
                             <span>Bookmark</span>
@@ -177,7 +185,15 @@
                         <div class="item_rate"> {{film.vote_average}}% </div>
                         <!-- bookmark -->
                         <v-tooltip class="item_delete" left color="primary">
-                            <v-btn v-model="mark" slot="activator" small fab depressed icon @click="toggleBookmark(film.id, film)">
+                            <v-btn v-model="mark" slot="activator" small fab depressed icon 
+                                @click="toggleBookmark(
+                                    film.id, 
+                                    film, 
+                                    user.shows.mark, 
+                                    'tv', 
+                                    'singleShow'
+                                )"
+                            >
                                 <v-icon size="25px">{{styleIcon(film.id, user.shows.mark, 'bookmark_border', 'bookmark')}}</v-icon>
                             </v-btn>  
                             <span>Bookmark</span>
@@ -220,6 +236,12 @@
     </v-app>
 
     <app-footer></app-footer>
+    <!-- go up button -->
+    <button 
+        @click="scrollToTop(300)" 
+        class="up" 
+        :class="{ up_active: show.backToTop }"
+    > go to top </button>
 
 </div></template>
 
@@ -235,7 +257,22 @@ import firebase from 'firebase/app'
 // vuex -- store
 import { mapState } from 'vuex';
 
+import { global, initInList } from '../mixins/global'
+import { search }from '../mixins/search'
+import { buttonsInList}from '../mixins/buttons'
+import { icons } from '../mixins/styles'
+import { scroll }from '../mixins/scroll' 
+import { pagination } from '../mixins/pagination'
+
 export default {
+    mixins: [
+        search, 
+        global, initInList, 
+        buttonsInList, 
+        icons, 
+        scroll, 
+        pagination
+    ],
     components: {
         'app-menu': menu,
         'app-footer': footer,
@@ -251,14 +288,13 @@ export default {
 
             searchInput: {
                 search: "",
-                loading: false,
                 items: [],
                 select: null,
                 names: [],
             },
             // bookmark movies
             mark: "",
-            showData: {},
+  
         }
     },
 
@@ -270,7 +306,7 @@ export default {
         // creating list of years in select input
         this.getYearsList()
         // creating list of genres in select input
-        this.getGenresList()
+        this.getGenresList("tv")
         // get data from firebase
         this.getFirebaseData()
 
@@ -279,7 +315,7 @@ export default {
     watch: {
         // watching changes in search input
         search(val) {
-            val && val !== this.searchInput.select && this.titleList(val)
+            val && val !== this.searchInput.select && this.titleList(val, "tv")
         },
         // watching changes in genres input
         selectGenres(val) {
@@ -305,89 +341,11 @@ export default {
             'alert',
             'btn',
             'user',
+            'show',
         ]),
     },
 
     methods: {
-        // for start 
-        init(){
-            this.page.cur = 1
-            this.page.curSearch = 1
-            !this.searchInput.select 
-            this.items.discover = ""
-            this.items.search = ""
-            this.items.genres = []
-        },
-
-        //paginations prev button
-        prev(){
-            if (this.searchInput.select) {
-                this.page.curSearch--
-                this.searchItems()
-            } else {
-                this.page.cur--
-                this.discoverItems()
-            }
-            this.scrollToTop(300)
-        },
-
-        //paginations next button
-        next(){
-            if (this.searchInput.select) {
-                this.page.curSearch++
-                this.searchItems()
-            } else {
-                this.page.cur++
-                this.discoverItems()
-            }
-            this.scrollToTop(300)
-        },
-
-        // scroll to top
-        scrollToTop(time) {
-            this.$store.commit('scrollToTop', time)
-        },
-
-        // decide if item is in array
-        isItem(id, arr){
-            return arr.findIndex(el => el.iId == id) !== -1
-        },
-
-        // creating list of movie titles in autocomplete input 
-        titleList(searchTerm) {
-            this.searchInput.loading = true
-            axios.get(`${this.URL.database}search/tv${this.URL.apiKey}&query=${searchTerm}`)
-            .then(res => {
-                let titles = res.data.results
-                titles.forEach((movie)=> {
-                    this.searchInput.names.push(movie.name)
-                })
-                this.searchInput.items = this.searchInput.names.filter(e => {
-                    return (e || '').toLowerCase().indexOf((searchTerm || '').toLowerCase()) > -1
-                })
-                this.searchInput.loading = false
-            }) 
-        },
-
-        // create list of years 
-        getYearsList() {
-            this.$store.commit('getYearsList')
-        },
-
-        // creating list of genres 
-        getGenresList(searchTerm) {
-            this.items.genres = []
-            axios.get(`${this.URL.database}genre/tv/list${this.URL.apiKey}`)
-            .then(res => {
-               // genres data
-               let genres = res.data.genres
-                // push data to array
-                genres.forEach((genre)=> {
-                    this.items.genres.push(genre) 
-                })
-               
-            }) 
-        },
 
         // ** FIREBASE DATA ** //
         // get data from firebase
@@ -447,101 +405,6 @@ export default {
             } 
         },
 
-        // BOOKMARK BUTTON
-        // add tv show to watchlist and send to firebase
-        addMarkedItem(id, obj){
-
-            this.showData = obj
-            db.collection('watchlist').add({
-                id:     "",
-                iId:    this.showData.id,
-                title:  this.showData.original_name,
-                genres: this.showData.genre_ids,
-                poster: this.showData.poster_path,
-                rate:   this.showData.vote_average,
-                year:   this.showData.first_air_date,
-                user:   this.user.id,
-                type:   "show",
-                href:   "singleShow"
-
-            }).then(() => {
-                // alert type and settings
-                this.alert.type = "success"
-                this.infoAlert("Successfully added to watchlist")
-                
-            })
-            .catch(err => {
-                console.log(err)
-            })
-        },
-
-        // delete tv show from firebase
-        deleteMarkedItem(id){
-            // *iId (item id) is id of tv show from API and id is id of item in firebase
-            db.collection('watchlist').where('user', '==', this.user.id).where('iId', '==', id).get()
-            .then(snapshot => {
-                // id of item in firebase
-                let snapshotID = snapshot.docs[0].id
-                // delete item from firebase
-                db.collection('watchlist').doc(snapshotID).delete().then(()=> {
-                    // delete from local array
-                    this.user.shows.mark = this.user.shows.mark.filter(item =>{
-                        return item.id != snapshotID
-                    }) 
-                }) 
-            }) 
-            // alert type and settings
-            this.alert.type = "success"
-            this.infoAlert("Successfully removed from watchlist.")   
-        },
-
-        // alert messages
-        infoAlert(alertText){
-            this.$store.commit('infoAlert', alertText)
-        },
-
-        // add or remove bookmark
-        toggleBookmark(id, obj){
-          
-           // if user is login then:
-            if(firebase.auth().currentUser){
-                // if show is marked then:
-                if (this.isItem(id, this.user.shows.mark)) {
-                    // delete show form watchlist
-                    this.deleteMarkedItem(id)
-               
-                // if show is marked then:
-                } else if (!this.isItem(id, this.user.shows.mark)) {
-                    // add show to watchlist 
-                    this.addMarkedItem(id, obj)
-                }
-            // if user is not login then:
-            } else {
-                // show alert 
-                this.alert.type = "error"
-                this.infoAlert("You must log in.")
-            }
-
-        },
-
-        // stylize button 
-        // id = film.id, arr = film array, before = icon name, after = icon name
-        styleIcon(id, arr, before, after){
-            // if user is login then:
-            if(firebase.auth().currentUser){
-                // if movie is seen then:    
-                if (this.isItem(id, arr)) {
-                    // slyle icon
-                    return after
-                    // if not:
-                } else if (!this.isItem(id, arr)) {
-                    // style icon
-                    return before
-                }
-            // if user is not login style icon
-            } else return before
-        },
-
         // ** API DATABASE (tmdb) ** //
         // API DATABASE -- search/tv
         searchItems() {
@@ -557,6 +420,12 @@ export default {
                 this.totalPages.search = res.data.total_pages
                 // get data results
                 this.items.search = res.data.results
+                // rename item name to title 
+                this.items.search.forEach((item)=>{
+                    if(item.name) {
+                        item.title = item.name
+                    }
+                })
                 // creating complete img path 
                 this.items.search.forEach((poster)=>{
                     if (poster.poster_path) {
@@ -570,9 +439,14 @@ export default {
                 this.items.search.forEach((year)=>{
                     if(year.first_air_date) {
                         year.first_air_date = year.first_air_date.slice(0,4)
+                        // rename item first air date to release date
+                        year.release_date = year.first_air_date
                     } else {
                         year.first_air_date = "????"
+                        // rename item first air date to release date
+                        year.release_date = year.first_air_date
                     }
+                   
                 })
                 // rate number formating to one decimal
                 this.items.search.forEach((rate)=>{
@@ -605,6 +479,14 @@ export default {
              
                 // get total pages of discover items
                 this.totalPages.discover = res.data.total_pages   
+                // rename item name to title 
+                this.items.discover.forEach((item)=>{
+                    if(item.name) {
+                        item.title = item.name
+                    }
+                })
+
+
                 // creating complete img path 
                 this.items.discover.forEach((poster)=>{
                     if (poster.poster_path) {
@@ -615,12 +497,18 @@ export default {
                     }
                 })
                 // get just year from release date
+
                 this.items.discover.forEach((year)=>{
                     if(year.first_air_date) {
                         year.first_air_date = year.first_air_date.slice(0,4)
+                        // rename item first air date to release date
+                        year.release_date = year.first_air_date
                     } else {
                         year.first_air_date = "????"
+                        // rename item first air date to release date
+                        year.release_date = year.first_air_date
                     }
+                   
                 })
                 // rate number formating to one decimal
                 this.items.discover.forEach((rate)=>{
