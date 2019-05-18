@@ -131,7 +131,7 @@
                                     
                                     <router-link class="item_title_box" :to="{ name: film.href, params: { id: film.iId } }">  
                                         <h1 class="item_name"> {{film.title}} </h1>
-                                        <span class="item_year"> {{film.year}} </span>
+                                        <span class="item_year"> {{film.release_date}} </span>
                                     </router-link>
                                 </div>
                             </div>
