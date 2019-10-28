@@ -18,7 +18,7 @@ const router = new Router({
    // mode: 'history',
     routes: [
         {
-            path: '/login',
+            path: '/admin',
             name: 'login',
             component: Login
         },

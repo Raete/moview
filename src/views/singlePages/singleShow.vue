@@ -113,7 +113,7 @@
                     </v-btn>
                     
                     <!-- profile button -->
-                    <v-btn v-if="user" class=" btn_animated_right font-weight-bold" color="primary" flat round  :to="{ name: 'profile' }" exact>
+                    <v-btn v-if="login" class=" btn_animated_right font-weight-bold" color="primary" flat round  :to="{ name: 'profile' }" exact>
                         Profile
                         <v-icon color="primary"> keyboard_arrow_right </v-icon>
                     </v-btn>
@@ -571,6 +571,8 @@ export default {
             menuItem: 0,
             trailers: [],
             directors: [],
+
+            login: false
         }
     },
 
@@ -622,6 +624,7 @@ export default {
         getFirebaseData(){
             // get current user from firebase if user is login
             if(firebase.auth().currentUser) {
+                this.login = true
                 db.collection('users').where('user_id', '==', firebase.auth().currentUser.uid).get()
                 .then(snapshot => {
                     snapshot.forEach(doc => {
@@ -716,6 +719,8 @@ export default {
                         })
                     })
                 })
+            } else {
+                this.login = false
             }
         },
 

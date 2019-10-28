@@ -5,8 +5,13 @@ import router from './router';
 import store from './store';
 import Vuetify from 'vuetify'
 import firebase from 'firebase/app'
+import VueAnalytics from 'vue-analytics'
 
 Vue.config.productionTip = false;
+
+Vue.use(VueAnalytics, {
+    id: 'UA-122724615-1'
+  })
 
 Vue.use(Vuetify, {
     theme: {
