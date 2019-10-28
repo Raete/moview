@@ -83,11 +83,15 @@
                         </v-form>
                         <!-- google login -->  
                         <section class="claim_wrapper">
-                            <a class="google_btn" @click.prevent="googleLog" exact> 
+                            <!-- <a class="google_btn" @click.prevent="googleLog" exact> 
                                 <img class="google_btn_icon" src="@/assets/img/svg/google.svg" alt=""> 
                                 <span class="google_btn_text"> log in with google</span>   
-                            </a>
-                        </section>     
+                            </a> -->
+                            <a :href="routeData"  class="web">auth</a>
+                            
+                           
+                        </section>    
+                        
                     </div><!-- END sing up form-->  
                 </transition>
                     
@@ -111,6 +115,11 @@ import firebase from 'firebase/app'
 // slug from username
 import slugify from 'slugify'
 
+// API database
+import axios from 'axios';
+// vuex -- store
+import { mapState } from 'vuex';
+
 
 export default {
     name: 'Login',
@@ -129,10 +138,29 @@ export default {
             email: null,
             password: null,
             slug: null,
+            routeData: ""
+
         }
     },
 
+    computed: {
+        //get data from store (vuex)
+        ...mapState([
+            'URL',
+            'holder',
+            'items',
+            'page',
+            'totalPages',
+            'is',
+            'alert',
+            'btn',
+            'user',
+            'show',
+        ]),
+    },
+
     methods: {
+
         init(){
             this.alias = "",
             this.password = "",
